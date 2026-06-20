@@ -93,7 +93,8 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 
 /* INPUT 40% */
 .input-area{flex:4;background:#fff;border-top:2px solid var(--ui-border);padding:4px 0 6px;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-.kb-scroll{flex:1;overflow-x:auto;overflow-y:auto;display:flex;align-items:stretch;}
+.kb-scroll{flex:1;overflow-x:auto;overflow-y:hidden;display:flex;align-items:stretch;scrollbar-width:none;-ms-overflow-style:none;}
+.kb-scroll::-webkit-scrollbar{display:none;}
 .pwrap{position:relative;margin:0 auto;height:100%;min-height:90px;}
 .wk{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,#f8f6f0,#fff 45%,#f0ede5);border:1px solid #b8b4a8;border-radius:0 0 5px 5px;cursor:pointer;z-index:1;}
 .wk:active{filter:brightness(.78);}
@@ -436,13 +437,39 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 
 <!-- ════ RESULT ════ -->
 <div id="scr-result" class="screen cscreen">
-  <div class="ccard">
+  <div class="ccard" style="max-width:480px;">
     <div class="ric" id="r-ic">🏆</div>
     <div class="rtt" id="r-tt">时间到！</div>
     <div class="stars-big" id="r-st">★★★</div>
-    <div class="rgrid" id="r-grid"></div>
+
+    <!-- 单人模式 stats -->
+    <div id="r-solo">
+      <div class="rgrid" id="r-grid"></div>
+    </div>
+
+    <!-- 联机对战 比较 -->
+    <div id="r-online" style="display:none;">
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;background:rgba(26,111,181,.08);border:2px solid var(--blue);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px;" id="ro-me-name">我</div>
+          <div style="font-size:28px;font-weight:700;font-family:Georgia;" id="ro-me-score">0</div>
+          <div style="font-size:10px;color:#8a7a60;">分数</div>
+          <div style="margin-top:8px;font-size:13px;" id="ro-me-stats"></div>
+        </div>
+        <div style="display:flex;align-items:center;font-family:Georgia;font-weight:700;color:#888;font-size:18px;">VS</div>
+        <div style="flex:1;background:rgba(192,57,43,.08);border:2px solid var(--red);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px;" id="ro-opp-name">对手</div>
+          <div style="font-size:28px;font-weight:700;font-family:Georgia;" id="ro-opp-score">0</div>
+          <div style="font-size:10px;color:#8a7a60;">分数</div>
+          <div style="margin-top:8px;font-size:13px;" id="ro-opp-stats"></div>
+        </div>
+      </div>
+      <div class="rgrid" id="r-grid-online"></div>
+    </div>
+
     <div class="racts">
-      <button class="mbtn mb-ghost" onclick="retryGame()">重试</button>
+      <button class="mbtn mb-red" id="btn-rematch" onclick="retryGame()" style="display:none;">🔄 再来一局</button>
+      <button class="mbtn mb-ghost" onclick="retryGame()" id="btn-retry">重试</button>
       <button class="mbtn mb-dark" id="btn-next" onclick="nextLevel()">下一关 →</button>
       <button class="mbtn mb-ghost" onclick="show('scr-menu')">主菜单</button>
     </div>
@@ -484,7 +511,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 // ═══════════════════════════════════════════════════════════
 // NOTE DATA — slot system (slot 0 = bottom staff line)
 // Treble bottom line = E4 ; Bass bottom line = G2
@@ -1462,6 +1489,10 @@ function endGame(){
   const st = !cleared ? 0 : gs.lives>=3?3:gs.lives>=2?2:1;
   if(cleared){const p=lp();if(!p[curLv]||st>p[curLv].stars)p[curLv]={stars:st,score:gs.score};sp(p);}
   show('scr-result');
+  document.getElementById('r-solo').style.display='';
+  document.getElementById('r-online').style.display='none';
+  document.getElementById('btn-retry').style.display='';
+  document.getElementById('btn-rematch').style.display='none';
   document.getElementById('r-ic').textContent=cleared?(st===3?'🏆':'🎹'):'💔';
   document.getElementById('r-tt').textContent=cleared?(st===3?'完美通关！':'过关！'):'失败 — 生命耗尽';
   document.getElementById('r-st').textContent='★'.repeat(st)+'☆'.repeat(3-st);
@@ -2465,7 +2496,7 @@ function resolveSong(refStr){
 }
 
 async function createRoom(){
-  if(!window.FB){toast('服务器未连接');return;}
+  if(!window.FB){toast('服务器未连接，请刷新重试');return;}
   isHost=true;roomCode=genCode();
   const {db,ref,set,onDisconnect}=window.FB;
   roomRef=ref(db,'rooms/'+roomCode);
@@ -2473,9 +2504,14 @@ async function createRoom(){
     host:myId,vsMode:'speed',level:3,minutes:3,goal:16,song:'builtin:ode',state:'waiting',seed:Date.now(),
     players:{[myId]:{name:getPlayerName(),ready:false,progress:0,bars:0,hp:100,score:0,alive:true,atk:0}}
   };
-  await set(roomRef,initData);
-  onDisconnect(ref(db,'rooms/'+roomCode+'/players/'+myId)).remove();
-  enterRoom();
+  try{
+    await set(roomRef,initData);
+    onDisconnect(ref(db,'rooms/'+roomCode+'/players/'+myId)).remove();
+    enterRoom();
+  }catch(e){
+    toast('创建失败：'+e.message);
+    console.error('createRoom error',e);
+  }
 }
 async function joinRoom(){
   if(!window.FB){toast('服务器未连接');return;}
@@ -2709,35 +2745,60 @@ function onlineWin(){if(onlineEnded)return;onlineEnded=true;finishOnline(true);}
 function onlineLose(){if(onlineEnded)return;onlineEnded=true;finishOnline(false);}
 function endOnlineGame(){ // time ran out OR my hp hit 0
   if(onlineEnded)return;
-  // decide by current standings; need opponent snapshot
-  if(!window.FB||!roomCode||!opponentId){onlineEnded=true;finishOnline(null);return;}
+  if(!window.FB||!roomCode||!opponentId){onlineEnded=true;finishOnline(null,null);return;}
   const {db,ref,get}=window.FB;
   get(ref(db,'rooms/'+roomCode+'/players/'+opponentId)).then(s=>{
     if(onlineEnded)return;onlineEnded=true;
-    const opp=s.exists()?s.val():{hp:100,bars:0};
+    const opp=s.exists()?s.val():{hp:100,bars:0,score:0,notesOK:0,notesWrong:0,name:'对手'};
     let win;
     if(onlineVsMode==='hp'){ win = gs.hp>(opp.hp||0) ? true : gs.hp<(opp.hp||0) ? false : null; }
     else { win = gs.barsDone>(opp.bars||0) ? true : gs.barsDone<(opp.bars||0) ? false : null; }
-    finishOnline(win);
-  }).catch(()=>{onlineEnded=true;finishOnline(null);});
+    finishOnline(win, opp);
+  }).catch(()=>{onlineEnded=true;finishOnline(null,null);});
 }
-function finishOnline(won){
+function finishOnline(won, oppData){
   gs.active=false;clearInterval(timerIv);clearInterval(strikeTimer);
   document.getElementById('strike-ov').classList.remove('show');
   show('scr-result');
+
+  // icons & title
   document.getElementById('r-ic').textContent=won?'🏆':won===false?'😢':'🤝';
   document.getElementById('r-tt').textContent=won?'胜利！':won===false?'惜败':'平局';
   document.getElementById('r-st').textContent=won?'★★★':won===false?'☆☆☆':'★★☆';
+
+  // show online panel, hide solo panel
+  document.getElementById('r-solo').style.display='none';
+  document.getElementById('r-online').style.display='';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('btn-retry').style.display='none';
+  document.getElementById('btn-rematch').style.display='block';
+
+  // my stats
   const tot=gs.notesOK+gs.notesWrong;
   const acc=tot?Math.round(gs.notesOK/tot*100):100;
-  document.getElementById('r-grid').innerHTML=`
-   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">分数</div></div>
-   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">完成小节</div></div>
-   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?('❤'+gs.hp):(gs.barsDone+'/'+SPEED_GOAL)}</div><div class="rsl">${onlineVsMode==='hp'?'剩余血量':'进度'}</div></div>
-   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>
-   <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">答对音符</div></div>
-   <div class="rs"><div class="rsv">${gs.notesWrong}</div><div class="rsl">弹错次数</div></div>`;
-  document.getElementById('btn-next').style.display='none';
+  const myName=getPlayerName()||'我';
+  document.getElementById('ro-me-name').textContent=myName;
+  document.getElementById('ro-me-score').textContent=gs.score;
+  document.getElementById('ro-me-stats').innerHTML=
+    `✅ ${gs.notesOK} 答对<br>❌ ${gs.notesWrong} 弹错<br>🎯 ${acc}% 正确率`;
+
+  // opponent stats
+  const opp=oppData||{score:0,bars:0,hp:100};
+  const oppTot=(opp.notesOK||0)+(opp.notesWrong||0);
+  const oppAcc=oppTot?Math.round((opp.notesOK||0)/oppTot*100):100;
+  const oppName=opp.name||'对手';
+  document.getElementById('ro-opp-name').textContent=oppName;
+  document.getElementById('ro-opp-score').textContent=opp.score||0;
+  document.getElementById('ro-opp-stats').innerHTML=
+    `✅ ${opp.notesOK||0} 答对<br>❌ ${opp.notesWrong||0} 弹错<br>🎯 ${oppAcc}% 正确率`;
+
+  // bottom stats
+  document.getElementById('r-grid-online').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">我的小节</div></div>
+   <div class="rs"><div class="rsv">${opp.bars||0}</div><div class="rsl">对手小节</div></div>
+   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+gs.hp:acc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?'剩余血量':'我的正确率'}</div></div>
+   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+(opp.hp||0):oppAcc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?'对手血量':'对手正确率'}</div></div>`;
+
   pushOnlineProgress();
 }
 function leaveRoom(){leaveRoomQuiet();show('scr-menu');}
