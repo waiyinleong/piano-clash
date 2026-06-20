@@ -201,6 +201,7 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
       <button class="on" onclick="setIM('piano',this)">🎹 钢琴键盘</button>
       <button onclick="setIM('solfege',this)">🎵 Do Re Mi</button>
     </div>
+    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-tutorial')">🎓 新手教程 Tutorial</button>
     <button class="mbtn mb-dark" onclick="showLevels()">📚 关卡模式</button>
     <button class="mbtn mb-green" onclick="startPractice()">✏️ 练习模式（自由编谱）</button>
     <button class="mbtn mb-blue" onclick="showSongs()">🎵 流行曲模式</button>
@@ -208,6 +209,26 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
     <div class="mini-link" onclick="show('scr-keybind')">⌨️ 键盘设定</div>
     <div class="mini-link" onclick="show('scr-midi')">🎹 连接电钢 / MIDI</div>
     <div style="font-size:10px;color:#c0b8a0;margin-top:14px;" id="ver-label"></div>
+  </div>
+</div>
+
+<!-- ════ TUTORIAL ════ -->
+<div id="scr-tutorial" class="screen cscreen">
+  <div class="ccard" style="max-width:520px;display:flex;flex-direction:column;height:min(620px,92vh);overflow:hidden;">
+    <div class="cttl" style="flex-shrink:0;">🎓 新手教程</div>
+
+    <!-- step tabs -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;flex-shrink:0;" id="tut-tabs"></div>
+
+    <!-- step panels (scrollable) -->
+    <div id="tut-body" style="flex:1;overflow-y:auto;min-height:0;padding-right:4px;"></div>
+
+    <!-- nav buttons always visible -->
+    <div style="display:flex;gap:8px;margin-top:14px;flex-shrink:0;">
+      <button class="mbtn mb-ghost" style="flex:1;margin:0;" id="tut-prev" onclick="tutNav(-1)">← 上一步</button>
+      <button class="mbtn mb-dark"  style="flex:1;margin:0;" id="tut-next" onclick="tutNav(1)">下一步 →</button>
+    </div>
+    <button class="mbtn mb-ghost" style="margin-top:8px;flex-shrink:0;" onclick="show('scr-menu')">← 返回主菜单</button>
   </div>
 </div>
 
@@ -463,7 +484,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.2.0';
 // ═══════════════════════════════════════════════════════════
 // NOTE DATA — slot system (slot 0 = bottom staff line)
 // Treble bottom line = E4 ; Bass bottom line = G2
@@ -546,6 +567,29 @@ const LEVELS=[
  {id:10,page:22,hand:'R',pool:['C4','C#4','D4','Eb4','E4','F4','F#4','G4','Ab4','A4','Bb4','B4'],name:'还原号 Natural ♮',pats44:[['q','q','q','q'],['h','q','q'],['h','h']],pats34:[['q','q','q']],sharps:true,flats:true},
  {id:11,page:23,hand:'M',pool:['G4','A4','B4','C5','D5','F#4','G3','A3','B3','C4','D4','F#3'],name:'G大调 Key of G',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'G'},
  {id:12,page:26,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'八分音符 Eighth Notes',pats44:[['q','e','e','q','q'],['e','e','e','e','h'],['q','q','e','e','q']],pats34:[['q','e','e','q'],['e','e','e','e','q']]},
+ // ── Grade 1 延伸 ──
+ {id:13,hand:'M',pool:['C4','E4','G4','C3','E3','G3'],name:'双手入门 Hands Intro',pats44:[['h','h'],['q','q','h'],['q','q','q','q']],pats34:[['h','q'],['q','q','q']]},
+ {id:14,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'附点节奏 Dotted Rhythms',pats44:[['hd','q'],['q','e','e','h'],['hd','q']],pats34:[['hd'],['q','e','e']]},
+ {id:15,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'休止符进阶 Advanced Rests',pats44:[['q','q','h'],['h','q','q'],['e','e','q','h']],pats34:[['q','q','q'],['h','q']],rests:true},
+ {id:16,hand:'M',pool:['C4','D4','E4','F4','G4','C3','D3','E3','F3','G3'],name:'C大调双手 C Major Hands',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']]},
+ // ── Grade 2 ──
+ {id:17,hand:'R',pool:['G4','A4','B4','C5','D5','E5','F#4','G5'],name:'G大调音阶 G Major Scale',pats44:[['q','q','q','q'],['h','q','q'],['q','q','e','e','q']],pats34:[['q','q','q'],['hd']],keysig:'G'},
+ {id:18,hand:'L',pool:['G2','A2','B2','C3','D3','E3','F#3','G3'],name:'G大调左手 G Major Left',pats44:[['q','q','q','q'],['h','h'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'G'},
+ {id:19,hand:'R',pool:['F4','G4','A4','Bb4','C5','D5','E5','F5'],name:'F大调音阶 F Major Scale',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'F'},
+ {id:20,hand:'L',pool:['F2','G2','A2','Bb2','C3','D3','E3','F3'],name:'F大调左手 F Major Left',pats44:[['q','q','q','q'],['h','h'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'F'},
+ {id:21,hand:'M',pool:['G4','A4','B4','C5','D5','G3','A3','B3','C4','D4'],name:'G大调双手 G Major Hands',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'G'},
+ {id:22,hand:'M',pool:['F4','G4','A4','Bb4','C5','F3','G3','A3','Bb3','C4'],name:'F大调双手 F Major Hands',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'F'},
+ {id:23,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'切分节奏 Syncopation',pats44:[['e','q','e','h'],['e','e','q','q','e','e'],['q','e','e','q','q']],pats34:[['e','q','e','q'],['q','e','e','q']]},
+ {id:24,hand:'M',pool:['C4','E4','G4','B4','D5','C3','E3','G3','B3'],name:'和弦分解 Broken Chords',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']]},
+ // ── Grade 3 ──
+ {id:25,hand:'R',pool:['D4','E4','F#4','G4','A4','B4','C#5','D5'],name:'D大调 D Major',pats44:[['q','q','q','q'],['h','q','q'],['q','q','e','e','q']],pats34:[['q','q','q'],['hd']],keysig:'D'},
+ {id:26,hand:'R',pool:['A4','B4','C#5','D5','E5','F#5','G#4','A5'],name:'A大调 A Major',pats44:[['q','q','q','q'],['h','h'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'A'},
+ {id:27,hand:'M',pool:['D4','E4','F#4','G4','A4','D3','E3','F#3','G3','A3'],name:'D大调双手 D Major Hands',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'D'},
+ {id:28,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'高速八分音符 Fast Eighths',pats44:[['e','e','e','e','e','e','e','e'],['q','e','e','e','e','q'],['e','e','q','e','e','q']],pats34:[['e','e','e','e','e','e'],['q','e','e','e','e']]},
+ {id:29,hand:'M',pool:['C4','E4','G4','B4','D5','F4','A4','C3','E3','G3'],name:'混合调性 Mixed Keys',pats44:[['q','q','q','q'],['h','q','q'],['q','e','e','q','q']],pats34:[['q','q','q'],['hd']],sharps:true},
+ {id:30,hand:'R',pool:['C4','C#4','D4','Eb4','E4','F4','F#4','G4','Ab4','A4','Bb4','B4'],name:'半音阶挑战 Chromatic',pats44:[['q','q','q','q'],['h','q','q'],['q','q','e','e','q']],pats34:[['q','q','q'],['hd']],sharps:true,flats:true},
+ {id:31,hand:'M',pool:['C4','D4','E4','F4','G4','A4','B4','C5','C3','D3','E3','F3','G3','A3','B3'],name:'大师挑战 Master Challenge',pats44:[['e','e','e','e','h'],['q','e','e','q','q'],['h','q','q']],pats34:[['e','e','e','e','q'],['q','q','q']],sharps:true,flats:true},
+ {id:32,hand:'M',pool:['C4','D4','E4','F4','G4','A4','B4','C5','G3','A3','B3','C4','D4','F#3','F#4','C#4','Bb4'],name:'终极大关 Final Boss',pats44:[['e','e','e','e','e','e','e','e'],['q','e','e','e','e','q'],['e','e','q','q','e','e']],pats34:[['e','e','e','e','e','e'],['q','e','e','q']],sharps:true,flats:true,keysig:'G'},
 ];
 const GAME_DURATION=60;
 
@@ -1839,6 +1883,100 @@ const BUILTIN_SONGS=[
      {ts:4,notes:[{n:'E4',d:'e'},{n:'C5',d:'e'},{n:'B4',d:'q'},{n:'A4',d:'h'}]},
    ]
  },
+ {
+   id:'birthday', title:'生日快乐 Happy Birthday', author:'Hill Sisters 1893 (公共版权)', ts:3, bpm:96,
+   bars:[
+     {ts:3,notes:[{n:'G4',d:'e'},{n:'G4',d:'e'},{n:'A4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'B4',d:'h'}]},
+     {ts:3,notes:[{n:'G4',d:'e'},{n:'G4',d:'e'},{n:'A4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'q'},{n:'C5',d:'h'}]},
+     {ts:3,notes:[{n:'G4',d:'e'},{n:'G4',d:'e'},{n:'G5',d:'q'},{n:'E5',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'B4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'F5',d:'e'},{n:'F5',d:'e'},{n:'E5',d:'q'},{n:'C5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'q'},{n:'C5',d:'h'}]},
+   ]
+ },
+ {
+   id:'frere', title:'两只老虎 Frère Jacques', author:'传统童谣 (公共版权)', ts:4, bpm:108,
+   bars:[
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'F4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'F4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'e'},{n:'A4',d:'e'},{n:'G4',d:'e'},{n:'F4',d:'e'},{n:'E4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'e'},{n:'A4',d:'e'},{n:'G4',d:'e'},{n:'F4',d:'e'},{n:'E4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'G3',d:'q'},{n:'C4',d:'h'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'G3',d:'q'},{n:'C4',d:'h'}]},
+   ]
+ },
+ {
+   id:'jasmine', title:'茉莉花 Jasmine Flower', author:'中国传统民歌 (公共版权)', ts:4, bpm:88,
+   bars:[
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'E4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'C5',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'G4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'hd'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'w'}]},
+   ]
+ },
+ {
+   id:'lullaby', title:'摇篮曲 Brahms Lullaby', author:'勃拉姆斯 1868 (公共版权)', ts:3, bpm:72,
+   bars:[
+     {ts:3,notes:[{n:'D4',d:'q'},{n:'G4',d:'e'},{n:'B4',d:'e'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'B4',d:'h'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'B4',d:'e'},{n:'A4',d:'e'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'hd'}]},
+     {ts:3,notes:[{n:'D4',d:'q'},{n:'G4',d:'e'},{n:'B4',d:'e'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'B4',d:'h'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'q'},{n:'D5',d:'e'},{n:'F#5',d:'e'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'B4',d:'hd'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'E5',d:'q'},{n:'C5',d:'q'}]},
+     {ts:3,notes:[{n:'A4',d:'hd'}]},
+     {ts:3,notes:[{n:'B4',d:'q'},{n:'D5',d:'q'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'hd'}]},
+   ]
+ },
+ {
+   id:'minuet', title:'小步舞曲 Minuet in G', author:'巴赫 (公共版权)', ts:3, bpm:116,
+   bars:[
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'e'},{n:'B4',d:'e'},{n:'C5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'hd'}]},
+     {ts:3,notes:[{n:'E5',d:'e'},{n:'D5',d:'e'},{n:'C5',d:'q'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'A4',d:'hd'}]},
+     {ts:3,notes:[{n:'B4',d:'q'},{n:'C5',d:'e'},{n:'B4',d:'e'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'hd'}]},
+     {ts:3,notes:[{n:'D4',d:'q'},{n:'E4',d:'e'},{n:'F#4',d:'e'},{n:'G4',d:'q'}]},
+     {ts:3,notes:[{n:'A4',d:'hd'}]},
+     {ts:3,notes:[{n:'D5',d:'e'},{n:'C5',d:'e'},{n:'B4',d:'q'},{n:'C5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'hd'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'e'},{n:'B4',d:'e'},{n:'C5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'h'},{n:'G4',d:'q'}]},
+   ]
+ },
+ {
+   id:'moonlight', title:'月光奏鸣曲 Moonlight Sonata（主题）', author:'贝多芬 (公共版权)', ts:4, bpm:60,
+   bars:[
+     {ts:4,notes:[{n:'G#4',d:'h'},{n:'A4',d:'h'}]},
+     {ts:4,notes:[{n:'E5',d:'h'},{n:'D#5',d:'h'}]},
+     {ts:4,notes:[{n:'E5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'},{n:'B4',d:'q'}]},
+     {ts:4,notes:[{n:'D5',d:'h'},{n:'C5',d:'h'}]},
+     {ts:4,notes:[{n:'A4',d:'h'},{n:'C4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'h'},{n:'B4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'G#4',d:'q'},{n:'B4',d:'q'},{n:'C5',d:'q'}]},
+     {ts:4,notes:[{n:'E5',d:'h'},{n:'D#5',d:'h'}]},
+     {ts:4,notes:[{n:'E5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'},{n:'B4',d:'q'}]},
+     {ts:4,notes:[{n:'D5',d:'h'},{n:'C5',d:'h'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'C4',d:'q'},{n:'E4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'h'},{n:'A3',d:'h'}]},
+   ]
+ },
 ];
 
 function showSongs(){ renderSongList(); renderMySongs(); show('scr-songs'); }
@@ -2698,8 +2836,148 @@ function updateMIDIStatus(){
   }
 }
 
+// ═══ TUTORIAL ═══
+const TUT_STEPS=[
+  {
+    title:'欢迎来到 Piano Clash！',
+    content:`
+      <div style="text-align:center;font-size:48px;margin-bottom:12px;">🎹</div>
+      <p style="margin-bottom:10px;">Piano Clash 是一款<b>钢琴视奏对战游戏</b>。</p>
+      <p style="margin-bottom:10px;">游戏会在五线谱上显示音符，你需要用<b>键盘或钢琴</b>弹出对应的音，速度越快分数越高。</p>
+      <p>可以<b>单人闯关</b>，也可以<b>联机对战</b>挑战其他玩家！</p>
+    `
+  },
+  {
+    title:'认识五线谱',
+    content:`
+      <div style="text-align:center;font-size:36px;margin-bottom:8px;">𝄞</div>
+      <p style="margin-bottom:10px;"><b>高音谱号（Treble Clef）𝄞</b>代表右手音域，从下往上是 <b>E F G A B C D E</b>（E4开始）。</p>
+      <p style="margin-bottom:10px;"><b>低音谱号（Bass Clef）𝄢</b>代表左手音域，从下往上是 <b>G A B C D E F G</b>（G2开始）。</p>
+      <div style="background:var(--bg2);border-radius:10px;padding:12px;font-size:13px;color:#5a4a30;">
+        💡 记忆口诀：<br>
+        高音谱线（下→上）：<b>每个好孩子做</b>（E G B D F）<br>
+        高音间隔（下→上）：<b>脸 阿 车 格</b>（F A C E）
+      </div>
+    `
+  },
+  {
+    title:'音符时值',
+    content:`
+      <p style="margin-bottom:12px;">不同形状的音符代表不同的<b>拍子长度</b>：</p>
+      <div style="display:grid;grid-template-columns:60px 1fr;gap:8px;align-items:center;font-size:14px;">
+        <div style="font-size:28px;text-align:center;">𝅝</div><div><b>全音符</b> — 4拍</div>
+        <div style="font-size:28px;text-align:center;">𝅗𝅥</div><div><b>二分音符</b> — 2拍</div>
+        <div style="font-size:24px;text-align:center;">♩</div><div><b>四分音符</b> — 1拍</div>
+        <div style="font-size:22px;text-align:center;">♪</div><div><b>八分音符</b> — 半拍</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:10px;font-size:13px;color:#5a4a30;margin-top:12px;">
+        💡 游戏里只需认出音高（哪个音），时值不影响答题。
+      </div>
+    `
+  },
+  {
+    title:'用键盘作答',
+    content:`
+      <p style="margin-bottom:10px;">游戏支持两种作答方式：</p>
+      <div style="background:var(--bg2);border-radius:10px;padding:12px;margin-bottom:10px;">
+        <b>🎹 钢琴键盘模式（推荐）</b><br>
+        <span style="font-size:13px;">点击屏幕上的钢琴键，或用以下电脑键盘：</span><br>
+        <div style="font-family:monospace;font-size:13px;margin-top:6px;color:#1a6fb5;">
+          A S D F G H J K = C4 D4 E4 F4 G4 A4 B4 C5
+        </div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:12px;">
+        <b>🎵 Do Re Mi 模式</b><br>
+        <span style="font-size:13px;">点击 Do Re Mi Fa Sol La Si 按钮作答。<br>适合不熟悉音名的初学者。</span>
+      </div>
+    `
+  },
+  {
+    title:'游戏模式介绍',
+    content:`
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#f0f7ff;border-radius:10px;padding:12px;border-left:4px solid var(--blue);">
+          <b>📚 关卡模式</b><br>
+          <span style="font-size:13px;">32关由易到难，从基础音符到双手、变调。适合系统学习。</span>
+        </div>
+        <div style="background:#f0fff7;border-radius:10px;padding:12px;border-left:4px solid var(--correct);">
+          <b>✏️ 练习模式</b><br>
+          <span style="font-size:13px;">自由编谱，放上音符后点播放，反复练习特定片段。</span>
+        </div>
+        <div style="background:#fff7f0;border-radius:10px;padding:12px;border-left:4px solid var(--red);">
+          <b>⚔️ 联机对战</b><br>
+          <span style="font-size:13px;">创建房间或输入房间码，与朋友实时对战。60秒内答对更多音符的玩家获胜！</span>
+        </div>
+      </div>
+    `
+  },
+  {
+    title:'联机对战怎么玩',
+    content:`
+      <ol style="padding-left:18px;line-height:2;">
+        <li>点主菜单 <b>⚔️ 联机对战</b></li>
+        <li>输入你的<b>昵称</b></li>
+        <li>选择<b>创建房间</b>，把房间码分享给朋友</li>
+        <li>或者选择<b>加入房间</b>，输入朋友的房间码</li>
+        <li>双方都准备好后，游戏自动开始</li>
+        <li><b>60秒</b>内答对更多音符的一方获胜</li>
+      </ol>
+      <div style="background:var(--bg2);border-radius:10px;padding:10px;font-size:13px;color:#5a4a30;margin-top:10px;">
+        💡 答错会损失血量（血量模式），先归零者输。
+      </div>
+    `
+  },
+  {
+    title:'连接真实钢琴',
+    content:`
+      <div style="text-align:center;font-size:36px;margin-bottom:10px;">🎹</div>
+      <p style="margin-bottom:10px;">有 MIDI 电钢琴？可以直接用真实钢琴作答！</p>
+      <ol style="padding-left:18px;line-height:2;font-size:14px;">
+        <li>用 USB 线连接电钢琴到电脑</li>
+        <li>使用 <b>Chrome 或 Edge</b> 浏览器</li>
+        <li>点主菜单 <b>🎹 连接电钢 / MIDI</b></li>
+        <li>点击连接按钮，授权 MIDI 权限</li>
+        <li>看到绿色"已连接"即可开始</li>
+      </ol>
+      <div style="background:#fff3cd;border-radius:10px;padding:10px;font-size:13px;color:#856404;margin-top:10px;">
+        ⚠️ MIDI 仅支持 Chrome / Edge，Safari 和手机浏览器暂不支持。
+      </div>
+    `
+  },
+  {
+    title:'开始游戏！',
+    content:`
+      <div style="text-align:center;font-size:52px;margin-bottom:12px;">🏆</div>
+      <p style="margin-bottom:10px;text-align:center;font-size:16px;font-weight:700;">你已准备好了！</p>
+      <p style="margin-bottom:14px;text-align:center;">建议从 <b>关卡1</b> 开始，熟悉基本音符后再挑战对战模式。</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="mbtn mb-dark" style="margin:0;" onclick="show('scr-levels')">📚 开始关卡模式</button>
+        <button class="mbtn mb-red" style="margin:0;" onclick="show('scr-online')">⚔️ 直接联机对战</button>
+      </div>
+    `
+  }
+];
+let tutStep=0;
+function tutRender(){
+  const s=TUT_STEPS[tutStep];
+  // tabs
+  const tabs=document.getElementById('tut-tabs');
+  tabs.innerHTML=TUT_STEPS.map((t,i)=>`<div onclick="tutGo(${i})" style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:2px solid ${i===tutStep?'var(--ink)':'var(--ui-border)'};background:${i===tutStep?'var(--ink)':'#fff'};color:${i===tutStep?'#fff':'#8a7a60'};">${i+1}</div>`).join('');
+  // body
+  document.getElementById('tut-body').innerHTML=`<div style="font-weight:700;font-size:16px;margin-bottom:12px;">${s.title}</div><div style="font-size:14px;line-height:1.7;color:#3d3020;">${s.content}</div>`;
+  // buttons
+  document.getElementById('tut-prev').style.display=tutStep===0?'none':'';
+  document.getElementById('tut-next').textContent=tutStep===TUT_STEPS.length-1?'完成 ✓':'下一步 →';
+}
+function tutNav(d){
+  if(d>0 && tutStep===TUT_STEPS.length-1){ show('scr-menu'); return; }
+  tutStep=Math.max(0,Math.min(TUT_STEPS.length-1,tutStep+d));
+  tutRender();
+}
+function tutGo(i){ tutStep=i; tutRender(); }
+
 const _origShow=show;
-show=function(id){_origShow(id);if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-online'&&window.FB){document.getElementById('fb-status').textContent='✓ 已连接服务器';}};
+show=function(id){_origShow(id);if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-online'&&window.FB){document.getElementById('fb-status').textContent='✓ 已连接服务器';}if(id==='scr-tutorial'){tutStep=0;tutRender();}};
 
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
