@@ -1,0 +1,2719 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Clash</title>
+<style>
+@font-face{font-family:'Bravura';font-display:swap;src:url(data:font/woff2;base64,d09GMk9UVE8AACRAAAwAAAAAU/wAACPxAAFkWgAAAAAAAAAAAAAAAAAAAAAAAAAADdohGhYbIBwgBmAAgTwBNgIkA4E4BAYFxloHIBskUwXcGLpBd+DcXlFQ4RlpxCZFRFSTYkn+PyRwQ4a8hloviIPQE7eJVujrWHCgf+pE3ZS2FHZKl27FJJbnGbcniYl4zz2NcIi37N0azR/mtga10DhqlKEN4okcobFPco9w0wsQnpIWak/XlEFVfKbOXJXO5dL95E/nK06rw5TcszsXfdzrr3VyEyBANtLDkgAzZcu01XHPNGRKJnNav+Sn+R8tAEDZIYMsth1yk7abZSZ1zr37U/f/Vt0ZF02SXWnmnKLZpkjTLLUBoIu+smQLLcl0Cf97IcDpFzuqgwiTexEm1AIPPSDMpDmNqHqXwjZVyAWG7FC+HaBbB0xILBzLWb5u61d/qU4z0oyuvwPkxWyXOWEnGztojB2k5eSAKVdgelWuZLNNlf2r5ip8YHckjEn86xl/B4UC2u+SJeusWNCJj3miPP//7/3USbqODeCARzAm759z9jl/WqmYeu59f1oBSa9ADWwwGKEGUkUCGu7MsVaAwhbgAGXFp780/S+lWWlYqi5ZhANUqyYrtBPqFSRCmQDWDnal2xe6OeEDshOQ899W30/X/4CfIBT5QiE1xkzu0ifTNyfFokjNEt95CsXeVfXqLZuGXTiMQ6INVm0KIdGpy8qCh3ghAdRuj8PYxHhEaqOCBVJiJS7N6+v/z/LW7RhjtBYRUSIiItoY9+99cqCQAcdxqtSeNEsV/fXfAqQD8DeHk3ItQcqTSXlyKV/xJ1MvbdBbaPVkKa+3O6W19AFOtnq7czawlsCBCrSg88mcL9bsOlHVMXbJc+fBo6++mWKWhVZYb5u9jjjtkpseMHvjs18g+JfCXEA6KmZk706WSUn4/57rxppPkOX0D6vXPGIglHFdPX3zLObcIfPMN6/wyHTTv9bPNrR5xEBorHuDgZThU38ynsYf1loej0fGC4BmqCe4hel8uJI+kP12CmxEsgpHpTiRUfuRvYeGcekyFXYUD8qbrqcq3BpwOUqqz2c+rbq1JgxfLnmX9spMZuhNsgFmgUhDuX7BhKXu0mbRtESLSvp4OEUEs2bGqTPkf+pi/JXtcRiheVhvdY1nE5gW10GvjG3EQd/bymhL/BV5UPDBuxh7DRZ0v8ppH6jZgzBhOZgtmsd47Ap1Ky0ofZYQNPfKHW2HQhvJwfMJKgle0Uks85y5ervDoHzaPmuVYRSNIAfuJh6Re8LlUrfSurQBAXsYBG24SHGsST0xUpfSBao4G79NSWKkLQEbUI4Qw8Noe2vHS/nu0/TSTcxLTaSJUbIRV5hks5frNMySIQO06gA0fl1KosNdim9pZW7pUWyvM6i9Ecxoq+291yvGCNKWzh0HHvDOtBo9t/ZjdjFaSWaaS/A94XjBKNH2ZIk2Sz/2TaGrcJnvLyCvBbSWZVQecqDJTpU6dYZr+rtyoUy9DGAIZHHfeLA5GnyXfWOLjPkGDUYeN5UMSjmgr18/q5ghQ/gOwxQeAxi95rG9yBtl9EFnTdkiztagKiXxYw57DakunCFXC2cYfLDdLH5YQMFNOkxbUuNULnS5pC/tADAUocSxGV1xsYl5+ViYB3GX+yxjMOtwOJrFM5xsAQGkgHYT/eC9a5Jh4otxMxygdocyXlPJWwxKoeQXwf5urwSWhHOFIlzW6pZdRPMO6jBEFdVrkMDEUZmimCQBt1eculJZ6VqN6j2zm/Q3TrXzAu1uReFQTFxVARc1KNWonhGu1HQYQoTBPxokyzeEVp61So+EUkfx0NE8fE9s60ePWawIAMl1wp5S6NKEs9Bf8xydts5b0FGrq+uq5rrFS+bErODUqlXm7gbY8FzkFMZzvjQ4eMcmiQCVkIX20JAffqexIHwgxIsU+G8zIWVpiKkbUvk7k5/S3HYKxAij73bo1Qcc7VYZKchsl6jSzDpuGiMi+YDYW9ohBEWTdUKhWDOqIfpDOARE23J66OCgUY9ZoxmLkRckzwj6AjUYy0eeXMhY6YrzjMzXaVacqbpWDkmfhcmSklqIZCTFeCyMFZcELubmRMIt1dnVL6QYfbGdGe70TnKW1PmKRM+ucP5MMjFj7F5AwVmmhDUFG2WQIssCY9EO8IoleSyOiMnxOaotUki10AwostyM1KhqdttNkfxn4IQSaxyXgrLE+jeSAhpLPPOlJVxc8tY7TCyGQd4tX4tGm35XSN8j1OlkHIWv7I7frKRAiY9dFEtogzqCyN+wj0ozB02S5tQbRYFM8Uv4qMJrcJPWrm+mwGuZT/ACZcPgJ3JFV5sDBqsI7jFyRfa5t0uSIgnTFQeZWNWgcR4DeJG0KhqajnNl7xQ3Fi92Nl/kMMkjMh5qzahHLKmgG3hAnw0PGb42ZpYwwDy9t/54W3p04pkexK7XolLTRa2rv9RBM2eoykobOw+yiMXn/HXiSpGpk3rzP7pdOUCn5U6Dzmwe9mWT0QfdHQPuwTXob513HBFosghXvUwlMaaxcGK/CwfeRAS9tDPMlyzSKQHkTSrQ+edLhDXYzGeaeSQxWA6ll7c2wZFiztQg6tZoWDt8aQsL5CcKAZ/bT9GYeUVzmv8XoTAosCncQGvQzDkZkcNBZ8OVyY5snwQk8RhdzZVRZlh1p0xdA7wEdi3xlbJLodZzAHhMl9rPwCiOVp7Ovac7rqPsAP1/sEcK/nM0UbBBcgCBbLSONJ9DSzFeVsRRccio3j+qLIvjxvmDk8CBnKuQeyiiFYcVv/k2/G/lRTKEfFcNsSAW7S2+qbMFhZAnTBZWC3eE35YtrXyskqymWt3TGFpna7n1c5vmNnfsHO2e27+x/08DTaQtdf662Q6+Dn8Zetig7/wfHTTKG8lSCqMTEtaEkEj48hjtMECs62XuPYuW55uP+2iBzmwbxx02LlJt3MSSxKFEL6KBkDxmCM+dCSyAubGmopeKAovBCSvOttxCnFpjx0S2e2HNaOB5ew2obTBP5GLtDhHWR5+98jE40f5A9YG+xqpDlxZKvyuoWy8TTw145yujCQmj5iH5uvPKd8iLaB+APPPqEQyuC7haH0E3rb7nDVXuHxKfiVUtN3KWGKvk008SGXzz/TkD4/4mUFN2MPSoQDTqot3SVAw50Otd0gCdrojU4T5E5jKHE6b0126SkzuufTaJUtwqO3n71yMNaFDpgUTAvHF5HHppjP+AxjOzv/jmrfHslf0X3ni+qd7/AZy8YjupmTCuU8nD0e/sD/sjf6C53ogCgqxllwDFDNW/BlB9dpW0H4ZyfMyjJMiPepMMCNXKsUjM8nhsVjCzZH545+rp9XU+G+eQ6kjbhWS12+zWpCS0eiiFzi15565iJaLkg9Kz/9ONrnD6TpqnaS82YKGZTxZPcfWcZFKzPQxSVXQacyqKZMPCJD8ACxxuK5rDzKyX8bCbIZAUOFDqS101DhHyFfD8EP9fTdwJfg7E59pxjqW5JClUqWCV+vK9syqvckbi04bGRbPyuCd5eOsHeGnxYdWBOfSu3VCwJz7rl6EtscTebp8ne+Ye6e8eMTRWPqpEAaNvIvmOhqT3zLGrQ/SPUAimchqSgpTt9AwpyTw5ryFqNbIpEiO5EZdUOt59j4bvaUhYNBPKKysbzxquXbo8vfr8wzPjCRzk/XiMLLsez/+tWAvEczvg8KE95J3rI5TWRTOhIW3al/BSlW9hNvOEgYSqiNdGakbDuvVZ9t+KIXEPAfyJ03AB9VITPDu/uN1dv3q55/rnbzbe2YrnM/wIKlKyefHTj77+3O/mhbCNzMCC2RDmaBypc8GIxnntg3UB5ES0xHmYiadETHWRKpZiKLWKoZ2tVp2uZD116nj0yfeXdJh4Ux92kuTOIrnzcNj5QPHGAI1SpU4a/VDBBKv0Y/cCIzO8L4QCCu/xN00GA+uE3enOTX/w1Myiw5KJPaN/KBao3vT+KgamFbOrsMEzojNeFYB4qQyN8Voj3v1dZhpsXjpLOWUcvTlkMemy80wx9qXEDGQH5QReaq0XAzc1NYmlwWShFoYhVGDxe2A2FQoPsGkaRUNGOs0RIJFigulc3WasyDMJCPUWMtwjdqjrxmaoxHiT+sTJap/ohYpH9k8ws+UfJ+dCcm3JyxPfgJ9u++t2qRK0rSjX7rOYQEHEHXeh2YVT95+HZ2e9PILPZJpmiEvXx0/gi8kHDCva79vdhQcP97fShwLS75SMvYAyic+eOe0s/ONPcM/dqBK0sBx4iR1wMkVIS6qSHjK1ok0iShtHp7vKfix8ezJPPoWOH269LyzaRKcDOU+4P02fqGr6dGajFav+DrWGSgmF0FD0kcBksAJJZrVRFgzx2rBhGEUj5JFgYJEIfyazMJewa+7Jbr+kVQ65koPxegjaJVptgLa53uWjTER9n78eeY5n+M212eaROaFiMQ0PZefPTImm0LL8PaLaWMJJ6QzEWWtqn+wo3p1fJ2+YzZoJEQTQiP9SqOxIkqieTIXMONRmhPfrgo9BM+ZEHl7FcOxnyhr3u6gaGIQnyhTVGeZouEByqtY+zNilB2uRHsZKA0I9U1d5QUJO1oEszK8w2TjKybNpWk4WIDso07E4n4/jTPpQ/DSevkUaEbsujxMEN++eoZP4h6EUOMT7mnKfGXsje4lK47QHE7mimqCyNTwLzlrr0MdwjsgyhUGvJy/7lbTcNKZuW4jFjoen6aarDiZnsmK3GUci2mWoM16qmNh26R0sdxenC7Jn+tnuBlv/sISQpjknzY+3RC1aXr798lXK7RWGkm7GMYaRKbWiBi4dgm94+gndve2pV0rtVIkXRmxND4HtJnYeHNpP2HroxnZg+MmYZNNcH7Hzyp2bv4X7DsXLZ3HzmsNrr5F7KVe2dRr1kmZkmlJLqsFqibLA9Cw2S0uSIh06vIIX62GZpiQ/5kr7QEmcYDPaPJZuXP3XqipTy9iY+W65vPrukwhQJsVgc7oazx4LOP18DgHerbVY2r/b4FTiIj1uXOAR/JlKIko+LZCbwgmq68UUvRgyifTTSVe3JayMzT6+cfnNa5/Cte4iVEhZaS3ltOAG520bVLMHTenS1fWDpUFmA0WZ+nR6Y9rQmFVdooxDAd2+iZofWLdVs2X58am3yTfmtWC+qoqvXN/10uBtExpm6RutBI1ftvr076896HS2/ab2EhpW1LRa2zR9Huw+OXv9yX84M/rGzaMO1JZtp92rz751+dxzr67wZqfb9hwwSTdyAIFvSGNpi4HRbn+wMDn2Sn9OH4d3J39w4fy3xH7X6r1bgPvRPvbug5eJWy1rz6//s2kLbxjC041kZydoczv73ukz3eEMlFptqcVYH3sF42tFO8zyxNLzTRc6FFHbNKRQX6QtJNW7kh74+BHtZLpbLq+5++ST579WVZlbxjB4g0NwKvVcI5gtc8otaa+04DEXH9nPQkxbrYSty0x0zjL1mEqZrMvYpvFfKDEYc3fzQ3x02f0MW4xcfWS3TnuHOo7xncg3AB2Y39xsBMySayuNocmBam/1rjCcsQwNwkNFSp3JjKJVNECsoD09nLmf4YqhC9u2o/7z72Pwnqb/jCFi5clNUqn1hE2nDBqR0aGphPnMvAatOxbUFgPOMvn7ngYbdiMWtCUjo6xqY1XDfRK4jw5komn1j8Eb/ihGqRbU68e0dCQsCimNVTD/ovud38S7C2/tnwBKjDZUWIwheIWd0YYyx+jy/Qee1KAPRh89+f4Nxh+tW861QLM5/px/gl49kVKk8xhHOQxDE5XSaYOl4w/hrKLr7GnikMpWANr9pdpQjNkkxU2Hrztdp/o0VklV41X9I9znomapN5PNEFpFjOSg9HhwYLqdjhOIaY5nZLzqEtbIlv/AL5B7/OxI32mtKguLjai6pnuINWiPw1BPmUdI4c5d5UMYiZmnynfvMe1pT2M3i+bW2bicN0Zsrbv3ffP+yR35dxBMlieQ0EXZxtQo9LTewb7Ft4df/IvaN++M9de6kFeVYVKV9IpWf9Hz2PmeWEIWHoG6ITOF/w0lZl/CSKfJ521uq7INHYnCjJS2Fozl2+lOZGpK5CQvzYYcKKpVV/rV7/Gq/3wuok2Vos7/F2nQJB3Ch9SEbEkotsYBs/afvhDnoVZ2ELpiXrv784bT9Qvp/1RzzHFYoFpQafxvLCj/pPHkxLgyfVbVqIqjUq1NYK6kF/UIGVoWREl68olYzgJw4T66DTL+XcGXHr2AChSeTojoVLAEoqwQFJrGScw7Qs/YS+0PO1bavyYU0cYQboUKHN/Z42W1Z3DRgpRuDKiYqwwAG/T5tbVL5oxGm81onLMdP77fXwDIVkb+3UAD3Vf9RY85Yp+9lAYjxRh7o8ilYe9U/dam8HtRsYxV8KsEWJTR9ZOpOyHR0gn6W9bnj6Cp60ds8sSmhDqMMI6o6llYWki//7juyBfEF5/OoYA24v1+N7jTEIe8zGg+7TCkMahSVv3dRqNi1tDwjBcZljWY5j834QP5PdUZ3qett/KSRmdabLwvQWtldP0aWtgM15+ytavqHDu+j0zoZQ7KsbZoYmtbCytkINbsKf0YopoSN92MnO1zVooDotq60lhHttwO/e18SBz0TI1hIMAx9xjhVp/QaXaRGxSqTi1LiKozTmayesqMRo4erq+GEV9E895oYwwue/R4xa0PZour7fKcMGqNoyBTmfc3gk7YPn1+cJ7wkKH4sFqg9u6DJ+JG9cnhCRRd1b70AonhWtYQPEuuOfBRy/GGhfS/RI2yJqVaRGRYdmraK6cmvC2/qepUy8elOtvAPMkoGhBEUpJAnI0FIGqVpZbt24jMKl9/pVF1TYb9P5zGs6IuD4iYrxPd+GMi7Z6ipskjrQ9bFzn/Ij440yvwuHGOtzal57Mi2yzy4CSF+XPuyePXveh/N/5e75ztIyKavq7pg5d+saMQUwxBqbK6PpouVX9UtZdlrSSoMEtHckgWxBmb1Y2AeZyB7EXtmD5PrpaJMjOZWnnVVG1tIP3j1ML7H71/d+Xx9kvCRnXTkN3KdfYKpNbG558mR/Ku+Rsg2GiAoseJtQ643Uuu9G35JfHr0D8udNmDm3OvvTdTXG6Wp4RRZxwVVlEYZKpmliUkYqaMtAhyjzWM9YWNyqMs7akhquWMKH6n145qlVabtdAk2hiS/nFk4bsflY6ut/N1eCRmj/gS8PpcL5GOY045ypjVuC59vHJaJS/Pb3hxE5xstrUjgnKtHDvEujaZCmoibSSqLI+RkEz4cfRSEg+HdOhkqADC/LerMxnY/FIzCX56GaRIZ0oosV+8PNC1idssDR0N3SZsGoUqaNhsPAIWhS6YQ02kFMW9SLPgNyXIODJD8xyUCl4XGZbNJRorAlDSI1Qbg5b7YekEjdkFQ8+HjBYiQtJnWT5i6UQiDJcrqZUCT2BedP7Zo6XgVA6VyQAtaeFFWwKIwRGopjOYrwK5Tjx0uVRaScBZnKhAVX2FUkPimmcpFxw8HZkYKkasMOZH3LSfCMOuQmlJ4qrP/qvTiQwR0qMUoMGHuSBRTcE46Qz4BgpDWSEhPcdKGVYnw/Wp8d2ZD7EFbnA1F8F3bouJQE9LBEvEJvoA0kjmiegtnF01DxOtTXVGxVj46OTbyNrwA65kJu+iA5vtKk1CSukCZp6mhg7fkig2lYPxagDtJ7SPk1DTrVNocrU/kvXkGVtBmr6+O1HbkrlFqtv7TGC+bJRZALFY2kkTtG6eSRB342LuAeh3s1AvUWyrBoWwiyXZCcN1FCWLAgyoHqVAUO8PeWGB80w+xzRcixKE0Q87YS5nxxGa8rGZOWEqIoFmr/NVmeL3xrVnH+aBMuZ0iyjky3EYFkHIZPkstDDlYkBL2NWSEGKNAdfqLmY0mb7dHcU5IToqGaZum908uyrWuUehPxqmIXiMV9CPDvDwbB8bKptOqWlqo1ClRax24ccxS0g87NORk6VlhMmvDad4RsPsfDrugJov22tWFskIgkQuihiSwETx27UZLOQ0/frU6eIwe+uqiyubo702rI1Iyf+ILDm+wDJ5dWHji5vgRLNt7SHkTWfjqQlzJWkENgEx/ORSLrvBeunxI10Xu9VS39nSacQyX/cm+N+M7y6COK6Nw8tbYk6RBYwG4vQ4GNS1RCkCbNLTq5rl2dMk6XCQ5LSjWNxsDgBmyCu6FaSdzXR7P/b2KhcFfSNP0HdE0EjZwjj6miwCGTfyBipdPt8A1yNDMt4CkgOV+UQ3/8+RVhp7jMLPB2gqK+/I2YmwUTJJEJZKgWHmSlAjYk2OAjiNEdYbNtLe2nKt9aN6o+Y0RUVt25YGCTPWkmikYhEU37FaInRUXZOdy558+fKpCV8BQT3ErbaUUeO6e8/4OpxyU3fhMV5kid378cP5qfO3zy8lTBjvScyoNWDPG9MHTiKhZ47TUCgbiiHhOPLgR81pYKqru7MdhUL5hJGCNKOzxV8o/qLb5pwcHNTrB+1ZquBFwdSGb6jrurJFl9flLCaEWm0oJ7kodK5yhPm71UYDDhLeYiC0c1s1wOj/le+TRF7kl8YnsZCXBkyoc46a+teaUQiGy9Yop9vnnBwY1OkHeq+aLh67qGcHIMwaSxmVAvOaVZ/R+SibM3ndkHDtHNk2++TggN6K7ui57s5SKnNEqIew1lCbbZXu/8OGo+n+0ndtCVIl2fCrn06/EwR45b/DOaDEGGJFSmlAh1IWqGp/rRkJEOCsXINr6Gwb46RwwC1xOdVZXE0xoQ5SZth/rEerw3pYCkFUkYdYhtrDobXb85o6TGSsSIsMPS07zTMoZUpnV7BGPmVlXqGsUKZ4WVd5yXBShQC1M8YZh3ulgo9RGz0VLGVLVN2ZXNEP9z+/O91uQz2eP6hJWwNba6Nq14jmMrtdtW0vsORgb5N7vjxSsCn14yIa1MUk9aLBU8pAdS5VoQT2VrvxC7tRY31QEaO+qsWiwYRTzZZkVU7BpLdZdV1nyKuf3rr3I3/CsO7sXLn0XSj0O+bUHi4qW+HbRvgU+1XwUHtnnAn4fOnce3eh40jOhZkIVARuSIF5M+4jRw+r55574GTloiH7Fs9E+WJADyGoUPrgGrrA7qZdOBRWeU517pcZJrVhehyOHO2vGYOnE74q4ci6TEc1R0lDii81mKzgoC/KbFPiRYzkNyWffG5PLS5zDC+RjCCr4J0trbfPXA5KgwhI4+3lUwoIUwBgCYf88lyzsBwEvJwGUIPeZ1Ppma2R9QoU/0edf7ilkcMKbh83DXgA2URZNViQ9zod1xTWfPer23q7sWxHVevki1+6kUfSHFjBJX7OecDZcQ8BwNkLuVwAOQDYS5R7yp8BxNq0J8LD+L74mfZZ+7PeZ8Hvjnz/gfm2+a75vvl1XUZd/4viT0d++vWl80u3j8FRR993RWVyXTd+JK6/dbxYbmu5NeWWl9PKzUMdUXvUzpBoCGl4v+HRP8N/hv7sBLm14KQGDn557/dyrWv/0KKKm4/xPwm5/A0AwKOenPs6b0qq/3WkHQstWaozIZv0QUkJ+wjJ3/v6nNzA8AFLttQxDweZm/4zd8A+CnEEqz17mIkd2B/ftc1dBzy3HIBbA6EXLhrywZJFMjPAgtYsToVQOMAdSoMtWFCHdagP/+6xOFweDaX//6OeB6sB7pgk38x1+f+T6/xfo/8/gGJWIAsI1BpaorAAcD2ArYUDjetwyIQmixxya1G3YszCg1ivosqj69KgREHhQhED/Hb5mhWaVhFgyGA4ycUoIdDG+DgKjDCeiIRiKMQxGqgSXDVgiZ5rJPYsGz8f79B3uUOGDRe1BczLcUYEDIg9g9HskQ0qkJR9XwclMGDGGYXKpK/fneF4A2ooF+H0ZHh4IbjGkqMUgQ39XozzMJJmW1KSzx8gKBjBl+taQFcyXpEft0gSiclz0Th8llXOX4K4NjcEhWcTuRhBJaAjJ56pNAw/0Nei4YdPM1Tfi1HuMYMZVG451d/e92mvYdH7NY/CJbO2SumKA226Z5auihba/17A78M3BrzpKeu86eoYlbrzg582VP5WQMntsTX/WcalpG5gEYL/64ptlX+shmIDZafazrSUnSx2PoW2Bhoe4GM4c9CRGkiz8MUG7r8zUCK5cELqHpoPYnyJ+S6a/X19YebGSMKnbCrHXMvYfzIflDiybzkQ9pCgoLsEEacdEiFLKpHM0+hr3JNHRm22FiYYSWoFZqE8VHAIDKvQRJw8m1CKK6cnPgSCO4lbmiFsJhLyc4ZkpgJV1iEbJ9qhx5ZSDrTcAwkCOCL+HGk0DRuBKiIvUBiZdewHPwsxiU20kYw/GdL7wnKcpEDgqw0gI5VN3WF54lmTtQnddIRsw4NvTIdInDWnlYHdIuAHBt+hy3WqLZpCG1fKjE2QI4ZDmpuBVvqeiz0s3J3kbD6qMy1HczEcQuocQ1QchA+VOhK4T55Yy8QakkzLQV2+djvMNorZmwAguqWSYygiJtwd+vsDOAxZLPNAX2UzBJ7QRdd2MH0cIn81eVoVLqWLT2q8MBz3MSh91FDWp3CUEfnSEuhAwXUxitgVpPgsLXHoRBAUwlwEFulRu32SDPr5ITt0g/zzBOqFwkdJA1r3ie3q/8mHuCd1QXNR/e/UKw9ukCeVU2ckAGTt3HMG/QG2G9XWNwF58fmVsoq6jqdRdMv2p76R9SvOoJgDauCBIFWOEtFsYIygtrMd4fPQY1mLhPD9Jks0Gz1cSI+XCnqIbb4PIHVVSXqjya3vR29Sw1XO2EuVsXqQZAJ5iOv+BVEdo1GAbszVWUvuWwE/tYJ+pyX0srqnXvbU6EY7PueZQi0aoTFrIJ/dCQGXaKu5jXgIvUMlOxo4ajtnovQjGTJpWStt5++ePAitp9rlN34fqxuKpuPydMeryklI7gKJ5pAk/GYp3S4URq3Pax9tdQtMosWoYrIJyK3baR92c2zMCZmoFAcG/WZiPYMVBnJtmkCfrHNwwB1AH3AvORAuxRlq0r0Mc+MUXURsw0YmzbCnaQuAIrL9qawZNsgsjrJZuyXBDFbk+DyODqAqOSZyDtA4N+ak9Dkkj6EyALqGfX2grW5oWAoBp05xvj11URZxkBMiYm4vFlmTTGae6lf+qRmha6uYyQ1J2bK9ht1WvkEuU8Zockgt+HZMO9jQf6qu+50CofXOSyYSfa/Xhy8vmt96EfHeemHcpr3y2gPrE4WbacXICV/Z2i5JgS8NDtf9pRKmVC7anmeCSzk6jQMuHQ9mkqdVzpDHnpzT+i3TcHTSB72+mzvOMpLWTrNe1ZprhklzuxiE5VcCm3dntkFee+34K68Y15CPhaGxRUjgFg9ntXT6OcIlWbfwhuw9zoVv2/HQ5XWnuZihtUF47VH0HxquKNmnzvJc/uFHpt+lKMQUS8380D+ZY7RrRq/LtcbABKq8BEepFtt3r40eg36j2ZdXkxfMzkP90TldBepTj6ZTMSjbfv0mwl1zNVF7nydv15ENn8n7FfKVKj6v5Wd2YFh2/AGMmBvv1OsFwwDJR0XJxH8CGQWtH61PbVmCqL0mFgSBakW3XEPbG+uj9bJiNB7/RnOmtMfXTsXc7t3uyAPhEn9ikXB36LDjPC9bBszGmjnrd6zdRxI47N3pEniMRYPOVg2N+wancl7DOH9YqWmeF2oZT0X+mgm3eg6lFr7XrKuuFtIrC8c7cTym3UFS0JoRcS+RefYfhy5vN0Cn3BdqJPHQ92NVKDh/2EuA3Dtv2WirafcnCOt+uwVZhJxcnQBfbFW0FglV7ieb4ycVaINgQxkOsA6dhf2rOfsaX2feuugZ1zunetSX7dC1Z0I803SYjNpkED+lPx002Hbf6ffn9tkrKt5P5nQB+7ItjA9JfiUi/PuRuyB7aCn5ZSH1u8wGLpwWMaUzvmJhrWUbict5sVa5FGPQGU2piP7dAzP29EO8IMPOPzn7UkvWxIRURWzkSzu6UZkSJWWw200AmvOFySVf/HJM7EsnzE1hkVhdnKN5MuLAQrREKRruFMg2s1T6j3cEQi60xRiwox6kUTK5cjQptIKDdTx5VU84EWqGfrAluWRn6F43UafY2IdlL7qm2VIo88tLYaQYLdsVEW+cKkUtyJM9GoLN54P5rpSA2fExRzWCDj/pUhKA8IAHVWKxSDKDDe07CNePvg/AonTBBIn0TQp6BlGMtOsUOh316KDTmsPd/PxhVAB+ZfxUjCGjbCmxKKgGfwA16SWb5KhsJtuoksy36qcOmFihe+3EbtlxEOomCmALovPASg4nZhFXI3Z2jI6lBOjAX5soSBWViWTjHaY+key8XUM7N8Pr5/Pq4v7PW7drzb6htpGqfZK8/+aV2L/K/Hjb3pZknzyFXx/0/yqEAgAAAA==) format('woff2');}
+
+:root{
+  --bg:#f7f3eb; --bg2:#ede8dc; --ink:#1a1209; --ink2:#3d3020;
+  --red:#c0392b; --gold:#c8900a; --orange:#ba7517;
+  --correct:#1d9e75; --wrong:#e74c3c; --blue:#1a6fb5;
+  --ui-border:#d0c8b0; --shadow:rgba(26,18,9,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Segoe UI','Noto Sans SC',sans-serif;color:var(--ink);display:flex;flex-direction:column;}
+.screen{display:none;width:100%;height:100%;}
+.screen.active{display:flex;flex-direction:column;}
+button{font-family:inherit;}
+
+/* MENU */
+#scr-menu{align-items:center;justify-content:center;background:linear-gradient(150deg,#f9f4ea,#ede4cc);position:relative;overflow:hidden;}
+#scr-menu::before{content:'𝄞';position:absolute;font-size:340px;line-height:1;color:rgba(26,18,9,.05);left:-20px;top:0;font-family:serif;pointer-events:none;}
+.mcard{background:#fff;border:1px solid var(--ui-border);border-radius:18px;box-shadow:0 8px 40px var(--shadow);padding:36px 40px;width:min(430px,92vw);text-align:center;position:relative;z-index:1;max-height:94vh;overflow-y:auto;}
+.m-eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#8a7a60;margin-bottom:6px;}
+.m-title{font-family:Georgia,serif;font-size:38px;line-height:1;letter-spacing:-1px;margin-bottom:2px;}
+.m-title span{color:var(--red);}
+.m-sub{font-size:12px;color:#8a7a60;letter-spacing:3px;margin-bottom:24px;}
+hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
+.toggle{display:flex;border:1px solid var(--ui-border);border-radius:9px;overflow:hidden;margin-bottom:16px;}
+.toggle button{flex:1;padding:9px;border:none;background:transparent;font-size:13px;font-weight:600;color:#8a7a60;cursor:pointer;}
+.toggle button.on{background:var(--ink);color:#fff;}
+.mbtn{display:block;width:100%;padding:13px;margin-bottom:9px;border-radius:11px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform .1s;}
+.mbtn:active{transform:scale(.97);}
+.mb-dark{background:var(--ink);color:#f9f4ea;}
+.mb-red{background:var(--red);color:#fff;}
+.mb-blue{background:var(--blue);color:#fff;}
+.mb-green{background:var(--correct);color:#fff;}
+.mb-ghost{background:transparent;color:#8a7a60;border:1px solid var(--ui-border);font-size:13px;}
+.mini-link{font-size:12px;color:#8a7a60;margin-top:8px;cursor:pointer;text-decoration:underline;}
+
+/* HUD */
+.hud{display:flex;align-items:center;justify-content:space-between;padding:5px 12px;background:#fff;border-bottom:1px solid var(--ui-border);flex-shrink:0;height:46px;}
+.hblk{display:flex;flex-direction:column;align-items:center;}
+.hv{font-family:Georgia,serif;font-size:19px;font-weight:700;line-height:1;}
+.hl{font-size:8px;letter-spacing:2px;color:#8a7a60;text-transform:uppercase;margin-top:1px;}
+.timer{font-family:Georgia,serif;font-size:24px;font-weight:700;color:var(--red);}
+.timer.low{animation:tblink .5s infinite;}
+@keyframes tblink{50%{opacity:.4;}}
+.icon-btn{border:none;background:none;font-size:18px;cursor:pointer;padding:2px 5px;}
+
+/* bar chips */
+.chips{display:flex;gap:6px;justify-content:center;padding:5px 8px;background:var(--bg2);flex-shrink:0;flex-wrap:wrap;}
+.chip{padding:3px 11px;border-radius:13px;font-size:11px;font-weight:600;border:1.5px solid var(--ui-border);background:#f1efe8;color:#888780;}
+.chip.done{background:#e1f5ee;border-color:var(--correct);color:#085041;}
+.chip.cur{background:#faeeda;border-color:var(--orange);color:#633806;}
+
+/* versus bar (online) */
+.vs-bar{display:none;padding:6px 12px;background:#fff;border-bottom:1px solid var(--ui-border);flex-shrink:0;gap:10px;align-items:center;}
+.vs-bar.show{display:flex;}
+.vs-side{flex:1;}
+.vs-name{font-size:11px;font-weight:700;margin-bottom:3px;}
+.vs-track{height:14px;background:var(--bg2);border-radius:7px;overflow:hidden;position:relative;}
+.vs-fill{height:100%;border-radius:7px;transition:width .3s;width:0%;}
+.vs-fill.me{background:var(--blue);}
+.vs-fill.opp{background:var(--red);}
+.vs-hp{font-size:10px;color:#888780;}
+
+/* STAFF 60% */
+.staff-area{flex:6;position:relative;overflow:hidden;background:var(--bg);min-height:0;}
+#cv{position:absolute;inset:0;width:100%;height:100%;}
+.feedback{position:absolute;left:50%;top:6px;transform:translateX(-50%);font-family:Georgia,serif;font-size:17px;font-weight:700;opacity:0;transition:opacity .1s;pointer-events:none;z-index:5;}
+.feedback.show{opacity:1;}
+.feedback.ok{color:var(--correct);}
+.feedback.bad{color:var(--wrong);}
+
+/* palette (practice mode) */
+.palette{position:absolute;right:0;top:0;bottom:0;width:62px;background:rgba(255,255,255,.94);border-left:1px solid var(--ui-border);display:none;flex-direction:column;align-items:center;padding:8px 0;gap:6px;z-index:8;overflow-y:auto;}
+.palette.show{display:flex;}
+.pal-note{width:48px;height:44px;border:1.5px solid var(--ui-border);border-radius:8px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;font-family:serif;font-size:20px;color:var(--ink);user-select:none;}
+.pal-note:active{cursor:grabbing;}
+.pal-note span{font-size:8px;color:#8a7a60;font-family:'Segoe UI';}
+.pal-tools{position:absolute;left:8px;bottom:8px;display:none;gap:6px;z-index:8;}
+.pal-tools.show{display:flex;}
+.ptool{padding:7px 12px;border-radius:8px;border:1px solid var(--ui-border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;}
+.ptool.play{background:var(--correct);color:#fff;border:none;}
+.ptool.save{background:var(--blue);color:#fff;border:none;}
+.practice-help{position:absolute;left:8px;top:8px;right:70px;background:rgba(255,255,255,.92);border:1px solid var(--ui-border);border-radius:8px;padding:6px 10px;font-size:11px;color:#5a4a30;line-height:1.5;display:none;z-index:7;}
+.practice-help.show{display:block;}
+.practice-help b{color:var(--orange);}
+
+/* INPUT 40% */
+.input-area{flex:4;background:#fff;border-top:2px solid var(--ui-border);padding:4px 0 6px;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.kb-scroll{flex:1;overflow-x:auto;overflow-y:auto;display:flex;align-items:stretch;}
+.pwrap{position:relative;margin:0 auto;height:100%;min-height:90px;}
+.wk{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,#f8f6f0,#fff 45%,#f0ede5);border:1px solid #b8b4a8;border-radius:0 0 5px 5px;cursor:pointer;z-index:1;}
+.wk:active{filter:brightness(.78);}
+.wk .kl{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:#8a7a60;pointer-events:none;white-space:nowrap;}
+.wk .kbd{position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;color:#b09060;pointer-events:none;background:#f4ecd8;border-radius:3px;padding:0 3px;}
+.bk{position:absolute;top:0;height:60%;background:linear-gradient(180deg,#2a2010,#1a1209 70%,#3d3020);border:1px solid #111;border-radius:0 0 3px 3px;z-index:2;cursor:pointer;}
+.bk:active{filter:brightness(1.5);}
+.bk.bk-press{filter:brightness(1.8);}
+.wk.hl-ok{background:linear-gradient(180deg,#a8e6c0,#5dba7d)!important;}
+.wk.hl-bad{background:linear-gradient(180deg,#f5a0a0,#e05050)!important;}
+.wk.hint{box-shadow:inset 0 0 0 2px var(--orange);}
+.wk.midi-hit{background:linear-gradient(180deg,#cfe9d6,#9fd6b0 60%)!important;}
+.bk.midi-hit{background:#3a8f5c!important;}
+.bk.hl-ok{background:#5dba7d!important;}
+.bk.hl-bad{background:#e05050!important;}
+
+/* solfege */
+.sfw{display:flex;flex-direction:column;gap:3px;padding:4px 8px;overflow-y:auto;}
+.sfl{font-size:9px;letter-spacing:2px;color:#8a7a60;text-transform:uppercase;}
+.sfr{display:flex;gap:4px;flex-wrap:wrap;}
+.sfb{padding:7px 0;width:52px;border-radius:8px;border:2px solid var(--ui-border);background:#fff;font-family:Georgia,serif;font-size:13px;font-weight:700;color:var(--ink2);cursor:pointer;display:flex;flex-direction:column;align-items:center;}
+.sfb:active{transform:scale(.88);}
+.sfb span{font-size:8px;color:#8a7a60;font-family:'Segoe UI';}
+.sfb.hl-ok{border-color:var(--correct);background:rgba(29,158,117,.1);}
+.sfb.hl-bad{border-color:var(--wrong);background:rgba(231,76,60,.1);}
+
+/* overlays */
+.pov{display:none;position:absolute;inset:0;background:rgba(247,243,235,.93);align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:50;}
+.strike-ov{display:none;position:absolute;inset:0;background:rgba(26,18,9,.55);backdrop-filter:blur(3px);z-index:60;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#fff;animation:strikeIn .25s ease;}
+.strike-ov.show{display:flex;}
+.strike-icon{font-size:160px;line-height:1;opacity:.85;filter:drop-shadow(0 4px 16px rgba(0,0,0,.4));}
+.strike-title{font-family:Georgia,serif;font-size:38px;font-weight:700;letter-spacing:2px;}
+.strike-sub{font-size:18px;opacity:.9;}
+.strike-sub span{font-size:24px;font-weight:700;color:var(--gold);}
+@keyframes strikeIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+.pov.show{display:flex;}
+.cdown{position:fixed;inset:0;background:rgba(247,243,235,.96);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;z-index:100;}
+.cnum{font-family:Georgia,serif;font-size:96px;font-weight:700;animation:cp .9s ease-out;}
+.csub{font-size:12px;letter-spacing:4px;color:#8a7a60;text-transform:uppercase;}
+@keyframes cp{0%{transform:scale(1.8);opacity:.15;}50%{transform:scale(.92);opacity:1;}100%{transform:scale(1);}}
+
+/* generic card screens */
+.cscreen{align-items:center;justify-content:center;background:linear-gradient(150deg,#f9f4ea,#ede4cc);padding:22px;}
+.ccard{background:#fff;border:1px solid var(--ui-border);border-radius:18px;box-shadow:0 8px 40px var(--shadow);padding:28px 32px;width:min(460px,94vw);max-height:94vh;overflow-y:auto;}
+.cttl{font-family:Georgia,serif;font-size:23px;margin-bottom:16px;text-align:center;}
+.lvgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+.lvb{aspect-ratio:1;border-radius:10px;border:2px solid var(--ui-border);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:Georgia,serif;font-size:17px;font-weight:700;gap:1px;}
+.lvb:hover:not(.lk){border-color:var(--ink);}
+.lvb.lk{opacity:.35;cursor:not-allowed;}
+.lvb.cl{border-color:var(--gold);background:rgba(200,144,10,.07);}
+.lvst{font-size:8px;letter-spacing:1px;}
+
+/* result */
+.ric{font-size:56px;line-height:1;text-align:center;}
+.rtt{font-family:Georgia,serif;font-size:30px;text-align:center;margin:6px 0;}
+.stars-big{font-size:26px;letter-spacing:5px;text-align:center;margin-bottom:14px;}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.rs{background:var(--bg);border:1px solid var(--ui-border);border-radius:10px;padding:10px;text-align:center;}
+.rsv{font-family:Georgia,serif;font-size:24px;font-weight:700;}
+.rsl{font-size:9px;letter-spacing:1px;color:#8a7a60;margin-top:2px;}
+.racts{display:flex;gap:8px;}
+.racts .mbtn{margin:0;flex:1;}
+
+/* settings - keybind */
+.preset-row{display:flex;gap:8px;margin-bottom:14px;}
+.preset-btn{flex:1;padding:10px 6px;border-radius:10px;border:2px solid var(--ui-border);background:#fff;cursor:pointer;font-size:12px;font-weight:600;text-align:center;}
+.preset-btn.on{border-color:var(--ink);background:var(--bg2);}
+.preset-btn small{display:block;font-size:9px;color:#8a7a60;font-weight:400;margin-top:3px;}
+.bind-mini-piano{position:relative;height:96px;margin:12px 0;overflow-x:auto;overflow-y:hidden;border:1px solid var(--ui-border);border-radius:8px;padding:4px;}
+.bind-status{text-align:center;font-size:13px;color:var(--orange);min-height:20px;margin-bottom:8px;font-weight:600;}
+
+/* room */
+.room-code{font-family:Georgia,serif;font-size:42px;font-weight:700;letter-spacing:8px;text-align:center;color:var(--blue);margin:14px 0;padding:14px;background:var(--bg);border-radius:12px;border:2px dashed var(--ui-border);}
+.code-input{width:100%;padding:14px;font-family:Georgia,serif;font-size:28px;letter-spacing:6px;text-align:center;text-transform:uppercase;border:2px solid var(--ui-border);border-radius:11px;margin-bottom:14px;}
+.mode-pick{display:flex;gap:8px;margin-bottom:14px;}
+.mode-card{flex:1;padding:14px 8px;border-radius:11px;border:2px solid var(--ui-border);background:#fff;cursor:pointer;text-align:center;}
+.mode-card.on{border-color:var(--red);background:rgba(192,57,43,.06);}
+.mode-card .mc-ic{font-size:28px;}
+.mode-card .mc-tt{font-size:13px;font-weight:700;margin-top:4px;}
+.mode-card .mc-ds{font-size:10px;color:#8a7a60;margin-top:3px;}
+.waiting-dots::after{content:'';animation:wd 1.4s infinite;}
+@keyframes wd{0%{content:'';}33%{content:'.';}66%{content:'..';}100%{content:'...';}}
+.player-slot{display:flex;align-items:center;gap:10px;padding:12px;border-radius:11px;background:var(--bg);margin-bottom:10px;border:1px solid var(--ui-border);}
+.player-slot .ps-av{font-size:24px;}
+.player-slot .ps-nm{font-weight:700;font-size:14px;}
+.player-slot .ps-st{font-size:11px;color:#8a7a60;}
+.player-slot.ready{border-color:var(--correct);background:rgba(29,158,117,.06);}
+
+.hidden{display:none!important;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ════ MENU ════ -->
+<div id="scr-menu" class="screen active">
+  <div class="mcard">
+    <div class="m-eyebrow">Piano Sight-Reading Battle</div>
+    <div class="m-title">Piano<span>Clash</span></div>
+    <div class="m-sub">SIGHT-READ · BATTLE · WIN</div>
+    <hr class="dv">
+    <div style="font-size:11px;color:#8a7a60;margin-bottom:6px;">作答方式</div>
+    <div class="toggle" id="imt">
+      <button class="on" onclick="setIM('piano',this)">🎹 钢琴键盘</button>
+      <button onclick="setIM('solfege',this)">🎵 Do Re Mi</button>
+    </div>
+    <button class="mbtn mb-dark" onclick="showLevels()">📚 关卡模式</button>
+    <button class="mbtn mb-green" onclick="startPractice()">✏️ 练习模式（自由编谱）</button>
+    <button class="mbtn mb-blue" onclick="showSongs()">🎵 流行曲模式</button>
+    <button class="mbtn mb-red" onclick="show('scr-online')">⚔️ 联机对战</button>
+    <div class="mini-link" onclick="show('scr-keybind')">⌨️ 键盘设定</div>
+    <div class="mini-link" onclick="show('scr-midi')">🎹 连接电钢 / MIDI</div>
+    <div style="font-size:10px;color:#c0b8a0;margin-top:14px;" id="ver-label"></div>
+  </div>
+</div>
+
+<!-- ════ LEVELS ════ -->
+<div id="scr-levels" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">选择关卡</div>
+    <div class="lvgrid" id="lvgrid"></div>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ POP SONGS ════ -->
+<div id="scr-songs" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">🎵 流行曲模式</div>
+    <div style="font-size:11px;color:#8a7a60;text-align:center;margin-bottom:14px;">内置曲目为公共版权作品。导入支持 <b>MusicXML</b>（.musicxml/.xml，乐谱软件通用标准）。</div>
+    <div id="song-list"></div>
+    <hr class="dv" style="margin:14px 0;">
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">我的导入曲目</div>
+    <div id="my-song-list"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="mbtn mb-green" style="flex:1;margin:0 0 9px;" onclick="document.getElementById('song-import-file').click()">📥 导入 MusicXML</button>
+      <button class="mbtn mb-blue" style="flex:1;margin:0 0 9px;" onclick="showImportHelp()">❓ 怎么导入</button>
+    </div>
+    <input type="file" id="song-import-file" accept=".musicxml,.xml,.json,.txt" style="display:none" onchange="importSong(event)">
+    <div class="mini-link" onclick="downloadSongTemplate()" style="margin-bottom:6px;">📄 下载简易文本模板（手动输入用）</div>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ KEYBIND SETTINGS ════ -->
+<div id="scr-keybind" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">⌨️ 键盘设定</div>
+    <div class="preset-row">
+      <div class="preset-btn" data-preset="0" onclick="pickPreset(0,this)">单手居中<small>ASDF GHJK<br>= C4–C5</small></div>
+      <div class="preset-btn" data-preset="1" onclick="pickPreset(1,this)">双手分离<small>WERASDF=C3<br>空格=C4 JKL;UIO</small></div>
+      <div class="preset-btn" data-preset="2" onclick="pickPreset(2,this)">全键盘<small>1-8 / QWERTY<br>C2 起 4 八度</small></div>
+      <div class="preset-btn" data-preset="3" onclick="pickPreset(3,this)">全自定义<small>点音符<br>按键绑定</small></div>
+    </div>
+    <div class="bind-status" id="bind-status"></div>
+    <div class="bind-mini-piano" id="bind-piano"></div>
+    <div style="font-size:11px;color:#8a7a60;text-align:center;margin-bottom:14px;" id="bind-hint">选择一个预设方案，或选「全自定义」点击琴键后按物理按键绑定</div>
+    <button class="mbtn mb-dark" onclick="saveKeybind()">保存设定</button>
+    <div style="display:flex;gap:8px;">
+      <button class="mbtn mb-blue" style="flex:1;margin:0 0 9px;" onclick="exportKeybind()">📤 导出 Excel</button>
+      <button class="mbtn mb-green" style="flex:1;margin:0 0 9px;" onclick="document.getElementById('kb-import-file').click()">📥 导入 Excel</button>
+    </div>
+    <input type="file" id="kb-import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importKeybind(event)">
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ MIDI / DIGITAL PIANO ════ -->
+<div id="scr-midi" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">🎹 连接电钢 / MIDI</div>
+    <div style="font-size:13px;color:#5a4a30;line-height:1.7;margin-bottom:14px;">
+      把真正的电钢琴或 MIDI 键盘接到电脑，就能用真琴键玩这个游戏，弹下去直接判定。
+    </div>
+    <div class="bind-status" id="midi-status" style="margin-bottom:14px;"></div>
+    <button class="mbtn mb-dark" id="midi-btn" onclick="toggleMIDI()">🎹 连接 MIDI 设备</button>
+    <div style="font-size:12px;color:#8a7a60;line-height:1.8;margin:14px 0;background:rgba(200,144,10,.08);border-radius:10px;padding:12px;">
+      <b>怎么接：</b><br>
+      1. 电钢用 <b>USB-to-Host</b> 口（或 USB-MIDI 线）连电脑<br>
+      2. 或 MIDI 键盘直接插 USB<br>
+      3. 确认设备已开机，点上面「连接」并授权<br>
+      4. 连上后弹真琴键，屏幕琴键会亮、游戏照常判定<br><br>
+      <b>注意：</b>Web MIDI 仅支持 <b>Chrome / Edge</b>（Safari 不支持）；中央 C（C4）对应 MIDI 60，标准对齐。
+    </div>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ ONLINE LOBBY ════ -->
+<div id="scr-online" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">⚔️ 联机对战</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">你的昵称</div>
+    <input id="player-name" maxlength="12" placeholder="输入昵称（最多12字）"
+      style="width:100%;padding:12px;border-radius:11px;border:2px solid var(--ui-border);font-size:15px;margin-bottom:14px;font-family:inherit;box-sizing:border-box;">
+    <button class="mbtn mb-red" onclick="createRoom()">🏠 创建房间</button>
+    <div style="text-align:center;font-size:12px;color:#8a7a60;margin:14px 0;">— 或 —</div>
+    <input class="code-input" id="join-code" maxlength="6" placeholder="房间码">
+    <button class="mbtn mb-blue" onclick="joinRoom()">🚪 加入房间</button>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回</button>
+    <div style="font-size:10px;color:#8a7a60;text-align:center;margin-top:10px;" id="fb-status">连接中…</div>
+  </div>
+</div>
+
+<!-- ════ ROOM (waiting) ════ -->
+<div id="scr-room" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">房间</div>
+    <div class="room-code" id="room-code">------</div>
+    <div style="text-align:center;font-size:11px;color:#8a7a60;margin-bottom:14px;">把房间码发给朋友加入</div>
+
+    <div id="host-controls">
+      <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">对战模式</div>
+      <div class="mode-pick">
+        <div class="mode-card on" data-vsmode="speed" onclick="pickVsMode('speed',this)">
+          <div class="mc-ic">🏁</div><div class="mc-tt">速度对决</div><div class="mc-ds">同一份谱<br>先完成获胜</div>
+        </div>
+        <div class="mode-card" data-vsmode="hp" onclick="pickVsMode('hp',this)">
+          <div class="mc-ic">⚔️</div><div class="mc-tt">血量对战</div><div class="mc-ds">完成小节<br>扣对手血</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">对战曲目</div>
+      <select id="vs-song" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;"></select>
+      <div id="vs-time-row" style="display:none;">
+        <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">对战时长（血量模式）</div>
+        <select id="vs-time" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
+          <option value="1">1 分钟</option><option value="2">2 分钟</option><option value="3" selected>3 分钟</option>
+          <option value="5">5 分钟</option><option value="7">7 分钟</option><option value="10">10 分钟</option>
+        </select>
+      </div>
+      <div id="vs-goal-row" style="display:none;">
+        <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">目标小节数（速度模式，8小节为一组）</div>
+        <select id="vs-goal" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
+          <option value="16" selected>16 小节（2组）</option>
+          <option value="24">24 小节（3组）</option>
+          <option value="32">32 小节（4组）</option>
+          <option value="40">40 小节（5组）</option>
+          <option value="48">48 小节（6组）</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="player-slots"></div>
+
+    <button class="mbtn mb-green" id="ready-btn" onclick="toggleReady()">准备</button>
+    <button class="mbtn mb-dark hidden" id="start-btn" onclick="hostStart()">开始对战</button>
+    <button class="mbtn mb-ghost" onclick="leaveRoom()">离开房间</button>
+  </div>
+</div>
+
+<!-- ════ GAME ════ -->
+<div id="scr-game" class="screen">
+  <div class="hud">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button class="icon-btn" onclick="togglePause()">⏸</button>
+      <div class="hblk"><div class="hv" id="h-score">0</div><div class="hl">分数</div></div>
+    </div>
+    <div class="hblk">
+      <div class="timer" id="h-timer">1:00</div>
+      <div class="hl" id="h-lvname">LEVEL 1</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <div class="hblk"><div class="hv" id="h-bars" style="color:var(--correct)">0</div><div class="hl">小节</div></div>
+      <div class="hblk"><div class="hv" id="h-sheet" style="color:var(--gold)">100%</div><div class="hl">正确率</div></div>
+    </div>
+  </div>
+
+  <div class="vs-bar" id="vs-bar">
+    <div class="vs-side">
+      <div class="vs-name" style="color:var(--blue)" id="vs-me-name">我</div>
+      <div class="vs-track"><div class="vs-fill me" id="vs-me-fill"></div></div>
+      <div class="vs-hp" id="vs-me-hp"></div>
+    </div>
+    <div style="font-family:Georgia;font-weight:700;color:#888;">VS</div>
+    <div class="vs-side">
+      <div class="vs-name" style="color:var(--red);text-align:right" id="vs-opp-name">对手</div>
+      <div class="vs-track"><div class="vs-fill opp" id="vs-opp-fill" style="margin-left:auto"></div></div>
+      <div class="vs-hp" style="text-align:right" id="vs-opp-hp"></div>
+    </div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="staff-area" id="staff-area">
+    <canvas id="cv"></canvas>
+    <div class="feedback" id="fb"></div>
+    <div class="palette" id="palette"></div>
+    <div class="pal-tools" id="pal-tools">
+      <button class="ptool play" onclick="playUserSheet()">▶ 播放</button>
+      <button class="ptool" id="metro-btn" onclick="toggleMetro()">🎵 节拍器 关</button>
+      <span class="ptool" style="display:flex;align-items:center;gap:4px;cursor:default;">速度
+        <input id="bpm-input" type="number" min="30" max="240" value="80" style="width:46px;border:1px solid var(--ui-border);border-radius:5px;padding:2px 4px;font-size:12px;text-align:center;"> BPM
+      </span>
+      <button class="ptool save" onclick="saveUserSheet()">💾 保存</button>
+      <button class="ptool" onclick="clearUserSheet()">🗑 清空</button>
+      <button class="ptool" style="background:var(--red);color:#fff;border:none;" onclick="startCustomGame()">🎮 开始游戏</button>
+    </div>
+    <div class="practice-help" id="practice-help">
+      把右侧音符 <b>拖到五线谱</b> 上放置 · 拖动 <b>已有音符</b> 可移动/改音高 · 拖出谱外或双击 <b>删除</b> · ♯♭♮ 拖到音符上加记号
+    </div>
+  </div>
+
+  <div class="input-area" id="input-area">
+    <div class="kb-scroll" id="kb-scroll"></div>
+  </div>
+
+  <div class="pov" id="pov">
+    <div id="pov-title" style="font-family:Georgia,serif;font-size:34px;">暂停</div>
+    <button class="mbtn mb-dark" style="width:180px" onclick="togglePause()">继续</button>
+    <button class="mbtn mb-ghost" style="width:180px" onclick="quitGame()">退出</button>
+  </div>
+  <div class="strike-ov" id="strike-ov">
+    <div class="strike-icon">⏸</div>
+    <div class="strike-title">连续弹错 3 次</div>
+    <div class="strike-sub">冷静一下，<span id="strike-count">3</span> 秒后继续</div>
+  </div>
+</div>
+
+<!-- ════ RESULT ════ -->
+<div id="scr-result" class="screen cscreen">
+  <div class="ccard">
+    <div class="ric" id="r-ic">🏆</div>
+    <div class="rtt" id="r-tt">时间到！</div>
+    <div class="stars-big" id="r-st">★★★</div>
+    <div class="rgrid" id="r-grid"></div>
+    <div class="racts">
+      <button class="mbtn mb-ghost" onclick="retryGame()">重试</button>
+      <button class="mbtn mb-dark" id="btn-next" onclick="nextLevel()">下一关 →</button>
+      <button class="mbtn mb-ghost" onclick="show('scr-menu')">主菜单</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, onDisconnect, child } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyDiMY7gFRIoH9pYcG1UXF3mpnUsyvCnB50",
+  authDomain: "uth-project-ebefc.firebaseapp.com",
+  databaseURL: "https://uth-project-ebefc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "uth-project-ebefc",
+  storageBucket: "uth-project-ebefc.firebasestorage.app",
+  messagingSenderId: "142932917394",
+  appId: "1:142932917394:web:3645babc265f548531fa4b"
+};
+try {
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+  window.FB = { db, ref, set, get, update, onValue, onDisconnect, child };
+  // 匿名登录，用 Firebase UID 替换随机 ID（跨设备稳定）
+  signInAnonymously(auth).catch(e => console.warn('Auth failed', e));
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      window.myId = user.uid;
+      window.dispatchEvent(new Event('fb-ready'));
+    }
+  });
+} catch(e){ console.error('FB init failed',e); window.FB=null; }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+'use strict';
+const APP_VERSION = '1.0.0';
+// ═══════════════════════════════════════════════════════════
+// NOTE DATA — slot system (slot 0 = bottom staff line)
+// Treble bottom line = E4 ; Bass bottom line = G2
+// ═══════════════════════════════════════════════════════════
+const ALL=[
+ // bass-range
+ {name:'C2',sol:'Do',midi:36},{name:'D2',sol:'Re',midi:38},{name:'E2',sol:'Mi',midi:40},
+ {name:'F2',sol:'Fa',midi:41},{name:'G2',sol:'Sol',midi:43},{name:'A2',sol:'La',midi:45},{name:'B2',sol:'Si',midi:47},
+ {name:'C3',sol:'Do',midi:48},{name:'D3',sol:'Re',midi:50},{name:'E3',sol:'Mi',midi:52},
+ {name:'F3',sol:'Fa',midi:53},{name:'G3',sol:'Sol',midi:55},{name:'A3',sol:'La',midi:57},{name:'B3',sol:'Si',midi:59},
+ {name:'C4',sol:'Do',midi:60},{name:'D4',sol:'Re',midi:62},{name:'E4',sol:'Mi',midi:64},
+ {name:'F4',sol:'Fa',midi:65},{name:'G4',sol:'Sol',midi:67},{name:'A4',sol:'La',midi:69},{name:'B4',sol:'Si',midi:71},
+ {name:'C5',sol:'Do',midi:72},{name:'D5',sol:'Re',midi:74},{name:'E5',sol:'Mi',midi:76},
+ {name:'F5',sol:'Fa',midi:77},{name:'G5',sol:'Sol',midi:79},{name:'A5',sol:'La',midi:81},{name:'B5',sol:'Si',midi:83},
+ {name:'C6',sol:'Do',midi:84}
+];
+const BYNAME={}; ALL.forEach(n=>BYNAME[n.name]=n);
+// Return a note-data object for ANY name incl accidentals.
+// For 'C#4' → {name:'C#4', base:'C4', acc:'sharp', sol:'Do', midi:61}
+function noteData(name){
+  if(BYNAME[name]) return Object.assign({base:name,acc:null}, BYNAME[name]);
+  const p=parseNote(name);
+  const baseName=p.letter+p.oct;
+  const bd=BYNAME[baseName]||{sol:'',midi:60};
+  return {name, base:baseName, acc:p.acc==='#'?'sharp':p.acc==='b'?'flat':null,
+          sol:bd.sol, midi:midiOf(name)};
+}
+// MIDI for any note name incl. sharps/flats (e.g. 'C#4','Eb3')
+function midiOf(name){
+  const m=name.match(/^([A-G])([#b]?)(-?\d+)$/);
+  if(!m) return (BYNAME[name]?BYNAME[name].midi:69);
+  const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]];
+  const acc=m[2]==='#'?1:m[2]==='b'?-1:0;
+  const oct=+m[3];
+  return 12*(oct+1)+base+acc;
+}
+function freq(name){ return 440*Math.pow(2,(midiOf(name)-69)/12); }
+
+// MIDI note number → game note name (sharps). 60 = C4 (middle C), matches midiOf('C4').
+const _MIDI_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function midiToName(num){
+  const oct=Math.floor(num/12)-1;
+  return _MIDI_NAMES[num%12]+oct;
+}
+
+// parse a note name (incl. accidentals) → {letter, acc:'#'|'b'|'', oct}
+function parseNote(name){
+  const m=name.match(/^([A-G])([#b]?)(-?\d+)$/);
+  if(!m) return {letter:name[0]||'C',acc:'',oct:+(name.slice(1))||4};
+  return {letter:m[1],acc:m[2],oct:+m[3]};
+}
+// staff slot for a note in a given clef (accidental does NOT change staff position)
+function slotOf(name,clef){
+  const order=['C','D','E','F','G','A','B'];
+  const p=parseNote(name);
+  const dia = p.oct*7 + order.indexOf(p.letter);
+  if(clef==='treble'){ const e4=4*7+order.indexOf('E'); return dia-e4; }
+  else { const g2=2*7+order.indexOf('G'); return dia-g2; }
+}
+// which clef should a note display in (for mixed) — C4(midi60) and above → treble
+function clefFor(name){ return midiOf(name)>=60?'treble':'bass'; }
+
+const DUR={w:4,hd:3,h:2,q:1,e:.5,s:.25};
+const DUR_GLYPH={w:'𝅝',hd:'𝅗𝅥·',h:'𝅗𝅥',q:'♩',e:'♪',s:'♬'};
+
+// ═══ LEVELS ═══
+// ═══ LEVELS — based on Michael Aaron Piano Course Grade 1 lesson order ═══
+// hand: 'R' right(treble) / 'L' left(bass) / 'M' mixed-alternating
+// pool entries may be accidental notes like 'C#4','Bb3' → rendered with ♯/♭ and answered on the black key
+const LEVELS=[
+ {id:1,page:7, hand:'R',pool:['C4','D4','B3'],name:'第一课 First Lesson',pats44:[['w'],['h','h'],['q','q','h']],pats34:[['hd'],['h','q']]},
+ {id:2,page:8, hand:'R',pool:['C4','D4','E4','B3','A3'],name:'两个新音 Two New Notes',pats44:[['q','q','q','q'],['h','h'],['q','q','h']],pats34:[['q','q','q'],['hd']]},
+ {id:3,page:9, hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'上行音阶 Up the Scale',pats44:[['q','q','q','q'],['h','q','q']],pats34:[['q','q','q'],['hd'],['q','h']]},
+ {id:4,page:10,hand:'R',pool:['C4','D4','E4','F4','G4'],name:'叮咚 Ding Dong',pats44:[['q','q','q','q'],['h','h'],['q','q','h']],pats34:[['q','q','q']]},
+ {id:5,page:13,hand:'R',pool:['C4','D4','E4','F4','G4','A4'],name:'休止符 Rests',pats44:[['q','q','h'],['h','h'],['q','q','q','q']],pats34:[['q','q','q'],['h','q']],rests:true},
+ {id:6,page:13,hand:'L',pool:['C3','D3','E3','F3','G3','A3','B3','C4'],name:'左手新位置 Left Hand',pats44:[['q','q','q','q'],['h','h'],['h','q','q']],pats34:[['q','q','q'],['hd']]},
+ {id:7,page:17,hand:'M',pool:['C4','D4','E4','F4','G4','A4','B4','C5','C3','D3','E3','F3','G3','A3','B3'],name:'双手齐奏 Hands Together',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q']]},
+ {id:8,page:20,hand:'R',pool:['C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4'],name:'升号 Sharp ♯',pats44:[['q','q','q','q'],['h','h'],['h','q','q']],pats34:[['q','q','q'],['h','q']],sharps:true},
+ {id:9,page:21,hand:'R',pool:['C4','Db4','D4','Eb4','E4','F4','Gb4','G4','Ab4','A4','Bb4','B4'],name:'降号 Flat ♭',pats44:[['q','q','q','q'],['h','h'],['q','q','h']],pats34:[['q','q','q'],['h','q']],flats:true},
+ {id:10,page:22,hand:'R',pool:['C4','C#4','D4','Eb4','E4','F4','F#4','G4','Ab4','A4','Bb4','B4'],name:'还原号 Natural ♮',pats44:[['q','q','q','q'],['h','q','q'],['h','h']],pats34:[['q','q','q']],sharps:true,flats:true},
+ {id:11,page:23,hand:'M',pool:['G4','A4','B4','C5','D5','F#4','G3','A3','B3','C4','D4','F#3'],name:'G大调 Key of G',pats44:[['q','q','q','q'],['h','q','q'],['q','q','h']],pats34:[['q','q','q'],['hd']],keysig:'G'},
+ {id:12,page:26,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'八分音符 Eighth Notes',pats44:[['q','e','e','q','q'],['e','e','e','e','h'],['q','q','e','e','q']],pats34:[['q','e','e','q'],['e','e','e','e','q']]},
+];
+const GAME_DURATION=60;
+
+// ═══ KEYBOARD CONFIG ═══
+const KB_PRESETS=[
+ // 0: single-hand centered ASDFGHJK = C4..C5
+ {name:'单手居中',map:{a:'C4',s:'D4',d:'E4',f:'F4',g:'G4',h:'A4',j:'B4',k:'C5'}},
+ // 1: two-hand split
+ {name:'双手分离',map:{
+   // left hand C3..B3
+   w:'C3',e:'D3',r:'E3',a:'F3',s:'G3',d:'A3',f:'B3',
+   // middle C
+   ' ':'C4',
+   // right hand D4..C5
+   j:'D4',k:'E4',l:'F4',';':'G4',u:'A4',i:'B4',o:'C5'
+ }},
+ // 2: full keyboard C2-start, 4 rows of QWERTY = 4 octaves of white keys
+ //  number row 1-8 = C2..C3 region, QWERTYUI = next, ASDFGHJK = next, ZXCVBNM, = next
+ {name:'全键盘',map:{
+   '1':'C2','2':'D2','3':'E2','4':'F2','5':'G2','6':'A2','7':'B2','8':'C3',
+   'q':'D3','w':'E3','e':'F3','r':'G3','t':'A3','y':'B3','u':'C4','i':'D4','o':'E4',
+   'a':'F4','s':'G4','d':'A4','f':'B4','h':'C5','j':'D5','k':'E5','l':'F5',
+   'z':'G5','x':'A5','c':'B5','v':'C6'
+ }},
+ // 3: fully custom (loaded from storage)
+ {name:'全自定义',map:{}},
+];
+const CUSTOM_PRESET_IDX=3;
+let kbPreset = +(localStorage.getItem('psr_kbPreset')||1);
+let kbCustom = JSON.parse(localStorage.getItem('psr_kbCustom')||'{}');
+function activeKeyMap(){
+  if(kbPreset===CUSTOM_PRESET_IDX) return kbCustom;
+  return KB_PRESETS[kbPreset].map;
+}
+// reverse: note -> key (for showing hints on keys)
+function keyForNote(note){
+  const m=activeKeyMap();
+  for(const k in m){ if(m[k]===note) return k; }
+  return null;
+}
+
+// ═══ STATE ═══
+let inputMode='piano', curLv=1, gs=null, SC={};
+let gameKind='campaign'; // campaign | practice | online
+const lp=()=>{try{return JSON.parse(localStorage.getItem('psr3')||'{}')}catch{return{}}};
+const sp=p=>{try{localStorage.setItem('psr3',JSON.stringify(p))}catch{}};
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function setIM(m,b){inputMode=m;document.querySelectorAll('#imt button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+// ═══ AUDIO (piano-ish synth) ═══
+let AC=null;
+const ea=()=>{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();};
+function playPiano(note){
+  ea(); const f=freq(note),t=AC.currentTime;
+  const g=AC.createGain();g.connect(AC.destination);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.3,t+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+1.3);
+  const o1=AC.createOscillator();o1.type='triangle';o1.frequency.value=f;
+  const o2=AC.createOscillator();o2.type='sine';o2.frequency.value=f*2.01;
+  const g2=AC.createGain();g2.gain.value=0.3;o2.connect(g2);g2.connect(g);
+  const o3=AC.createOscillator();o3.type='sine';o3.frequency.value=f*3;
+  const g3=AC.createGain();g3.gain.value=0.1;o3.connect(g3);g3.connect(g);
+  o1.connect(g);
+  o1.start(t);o2.start(t);o3.start(t);o1.stop(t+1.4);o2.stop(t+1.4);o3.stop(t+1.4);
+}
+function buzz(){ea();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.value=98;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.22);}
+function ding(){ea();const t=AC.currentTime;[1320,1760].forEach((fr,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=fr;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.1,t+i*.08);g.gain.exponentialRampToValueAtTime(.001,t+i*.08+.3);o.start(t+i*.08);o.stop(t+i*.08+.32);});}
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS / STAFF RENDERING
+// ═══════════════════════════════════════════════════════════
+let cv,cx;
+function initCv(){cv=document.getElementById('cv');cx=cv.getContext('2d');window.addEventListener('resize',()=>rz());}
+function rz(){
+  const a=document.getElementById('staff-area');
+  if(!a.clientWidth||!a.clientHeight)return;
+  const dpr=window.devicePixelRatio||1;
+  cv.width=a.clientWidth*dpr;cv.height=a.clientHeight*dpr;
+  cv.style.width=a.clientWidth+'px';cv.style.height=a.clientHeight+'px';
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  calcSC(a.clientWidth,a.clientHeight);
+  draw();
+}
+function calcSC(W,H){
+  // Two rows, each a treble+bass grand staff. Lay out by SLOT BUDGET (each slot = hs px)
+  // so high/low ledger notes have guaranteed headroom and never collide with neighbor staves.
+  // Vertical budget (half-slots) per element, top→bottom:
+  //   topMargin 6, treble 8, inner 8, bass 8, interRow 12, treble 8, inner 8, bass 8, bottomMargin 6
+  const TOP=6, STAFF=8, INNER=8, INTERROW=12, BOT=6;
+  const totalSlots = TOP + STAFF + INNER + STAFF + INTERROW + STAFF + INNER + STAFF + BOT; // 72
+  const hs=Math.min(H/totalSlots, 11);
+  const clefW=58, tsW=28;
+  const palW = (gameKind==='practice')?62:0;
+  const tsX=clefW+18;
+  const sheetL=tsX+tsW+22;
+  // bottom-line Y of each staff (slot 0). Build cumulative offsets from top.
+  const row0_trebleTop = TOP*hs;                          // y of treble top line (slot 8)
+  const row0_trebleBottom = row0_trebleTop + STAFF*hs;    // slot 0
+  const row0_bassTop = row0_trebleBottom + INNER*hs;
+  const row0_bassBottom = row0_bassTop + STAFF*hs;
+  const row1_trebleTop = row0_bassBottom + INTERROW*hs;
+  const row1_trebleBottom = row1_trebleTop + STAFF*hs;
+  const row1_bassTop = row1_trebleBottom + INNER*hs;
+  const row1_bassBottom = row1_bassTop + STAFF*hs;
+  SC={W,H,hs,clefW,tsW,tsX,palW,sheetL,sheetR:W-14-palW,
+      rows:[
+        {trebleBottom:row0_trebleBottom, bassBottom:row0_bassBottom},
+        {trebleBottom:row1_trebleBottom, bassBottom:row1_bassBottom}
+      ]};
+}
+// slot→y given clef and row (default row 0)
+function s2y(slot,clef,row){
+  row=row||0;
+  const r=SC.rows&&SC.rows[row]?SC.rows[row]:{trebleBottom:SC.trebleBottom,bassBottom:SC.bassBottom};
+  return (clef==='treble'?r.trebleBottom:r.bassBottom)-slot*SC.hs;
+}
+const BARS_PER_ROW=4, TOTAL_BARS=8;
+
+// ═══════════════════════════════════════════════════════════
+// BRAVURA SMuFL GLYPHS — professional notation rendering
+// 1 staff space = lineGap px ; set canvas font-size = 4*lineGap so 1sp = lineGap
+// ═══════════════════════════════════════════════════════════
+const SMUFL={
+  gClef:'\uE050', fClef:'\uE062', cClef:'\uE05C',
+  noteWhole:'\uE0A2', noteHalf:'\uE0A3', noteBlack:'\uE0A4',
+  flag8Up:'\uE240', flag8Down:'\uE241', flag16Up:'\uE242', flag16Down:'\uE243',
+  flag32Up:'\uE244', flag32Down:'\uE245',
+  timeSig:['\uE080','\uE081','\uE082','\uE083','\uE084','\uE085','\uE086','\uE087','\uE088','\uE089'],
+  augDot:'\uE1E7',
+  flat:'\uE260', natural:'\uE261', sharp:'\uE262',
+  restWhole:'\uE4E3', restHalf:'\uE4E4', restQuarter:'\uE4E5', rest8th:'\uE4E6', rest16th:'\uE4E7',
+};
+let bravuraReady=false;
+// load + detect Bravura availability
+if(document.fonts&&document.fonts.load){
+  document.fonts.load('40px Bravura').then(()=>{
+    document.fonts.ready.then(()=>{ bravuraReady=document.fonts.check('40px Bravura'); if(gs&&gs.sheet)draw(); });
+  }).catch(()=>{bravuraReady=false;});
+}
+function smuflFont(px){ return `${px}px Bravura`; }
+
+function draw(){
+  if(!cx||!SC.W)return;
+  cx.clearRect(0,0,SC.W,SC.H);
+  for(let row=0;row<2;row++){
+    drawStaffLines('treble',row);drawStaffLines('bass',row);
+    drawClefs(row);
+    if(gs&&gs.sheet)drawTimeSig(row);
+  }
+  if(gs&&gs.sheet)drawBars();
+}
+function drawStaffLines(clef,row){
+  cx.strokeStyle='#1a1209';cx.lineWidth=1.3;
+  const rightEdge = SC.sheetR;
+  for(let i=0;i<5;i++){const y=s2y(i*2,clef,row);cx.beginPath();cx.moveTo(10,Math.round(y)+0.5);cx.lineTo(rightEdge,Math.round(y)+0.5);cx.stroke();}
+}
+
+function drawClefs(row){
+  cx.fillStyle='#1a1209';cx.textAlign='left';cx.textBaseline='alphabetic';
+  if(bravuraReady){
+    const fs=SC.hs*8;
+    cx.font=smuflFont(fs);
+    cx.fillText(SMUFL.gClef, 12, s2y(2,'treble',row));
+    cx.fillText(SMUFL.fClef, 12, s2y(6,'bass',row));
+  } else {
+    cx.textBaseline='alphabetic';
+    cx.font=`${Math.round(SC.hs*10.5)}px serif`;
+    cx.fillText('𝄞',10,s2y(2,'treble',row)+SC.hs*3.4);
+    cx.font=`${Math.round(SC.hs*7.6)}px serif`;
+    cx.fillText('𝄢',12,s2y(6,'bass',row)+SC.hs*1.2);
+  }
+}
+
+function drawTimeSig(row){
+  const ts=gs.sheet.ts;cx.fillStyle='#1a1209';
+  const cxPos=SC.tsX+SC.tsW/2;
+  if(bravuraReady){
+    const fs=SC.hs*8;cx.font=smuflFont(fs);cx.textAlign='center';cx.textBaseline='middle';
+    for(const clef of['treble','bass']){
+      cx.fillText(SMUFL.timeSig[ts], cxPos, s2y(6,clef,row));
+      cx.fillText(SMUFL.timeSig[4],  cxPos, s2y(2,clef,row));
+    }
+  } else {
+    cx.font=`bold ${Math.round(SC.hs*3.6)}px Georgia,serif`;cx.textAlign='center';cx.textBaseline='middle';
+    for(const clef of['treble','bass']){cx.fillText(String(ts),cxPos,s2y(6,clef,row));cx.fillText('4',cxPos,s2y(2,clef,row));}
+  }
+}
+
+function barRow(bi){ return Math.floor(bi/BARS_PER_ROW); }
+function barCol(bi){ return bi%BARS_PER_ROW; }
+
+function drawBars(){
+  const {bars}=gs.sheet;const n=bars.length;
+  const bw=(SC.sheetR-SC.sheetL)/BARS_PER_ROW;
+  // current-bar highlight (skip in practice)
+  if(gs.curBar<n && gameKind!=='practice' && gameKind!=='custom'){
+    const row=barRow(gs.curBar), col=barCol(gs.curBar);
+    const bx=SC.sheetL+col*bw;
+    cx.fillStyle='rgba(250,238,218,0.55)';
+    const top=s2y(14,'treble',row),bot=s2y(-6,'bass',row);
+    cx.fillRect(bx,top,bw,bot-top);
+  }
+  // ── Barlines that CONNECT the grand staff (treble top → bass bottom), per piano notation ──
+  cx.strokeStyle='#1a1209';
+  const lastBar=n-1;
+  for(let row=0;row<2;row++){
+    const yTop=s2y(8,'treble',row), yBot=s2y(0,'bass',row);
+    // brace { at the start of each row's grand staff
+    drawBrace(SC.clefW-12, yTop, yBot);
+    // internal + start barlines (NO barline right after the time signature → start at sheetL)
+    for(let b=0;b<=BARS_PER_ROW;b++){
+      const x=SC.sheetL+b*bw;
+      const barsInThisRow = Math.min(BARS_PER_ROW, n - row*BARS_PER_ROW);
+      if(b>barsInThisRow) break;
+      // is this the final barline of the whole piece?
+      const globalBarBefore = row*BARS_PER_ROW + b; // bars fully to the left of x
+      const isEnd = (b===barsInThisRow) && (globalBarBefore>=n);
+      if(isEnd){
+        // double barline = end of music (thin + thick)
+        cx.lineWidth=1.4;cx.beginPath();cx.moveTo(x-6,yTop);cx.lineTo(x-6,yBot);cx.stroke();
+        cx.lineWidth=3.2;cx.beginPath();cx.moveTo(x-1,yTop);cx.lineTo(x-1,yBot);cx.stroke();
+      }else{
+        cx.lineWidth=1.3;cx.beginPath();cx.moveTo(x,yTop);cx.lineTo(x,yBot);cx.stroke();
+      }
+    }
+    // bar number at the start of each row (first bar index of the row + 1)
+    const firstBarOfRow = row*BARS_PER_ROW;
+    if(firstBarOfRow < n){
+      cx.fillStyle='#9a8a6a';cx.font='600 12px ui-sans-serif,system-ui';cx.textAlign='left';cx.textBaseline='alphabetic';
+      cx.fillText(String(firstBarOfRow+1), SC.sheetL+2, yTop-6);
+    }
+  }
+  bars.forEach((bar,bi)=>{
+    const row=barRow(bi), col=barCol(bi);
+    const bx=SC.sheetL+col*bw, total=bar.ts;
+    ['treble','bass'].forEach(clef=>{
+      const voiceNotes=bar.notes.filter(nt=>clefFor(nt.nd.name)===clef);
+      const n=voiceNotes.length;
+      // dynamic padding: more notes → smaller margins so the full bar width is used
+      const pad = n<=2 ? bw*0.18 : n<=4 ? bw*0.12 : bw*0.05;
+      const usable=bw-pad*2;
+      // crowding scale: shrink noteheads when a voice is dense (fixes overlap in full arrangements)
+      const scale = 1; // note size stays constant (per user: don't shrink notes)
+      voiceNotes.forEach((nt,idx)=>{
+        if(n===1){
+          nt._x = bx+bw*0.5;
+        }else{
+          // even spacing by index guarantees no two notes collide horizontally;
+          // when sparse, blend toward true beat position to keep rhythmic feel
+          const evenX = bx+pad+(idx/(n-1))*usable;
+          const beatX = bx+pad+(nt.beat/total)*usable;
+          const w = n<=3 ? 0.4 : n<=4 ? 0.65 : 1; // dense → fully even spacing
+          nt._x = evenX*w + beatX*(1-w);
+        }
+        nt._clef=clef; nt._row=row; nt._scale=scale;
+      });
+      if((gameKind==='practice') && voiceNotes.length===0){
+        drawRest('w', bx+bw*0.5, clef, row);
+      }
+    });
+    // ── accidental visibility: show an accidental only when the note's intrinsic
+    //    accidental DIFFERS from what's already carried for that letter+octave in the bar.
+    //    A bare repeat of an altered note carries the alteration and shows no sign,
+    //    matching effectiveMidi(). An explicit natural (acc==='natural') always shows ♮.
+    {
+      const carried={}; // letter+oct → 'sharp'|'flat'|'natural'
+      bar.notes.forEach(nt=>{
+        const p=parseNote(nt.nd.name);
+        const key=p.letter+p.oct;
+        // intrinsic accidental of this note token
+        let a=nt.acc;
+        if(a==null && /[#b]/.test(nt.nd.name)) a=nt.nd.name.includes('#')?'sharp':'flat';
+        const prev=(key in carried)?carried[key]:null;
+        if(a==null){
+          // bare note: inherits carried alteration → no sign shown; updates nothing
+          nt._showAcc=null;
+        }else if(a==='natural'){
+          // explicit natural: show ♮ only if something was altered before
+          nt._showAcc = (prev && prev!=='natural') ? 'natural' : null;
+          carried[key]='natural';
+        }else{
+          // sharp/flat: show only if it changes the running state
+          nt._showAcc = (prev!==a) ? a : null;
+          carried[key]=a;
+        }
+      });
+    }
+    const groups=findBeamGroups(bar);
+    bar.notes.forEach((nt,ni)=>{ drawNote(nt,nt._x,nt._clef,bi,ni,groups,row); });
+    groups.forEach(g=>drawBeam(g,bar,bi,row));
+  });
+}
+
+// Grand-staff brace { spanning from yTop (treble top) to yBot (bass bottom)
+function drawBrace(x, yTop, yBot){
+  const midY=(yTop+yBot)/2, h=yBot-yTop, w=Math.min(12, h*0.06);
+  cx.strokeStyle='#1a1209'; cx.lineWidth=2.2; cx.lineCap='round';
+  cx.beginPath();
+  // left-opening curly brace built from two bezier halves meeting at the middle point
+  cx.moveTo(x+w*0.2, yTop);
+  cx.bezierCurveTo(x-w*0.6, yTop+h*0.16, x+w*1.2, midY-h*0.12, x-w*0.2, midY);
+  cx.bezierCurveTo(x+w*1.2, midY+h*0.12, x-w*0.6, yBot-h*0.16, x+w*0.2, yBot);
+  cx.stroke();
+}
+
+function drawRest(dur,x,clef,row){
+  row=row||0;
+  if(!bravuraReady){
+    cx.fillStyle='#9a8a6a';cx.font=`${Math.round(SC.hs*2.4)}px serif`;cx.textAlign='center';cx.textBaseline='middle';
+    cx.fillText('𝄽', x, s2y(4,clef,row)); return;
+  }
+  const fs=SC.hs*8;cx.font=smuflFont(fs);cx.textAlign='center';cx.textBaseline='alphabetic';
+  cx.fillStyle='#b0a080';
+  const g={w:SMUFL.restWhole,h:SMUFL.restHalf,q:SMUFL.restQuarter,e:SMUFL.rest8th,s:SMUFL.rest16th}[dur]||SMUFL.restWhole;
+  const restY = dur==='w' ? s2y(6,clef,row) : s2y(4,clef,row);
+  cx.fillText(g, x, restY);
+}
+
+function findBeamGroups(bar){
+  const groups=[];
+  ['treble','bass'].forEach(clef=>{
+    let cur=null;
+    bar.notes.forEach((nt,i)=>{
+      if(clefFor(nt.nd.name)!==clef)return;
+      const isShort=nt.dur==='e'||nt.dur==='s';
+      const beatInt=Math.floor(nt.beat+1e-6);
+      if(isShort){
+        if(cur&&cur.beatInt===beatInt){cur.idx.push(i);cur.hasS=cur.hasS||nt.dur==='s';}
+        else{if(cur&&cur.idx.length>1)groups.push(cur);cur={beatInt,idx:[i],hasS:nt.dur==='s'};}
+      }else{if(cur&&cur.idx.length>1)groups.push(cur);cur=null;}
+    });
+    if(cur&&cur.idx.length>1)groups.push(cur);
+  });
+  return groups;
+}
+
+function noteColor(nt,bi){
+  if(gameKind==='practice')return '#1a1209';
+  if(nt.state==='done')return '#1d9e75';
+  // gold = any pending note in the current chord-step (same beat as curNote)
+  if(bi===gs.curBar){
+    const b=gs.sheet.bars[bi];
+    if(b && gs.curNote<b.notes.length){
+      const curBeat=b.notes[gs.curNote].beat;
+      if(nt.beat===curBeat && nt.state!=='done') return '#ba7517';
+    }
+  }
+  return '#1a1209';
+}
+
+// stem length in staff-spaces (standard = 3.5sp)
+const STEM_SP=3.5;
+
+function drawNote(nt,x,clef,bi,ni,groups,row){
+  row=row||0;
+  const slot=slotOf(nt.nd.name,clef);
+  const y=s2y(slot,clef,row);
+  const hs=SC.hs;
+  const scale=nt._scale||1;          // crowding shrink factor (noteheads/flags/accidentals)
+  const col=noteColor(nt,bi);
+  if(nt._ghost){cx.save();cx.globalAlpha=0.3;}
+  const isCur=(gameKind!=='practice')&&bi===gs.curBar&&ni===gs.curNote;
+  const isOpen=nt.dur==='w'||nt.dur==='h'||nt.dur==='hd';
+  const inBeam=groups.some(g=>g.idx.includes(ni));
+
+  // ledger lines — only at line-positions (even slots) at/beyond the note.
+  cx.strokeStyle='#1a1209';cx.lineWidth=1.4;
+  const headW = (bravuraReady ? hs*1.18 : hs*1.4)*scale;
+  const lw=headW*2 + hs*1.2;
+  const ledgers=[];
+  for(let s3=-2; slot<=s3; s3-=2) ledgers.push(s3);
+  for(let s3=10; slot>=s3; s3+=2) ledgers.push(s3);
+  ledgers.forEach(s3=>{const ly=s2y(s3,clef,row);cx.beginPath();cx.moveTo(x-lw/2,Math.round(ly)+0.5);cx.lineTo(x+lw/2,Math.round(ly)+0.5);cx.stroke();});
+
+  const up=slot<4;
+
+  // ── Accidental (sharp/flat/natural) to the LEFT of the notehead ──
+  // Show only when it changes the running same-bar state (_showAcc set in drawBars).
+  const showAcc = ('_showAcc' in nt) ? nt._showAcc : nt.acc;
+  if(showAcc){
+    const accX = x - headW - hs*1.0;
+    if(bravuraReady){
+      const fs=SC.hs*8*scale;cx.font=smuflFont(fs);cx.textAlign='center';cx.textBaseline='middle';cx.fillStyle=col;
+      const g = showAcc==='sharp'?SMUFL.sharp:showAcc==='flat'?SMUFL.flat:SMUFL.natural;
+      // textBaseline 'middle' centers the glyph on the exact note Y for BOTH line and space notes
+      // (flat's visual center sits a hair high, nudge down slightly)
+      cx.fillText(g, accX, y + (showAcc==='flat'?hs*0.15:0));
+    }else{
+      cx.font=`bold ${Math.round(hs*2.6*scale)}px serif`;cx.textAlign='center';cx.textBaseline='middle';cx.fillStyle=col;
+      cx.fillText(showAcc==='sharp'?'♯':showAcc==='flat'?'♭':'♮', accX, y);
+    }
+  }
+
+  if(bravuraReady){
+    // ── Bravura glyph notehead ──
+    const fs=SC.hs*8*scale; // 1sp = 2*hs, em = 4sp = 8hs (shrunk when crowded)
+    cx.font=smuflFont(fs);
+    cx.textAlign='left';cx.textBaseline='alphabetic';cx.fillStyle=col;
+    const glyph = nt.dur==='w'?SMUFL.noteWhole : isOpen?SMUFL.noteHalf : SMUFL.noteBlack;
+    const advEm = nt.dur==='w'?0.422:0.295;
+    const headPxW = advEm*fs;
+    cx.fillText(glyph, x-headPxW/2, y);
+
+    // ── stem + flag (stem length stays full so it reaches the staff) ──
+    if(nt.dur!=='w' && !inBeam){
+      const stemPx=STEM_SP*2*hs;
+      const sx = up ? x+headPxW/2 - 0.6 : x-headPxW/2 + 0.6;
+      const ey = up ? y-stemPx : y+stemPx;
+      cx.strokeStyle=col;cx.lineWidth=Math.max(1.4,hs*0.3);
+      cx.beginPath();cx.moveTo(sx,y);cx.lineTo(sx,ey);cx.stroke();
+      if(nt.dur==='e'||nt.dur==='s'){
+        cx.font=smuflFont(fs);cx.textAlign='left';cx.textBaseline='alphabetic';cx.fillStyle=col;
+        const flag = nt.dur==='e' ? (up?SMUFL.flag8Up:SMUFL.flag8Down) : (up?SMUFL.flag16Up:SMUFL.flag16Down);
+        cx.fillText(flag, sx, ey);
+      }
+    }
+  } else {
+    // ── fallback hand-drawn notehead ──
+    const rx=hs*1.4*scale, ry=hs*0.92*scale;
+    cx.save();cx.translate(x,y);cx.rotate(nt.dur==='w'?0:-0.2);
+    cx.beginPath();cx.ellipse(0,0,nt.dur==='w'?rx*1.15:rx,ry,0,0,Math.PI*2);
+    if(isOpen){cx.fillStyle='#f7f3eb';cx.fill();cx.strokeStyle=col;cx.lineWidth=2;cx.stroke();}
+    else{cx.fillStyle=col;cx.fill();}
+    cx.restore();
+    if(isOpen){
+      const crossingSlots=[];
+      if(slot>=0&&slot<=8&&slot%2===0)crossingSlots.push(slot);
+      ledgers.forEach(s3=>{if(s3===slot)crossingSlots.push(s3);});
+      cx.save();cx.strokeStyle='#1a1209';cx.lineWidth=1.3;
+      crossingSlots.forEach(s3=>{const ly=s2y(s3,clef,row);cx.beginPath();cx.moveTo(x-rx*0.55,ly);cx.lineTo(x+rx*0.55,ly);cx.stroke();});
+      cx.restore();
+    }
+    if(nt.dur!=='w'&&!inBeam){
+      const sx=up?x+rx*0.82:x-rx*0.82;const ey=up?y-hs*6:y+hs*6;
+      cx.strokeStyle=col;cx.lineWidth=1.8;cx.beginPath();cx.moveTo(sx,y);cx.lineTo(sx,ey);cx.stroke();
+      if(nt.dur==='e'||nt.dur==='s'){
+        const d=up?1:-1;cx.lineWidth=1.9;cx.lineCap='round';
+        cx.beginPath();cx.moveTo(sx,ey);cx.bezierCurveTo(sx+11,ey+8*d,sx+12,ey+15*d,sx+5,ey+21*d);cx.stroke();
+        if(nt.dur==='s'){cx.beginPath();cx.moveTo(sx,ey+6*d);cx.bezierCurveTo(sx+11,ey+14*d,sx+12,ey+21*d,sx+5,ey+27*d);cx.stroke();}
+      }
+    }
+  }
+
+  // augmentation dot (dotted half) — to the right of head, in a space
+  if(nt.dur==='hd'){
+    cx.fillStyle=col;
+    const dy=slot%2===0?y-hs:y; // if on a line, dot sits in space above
+    cx.beginPath();cx.arc(x+headW+hs*0.6,dy,hs*0.32,0,Math.PI*2);cx.fill();
+  }
+
+  if(nt._ghost){cx.restore();}
+}
+
+function drawBeam(g,bar,bi,row){
+  row=row||0;
+  const notes=g.idx.map(i=>bar.notes[i]);
+  const hs=SC.hs;
+  const clef=clefFor(notes[0].nd.name);
+  const baseHeadW=bravuraReady?hs*1.18:hs*1.4;
+  const avg=notes.reduce((s,n)=>s+slotOf(n.nd.name,clef),0)/notes.length;
+  const up=avg<4;
+  let ext=up?Math.min(...notes.map(n=>s2y(slotOf(n.nd.name,clef),clef,row))):Math.max(...notes.map(n=>s2y(slotOf(n.nd.name,clef),clef,row)));
+  const beamY=up?ext-STEM_SP*2*hs:ext+STEM_SP*2*hs;
+  const allDone=gameKind!=='practice'&&notes.every(n=>n.state==='done');
+  const beamCol=allDone?'#1d9e75':'#1a1209';
+  // stems (attach at each note's scaled notehead edge)
+  notes.forEach(n=>{
+    const hw=baseHeadW*(n._scale||1);
+    const x=n._x,y=s2y(slotOf(n.nd.name,clef),clef,row);
+    const sx=up?x+hw/2-0.6:x-hw/2+0.6;
+    cx.strokeStyle=noteColor(n,bi);cx.lineWidth=Math.max(1.4,hs*0.3);
+    cx.beginPath();cx.moveTo(sx,y);cx.lineTo(sx,beamY);cx.stroke();
+  });
+  const hw0=baseHeadW*(notes[0]._scale||1), hwN=baseHeadW*(notes[notes.length-1]._scale||1);
+  const x1=up?notes[0]._x+hw0/2-0.6:notes[0]._x-hw0/2+0.6;
+  const x2=up?notes[notes.length-1]._x+hwN/2-0.6:notes[notes.length-1]._x-hwN/2+0.6;
+  cx.strokeStyle=beamCol;cx.lineWidth=Math.max(3,hs*0.7);cx.lineCap='butt';
+  cx.beginPath();cx.moveTo(x1,beamY);cx.lineTo(x2,beamY);cx.stroke();
+  if(g.hasS){const off=up?hs*0.9:-hs*0.9;cx.beginPath();cx.moveTo(x1,beamY+off);cx.lineTo(x2,beamY+off);cx.stroke();}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PIANO KEYBOARD (4 octaves C2–C6) + black keys
+// ═══════════════════════════════════════════════════════════
+const WHITES=[];
+ALL.forEach(n=>{ if(!['C#','D#','F#','G#','A#'].some(s=>n.name.startsWith(s))) WHITES.push(n.name); });
+// black key sits after these white-letters
+const BLACK_AFTER={'C':'C#','D':'D#','F':'F#','G':'G#','A':'A#'};
+
+function buildPiano(){
+  const scroll=document.getElementById('kb-scroll');
+  scroll.innerHTML='';
+  const wrap=document.createElement('div');wrap.className='pwrap';
+  // key width: try to fit all 29 whites; min 26px each
+  const areaW=scroll.clientWidth||document.body.clientWidth;
+  const kw=Math.max(26, Math.floor(areaW/WHITES.length));
+  wrap.style.width=kw*WHITES.length+'px';
+  const keyMap=activeKeyMap();
+  WHITES.forEach((note,i)=>{
+    const k=document.createElement('div');k.className='wk';k.id='pk-'+note;
+    k.style.left=i*kw+'px';k.style.width=(kw-1)+'px';
+    const l=document.createElement('span');l.className='kl';l.textContent=note;k.appendChild(l);
+    const kb=keyForNote(note);
+    if(kb){const kd=document.createElement('span');kd.className='kbd';kd.textContent=kb===' '?'⎵':kb.toUpperCase();k.appendChild(kd);}
+    k.addEventListener('pointerdown',e=>{e.preventDefault();handleInput(note);});
+    wrap.appendChild(k);
+    // black key
+    const letter=note[0];
+    if(BLACK_AFTER[letter]&&i<WHITES.length-1){
+      const bk=document.createElement('div');bk.className='bk';
+      const bn=BLACK_AFTER[letter]+note.slice(1);
+      bk.id='pk-'+bn;
+      bk.style.left=(i*kw+kw*0.66)+'px';bk.style.width=kw*0.62+'px';
+      bk.addEventListener('pointerdown',e=>{
+        e.preventDefault();e.stopPropagation();
+        bk.classList.add('bk-press');
+        setTimeout(()=>bk.classList.remove('bk-press'),140);
+        handleInput(bn);  // black key is now a valid answer (sharp name, e.g. 'C#4')
+      });
+      wrap.appendChild(bk);
+    }
+  });
+  scroll.appendChild(wrap);
+  // center on C4
+  setTimeout(()=>{const c4=document.getElementById('pk-C4');if(c4)c4.scrollIntoView({block:'nearest',inline:'center'});},40);
+}
+function buildSolfege(){
+  const scroll=document.getElementById('kb-scroll');scroll.innerHTML='';
+  const w=document.createElement('div');w.className='sfw';
+  // Full 4 octaves grouped by octave (C2–C6)
+  const groups=[
+    ['第5八度 C5–B5',['C5','D5','E5','F5','G5','A5','B5']],
+    ['第4八度 C4–B4（中央C区）',['C4','D4','E4','F4','G4','A4','B4']],
+    ['第3八度 C3–B3',['C3','D3','E3','F3','G3','A3','B3']],
+    ['第2八度 C2–B2',['C2','D2','E2','F2','G2','A2','B2']],
+    ['最高 C6',['C6']],
+  ];
+  groups.forEach(([lbl,names])=>{
+    const valid=names.filter(nm=>BYNAME[nm]);
+    if(!valid.length)return;
+    const L=document.createElement('div');L.className='sfl';L.textContent=lbl;
+    const R=document.createElement('div');R.className='sfr';
+    valid.forEach(nm=>{const nd=BYNAME[nm];const b=document.createElement('button');b.className='sfb';b.id='sb-'+nm;
+      b.innerHTML=`${nd.sol}<span>${nm}</span>`;b.addEventListener('pointerdown',e=>{e.preventDefault();handleInput(nm);});R.appendChild(b);});
+    w.appendChild(L);w.appendChild(R);
+  });
+  scroll.appendChild(w);
+}
+function buildInput(){ if(inputMode==='piano')buildPiano(); else buildSolfege(); }
+
+// ═══════════════════════════════════════════════════════════
+// SHEET GENERATION
+// ═══════════════════════════════════════════════════════════
+function genSheet(lv){
+  const ts=Math.random()<0.7?4:3;
+  const pats=ts===4?lv.pats44:lv.pats34;
+  const bars=[];let lastHand=Math.random()<.5?'R':'L';
+  for(let b=0;b<TOTAL_BARS;b++){
+    let hand;
+    if(lv.hand==='R')hand='R';else if(lv.hand==='L')hand='L';
+    else{hand=lastHand==='R'?'L':'R';lastHand=hand;}
+    const pool=lv.pool.filter(nm=>{const c=clefFor(nm);return hand==='R'?c==='treble':c==='bass';});
+    const usePool=pool.length?pool:lv.pool;
+    const pat=pats[Math.floor(Math.random()*pats.length)];
+    let beat=0;
+    const notes=pat.map(d=>{
+      const nm=usePool[Math.floor(Math.random()*usePool.length)];
+      const nd=noteData(nm);
+      const o={nd,dur:d,beat,state:'pending',acc:nd.acc};
+      beat+=DUR[d];return o;
+    });
+    bars.push({hand,notes,ts});
+  }
+  return {bars,ts};
+}
+
+// ═══════════════════════════════════════════════════════════
+// CAMPAIGN GAME FLOW
+// ═══════════════════════════════════════════════════════════
+function showLevels(){
+  const prog=lp(),g=document.getElementById('lvgrid');g.innerHTML='';
+  LEVELS.forEach((lv,i)=>{
+    const c=prog[lv.id],locked=i>0&&!prog[LEVELS[i-1].id];
+    const b=document.createElement('button');b.className='lvb'+(locked?' lk':c?' cl':'');
+    b.innerHTML=`<span>${lv.id}</span><span class="lvst">${c?'★'.repeat(c.stars)+'☆'.repeat(3-c.stars):'☆☆☆'}</span>`;
+    b.title=lv.name;if(!locked)b.onclick=()=>startLevel(lv.id);g.appendChild(b);
+  });
+  show('scr-levels');
+}
+const CAMPAIGN_LIVES=3;
+const CAMPAIGN_GOAL=8; // bars to complete to clear the level
+function startLevel(id){
+  stopMetronome(); metroOn=false; updateMetroBtn();
+  gameKind='campaign';curLv=id;
+  const lv=LEVELS.find(l=>l.id===id);
+  show('scr-game');ea();
+  document.getElementById('vs-bar').classList.remove('show');
+  document.getElementById('palette').classList.remove('show');
+  document.getElementById('pal-tools').classList.remove('show');
+  var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
+  document.getElementById('chips').style.display='flex';
+  gs={lv,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,
+      lives:CAMPAIGN_LIVES,goal:CAMPAIGN_GOAL,active:true,paused:false,wrongStreak:0,maxWrongStreak:0};
+  document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+' · 完成'+CAMPAIGN_GOAL+'小节';
+  // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals)
+  if(lv.sharps||lv.flats){
+    if(inputMode!=='piano'){ inputMode='piano'; toast('升降号关卡需用钢琴键盘作答'); }
+  }
+  buildInput();
+  newSheet();
+  requestAnimationFrame(()=>rz());
+  showCD(()=>{rz();});  // no timer in campaign
+}
+function newSheet(){
+  gs.sheet=genSheet(gs.lv);gs.curBar=0;gs.curNote=0;
+  buildChips();updChips();updHUD();draw();updHint();
+}
+function buildChips(){
+  const c=document.getElementById('chips');c.innerHTML='';
+  for(let i=0;i<TOTAL_BARS;i++){const d=document.createElement('div');d.className='chip';d.id='ch'+i;c.appendChild(d);}
+}
+let timerIv=null;
+function startTimer(){
+  // used only by online hp-mode (countdown). Campaign/speed don't call this.
+  clearInterval(timerIv);
+  timerIv=setInterval(()=>{
+    if(!gs||!gs.active||gs.paused)return;
+    gs.timeLeft--;updTimer();
+    if(gameKind==='online')pushOnlineProgress();
+    if(gs.timeLeft<=0)endGame();
+  },1000);
+}
+function updTimer(){const t=Math.max(0,gs.timeLeft||0);const el=document.getElementById('h-timer');el.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');el.classList.toggle('low',t<=10);}
+function updLivesDisplay(){
+  const el=document.getElementById('h-timer');
+  el.classList.remove('low');
+  el.style.fontSize='22px';
+  el.textContent='❤'.repeat(gs.lives)+'♡'.repeat(Math.max(0,CAMPAIGN_LIVES-gs.lives));
+}
+
+// Effective pitch of a note honoring same-measure accidental carry (standard notation rule):
+// once a letter is altered in a bar, later same-letter+octave notes keep that alteration
+// until a natural (or new accidental) cancels it. Returns the MIDI the player must press.
+function effectiveMidi(bar, idx){
+  const target=bar.notes[idx];
+  const tp=parseNote(target.nd.name);
+  // accidental explicitly written on THIS note (incl natural) takes priority
+  const writtenAcc = target.acc; // 'sharp' | 'flat' | 'natural' | null
+  // scan earlier notes in the same bar for the latest accidental on the same letter+octave
+  let carried=null;
+  for(let i=0;i<idx;i++){
+    const p=parseNote(bar.notes[i].nd.name);
+    const a=bar.notes[i].acc;
+    if(p.letter===tp.letter && p.oct===tp.oct){
+      if(a==='sharp'||a==='flat'||a==='natural') carried=a;
+      else if(/[#b]/.test(bar.notes[i].nd.name)) carried=bar.notes[i].nd.name.includes('#')?'sharp':'flat';
+      else carried=null; // a natural-looking note with no accidental resets nothing by itself
+    }
+  }
+  // decide effective accidental: written wins; else carried; else the note's own name accidental
+  let effAcc=writtenAcc;
+  if(effAcc==null){
+    if(carried) effAcc=carried;
+    else if(/[#b]/.test(target.nd.name)) effAcc=target.nd.name.includes('#')?'sharp':'flat';
+  }
+  // base natural midi for the letter+octave
+  const baseMidi=midiOf(tp.letter+tp.oct);
+  if(effAcc==='sharp') return baseMidi+1;
+  if(effAcc==='flat')  return baseMidi-1;
+  if(effAcc==='natural') return baseMidi;
+  // no accidental anywhere → the note's own midi (handles names already like C#4)
+  return midiOf(target.nd.name);
+}
+
+// notes sharing the current beat = one "chord step"; must press all of them (any order) to advance.
+// returns the index range [start,end) of the group containing index `idx`.
+function groupRange(bar, idx){
+  const beat=bar.notes[idx].beat;
+  let start=idx; while(start>0 && bar.notes[start-1].beat===beat && bar.notes[start-1].state!=='done') start--;
+  // start should be the first note of this beat (done ones already passed)
+  start=idx;
+  while(start>0 && bar.notes[start-1].beat===beat) start--;
+  let end=idx;
+  while(end<bar.notes.length && bar.notes[end].beat===beat) end++;
+  return [start,end];
+}
+
+function handleInput(note){
+  if(!gs||!gs.active||gs.paused){ if(gameKind==='practice'){playPiano(note);} return; }
+  playPiano(note);
+  if(gameKind==='practice')return;
+  const bar=gs.sheet.bars[gs.curBar];if(!bar)return;
+  if(gs.curNote>=bar.notes.length)return;
+  // current chord-step = all notes at the same beat as the current note
+  const [gStart,gEnd]=groupRange(bar, gs.curNote);
+  const pressedMidi=midiOf(note);
+  // find a still-pending note in the group whose effective pitch matches what was pressed
+  let matchIdx=-1;
+  for(let i=gStart;i<gEnd;i++){
+    if(bar.notes[i].state!=='done' && effectiveMidi(bar,i)===pressedMidi){ matchIdx=i; break; }
+  }
+  const hlName = document.getElementById('pk-'+note)?note:note;
+  if(matchIdx>=0){
+    bar.notes[matchIdx].state='done';gs.notesOK++;gs.score+=10;hl(hlName,'ok');
+    // group complete only when every note in it is done
+    let groupDone=true;
+    for(let i=gStart;i<gEnd;i++){ if(bar.notes[i].state!=='done'){groupDone=false;break;} }
+    if(!groupDone){ updChips();updHUD();draw();updHint(); return; } // wait for remaining chord notes
+    gs.curNote=gEnd;
+    if(gs.curNote>=bar.notes.length){
+      gs.barsDone++;gs.score+=20;ding();showFB('Bar '+(gs.curBar+1)+' ✓','ok');
+      gs.curBar++;gs.curNote=0;
+      gs.wrongStreak=0; // a fully-correct bar clears the mistake streak
+      if(gameKind==='online'&&onlineVsMode==='hp'){
+        attackOpponent();                          // damage opponent
+        gs.hp=Math.min(100,gs.hp+2);               // small regen for steady play
+        pushOnlineProgress();
+      }
+      // online speed mode: reaching the goal first = win
+      if(gameKind==='online'&&onlineVsMode==='speed'&&gs.barsDone>=SPEED_GOAL){
+        updChips();updHUD();draw();onlineWin();return;
+      }
+      // campaign: reached the goal → win
+      if(gameKind==='campaign'&&gs.barsDone>=gs.goal){updChips();updHUD();draw();endGame();return;}
+      // custom navigation practice: skip empty bars; at end, loop back to start
+      if(gameKind==='custom'){
+        while(gs.curBar<gs.sheet.bars.length && gs.sheet.bars[gs.curBar].notes.length===0) gs.curBar++;
+        if(gs.curBar>=gs.sheet.bars.length){
+          gs.sheet.bars.forEach(b=>b.notes.forEach(n=>n.state='pending'));
+          gs.curBar=0;
+          while(gs.curBar<gs.sheet.bars.length && gs.sheet.bars[gs.curBar].notes.length===0) gs.curBar++;
+          showFB('🔁 一轮完成，再来','ok');
+        }
+      } else if(gameKind==='song'){
+        while(gs.curBar<gs.sheet.bars.length && gs.sheet.bars[gs.curBar].notes.length===0) gs.curBar++;
+        if(gs.curBar>=gs.sheet.bars.length){
+          // finished this page → go to next page, or loop the whole song
+          const totalPages=Math.ceil(songState.bars.length/TOTAL_BARS);
+          if(songState.page+1<totalPages){
+            songState.page++;
+            showFB('▼ 下一页','ok');
+            setTimeout(()=>{if(gs&&gs.active)loadSongPage();},350);
+            updChips();updHUD();draw();updHint();return;
+          }else{
+            songState.page=0;
+            showFB('🔁 全曲完成，从头再来','ok');
+            setTimeout(()=>{if(gs&&gs.active)loadSongPage();},450);
+            updChips();updHUD();draw();updHint();return;
+          }
+        }
+      } else if(gs.curBar>=TOTAL_BARS){
+        gs.score+=50;gs.sheetNum++;
+        if(gameKind==='online'&&onlineVsMode==='hp'){gs.hp=Math.min(100,gs.hp+10);pushOnlineProgress();showFB('完成一组 回血+10','ok');}
+        setTimeout(()=>{if(gs&&gs.active)newSheet();},450);
+      }
+    }
+  }else{
+    // WRONG answer
+    gs.notesWrong++;buzz();hl(note,'bad');
+    bar.notes.forEach(n=>n.state='pending');gs.curNote=0;
+    gs.wrongStreak=(gs.wrongStreak||0)+1;
+    if(gs.wrongStreak>gs.maxWrongStreak) gs.maxWrongStreak=gs.wrongStreak;
+    if(gameKind==='campaign'){
+      gs.lives--; updLivesDisplay();
+      showFB('✗ 弹错 -1命，本小节重来','bad');
+      if(gs.lives<=0){updChips();updHUD();draw();endGame();return;}
+    }else if(gameKind==='online'&&onlineVsMode==='hp'){
+      gs.hp=Math.max(0,gs.hp-3); pushOnlineProgress();   // self-error: light penalty (-3)
+      showFB('✗ 弹错 -3血，本小节重来','bad');
+      if(gs.hp<=0){updChips();updHUD();draw();endOnlineGame();return;}
+    }else{
+      // custom & free play: just repeat the bar, no penalty
+      showFB('✗ 重来本小节','bad');
+    }
+    // 3 consecutive mistakes → 3-second forced pause (applies to all single-player + online)
+    if(gs.wrongStreak>=3 && gs.active){ triggerStrikePause(); }
+  }
+  updChips();updHUD();draw();updHint();
+  if(gameKind==='online')pushOnlineProgress();
+}
+// ── 3-strike penalty: freeze input for 3 seconds with a big translucent overlay ──
+let strikeTimer=null;
+function triggerStrikePause(){
+  if(!gs)return;
+  gs.wrongStreak=0;            // reset so it doesn't immediately retrigger
+  gs.paused=true;             // blocks handleInput (guard checks gs.paused)
+  const ov=document.getElementById('strike-ov');
+  let n=3;
+  document.getElementById('strike-count').textContent=n;
+  ov.classList.add('show');
+  clearInterval(strikeTimer);
+  strikeTimer=setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(strikeTimer);
+      ov.classList.remove('show');
+      if(gs)gs.paused=false;
+    }else{
+      document.getElementById('strike-count').textContent=n;
+    }
+  },1000);
+}
+function updHint(){
+  document.querySelectorAll('.wk.hint').forEach(k=>k.classList.remove('hint'));
+  if(!gs||!gs.sheet||gameKind==='practice')return;
+  const bar=gs.sheet.bars[gs.curBar];if(!bar)return;const nt=bar.notes[gs.curNote];if(!nt)return;
+  if(gs.lv&&gs.lv.id<=2){const k=document.getElementById('pk-'+nt.nd.name);if(k)k.classList.add('hint');}
+}
+function hl(name,type){const k=document.getElementById('pk-'+name)||document.getElementById('sb-'+name);if(!k)return;const cls=type==='ok'?'hl-ok':'hl-bad';k.classList.add(cls);setTimeout(()=>k.classList.remove(cls),320);}
+function showFB(t,type){const e=document.getElementById('fb');e.textContent=t;e.className='feedback show '+type;clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),800);}
+function updChips(){for(let i=0;i<TOTAL_BARS;i++){const c=document.getElementById('ch'+i);if(!c)continue;c.className='chip'+(i<gs.curBar?' done':i===gs.curBar?' cur':'');c.textContent='Bar '+(i+1)+(i<gs.curBar?' ✓':i===gs.curBar?' ▶':'');}}
+function updHUD(){
+  document.getElementById('h-score').textContent=gs.score;
+  // real-time accuracy
+  const tot=gs.notesOK+gs.notesWrong;
+  const acc=tot?Math.round(gs.notesOK/tot*100):100;
+  document.getElementById('h-sheet').textContent=acc+'%';
+  if(gameKind==='campaign'){
+    updLivesDisplay();
+    document.getElementById('h-bars').textContent=gs.barsDone+'/'+gs.goal;
+  }else if(gameKind==='custom'){
+    document.getElementById('h-timer').textContent='🔁';
+    document.getElementById('h-timer').style.fontSize='22px';
+    document.getElementById('h-bars').textContent=gs.barsDone;
+  }else if(gameKind==='song'){
+    document.getElementById('h-timer').textContent='🔁';
+    document.getElementById('h-timer').style.fontSize='22px';
+    const totalPages=songState?Math.ceil(songState.bars.length/TOTAL_BARS):1;
+    document.getElementById('h-bars').textContent=(songState?(songState.page+1):1)+'/'+totalPages+'页';
+  }else{
+    document.getElementById('h-bars').textContent=gs.barsDone;
+  }
+}
+
+function endCustomGame(){
+  gs.active=false;clearInterval(timerIv);
+  const cleared=gs.barsDone>=gs.goal;
+  const tot=gs.notesOK+gs.notesWrong||1;const acc=Math.round(gs.notesOK/tot*100);
+  show('scr-result');
+  document.getElementById('r-ic').textContent=cleared?'🎹':'💔';
+  document.getElementById('r-tt').textContent=cleared?'自编关卡完成！':'失败 — 生命耗尽';
+  document.getElementById('r-st').textContent=cleared?(acc>=95?'★★★':acc>=80?'★★☆':'★☆☆'):'☆☆☆';
+  document.getElementById('r-grid').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">总分</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">完成小节</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>`;
+  document.getElementById('btn-next').style.display='none';
+  // retry restarts the same custom sheet
+  const _retry=document.querySelector('#scr-result .racts .mbtn');
+}
+function togglePause(){
+  if(!gs)return;
+  if(gameKind==='online'){
+    // online can't truly pause (opponent plays on) — just open the overlay so 退出 is reachable
+    const ov=document.getElementById('pov');
+    const showing=ov.classList.toggle('show');
+    document.getElementById('pov-title').textContent = showing ? '游戏进行中（对手仍在继续）' : '暂停';
+    return;
+  }
+  gs.paused=!gs.paused;document.getElementById('pov').classList.toggle('show',gs.paused);
+}
+function quitGame(){gs.active=false;clearInterval(timerIv);clearInterval(strikeTimer);document.getElementById('pov').classList.remove('show');document.getElementById('strike-ov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
+function endGame(){
+  gs.active=false;clearInterval(timerIv);
+  if(gameKind==='online'){return endOnlineGame();}
+  const cleared = gs.barsDone>=gs.goal;
+  // stars: cleared with 3 lives = ★★★, 2 lives = ★★, 1 life = ★, failed = none
+  const st = !cleared ? 0 : gs.lives>=3?3:gs.lives>=2?2:1;
+  if(cleared){const p=lp();if(!p[curLv]||st>p[curLv].stars)p[curLv]={stars:st,score:gs.score};sp(p);}
+  show('scr-result');
+  document.getElementById('r-ic').textContent=cleared?(st===3?'🏆':'🎹'):'💔';
+  document.getElementById('r-tt').textContent=cleared?(st===3?'完美通关！':'过关！'):'失败 — 生命耗尽';
+  document.getElementById('r-st').textContent='★'.repeat(st)+'☆'.repeat(3-st);
+  const tot=gs.notesOK+gs.notesWrong;const acc=tot?Math.round(gs.notesOK/tot*100):100;
+  document.getElementById('r-grid').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">总分</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">完成小节</div></div>
+   <div class="rs"><div class="rsv">${gs.lives}</div><div class="rsl">剩余生命</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>
+   <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">答对音符</div></div>
+   <div class="rs"><div class="rsv">${gs.notesWrong}</div><div class="rsl">弹错次数</div></div>`;
+  document.getElementById('btn-next').style.display=(cleared&&curLv<LEVELS.length)?'block':'none';
+  document.getElementById('btn-next').onclick=()=>nextLevel();
+}
+function retryGame(){
+  if(gameKind==='online'){
+    // return to room; host resets state to waiting for a rematch
+    onlineEnded=false; myReady=false;
+    if(isHost&&window.FB&&roomCode){
+      const {db,ref,update}=window.FB;
+      update(ref(db,'rooms/'+roomCode),{state:'waiting'});
+      resetPlayersForMatch();
+    }
+    document.getElementById('ready-btn')&&(document.getElementById('ready-btn').textContent='准备');
+    show('scr-room');
+    return;
+  }
+  if(gameKind==='custom'){ startCustomGame(); return; }
+  startLevel(curLv);
+}
+function nextLevel(){startLevel(curLv+1);}
+function showCD(cb){const o=document.createElement('div');o.className='cdown';document.body.appendChild(o);let n=3;const r=()=>{o.innerHTML=`<div class="cnum">${n||'开始！'}</div><div class="csub">${n?'准备...':'GO!'}</div>`;};r();const iv=setInterval(()=>{n--;if(n<0){clearInterval(iv);o.remove();cb();}else r();},1000);}
+
+// ═══════════════════════════════════════════════════════════
+// PRACTICE MODE (drag-drop editor)
+// ═══════════════════════════════════════════════════════════
+let practiceSheet=null;
+function startPractice(){
+  gameKind='practice';ea();show('scr-game');
+  document.getElementById('vs-bar').classList.remove('show');
+  document.getElementById('chips').style.display='none';
+  document.getElementById('h-lvname').textContent='练习模式';
+  document.getElementById('h-timer').textContent='∞';
+  document.getElementById('h-timer').classList.remove('low');
+  // empty 4-bar 4/4 sheet
+  practiceSheet={ts:4,bars:[0,1,2,3,4,5,6,7].map(()=>({hand:'R',notes:[],ts:4}))};
+  gs={lv:null,sheet:practiceSheet,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,active:true,paused:false};
+  buildInput();
+  buildPalette();
+  document.getElementById('palette').classList.add('show');
+  document.getElementById('pal-tools').classList.add('show');
+  document.getElementById('practice-help').classList.add('show');
+  metroOn=false; updateMetroBtn();
+  requestAnimationFrame(()=>{rz();setupDragDrop();});
+}
+function buildPalette(){
+  const p=document.getElementById('palette');p.innerHTML='';
+  [['w','全音符'],['hd','附点二分'],['h','二分'],['q','四分'],['e','八分'],['s','十六分']].forEach(([dur,label])=>{
+    const d=document.createElement('div');d.className='pal-note';d.draggable=true;d.dataset.dur=dur;
+    d.innerHTML=`${DUR_GLYPH[dur]}<span>${label}</span>`;
+    d.addEventListener('dragstart',e=>{e.dataTransfer.setData('dur',dur);dragDur=dur;dragAcc=null;});
+    d.addEventListener('pointerdown',e=>{dragDur=dur;dragAcc=null;});
+    p.appendChild(d);
+  });
+  // accidental tools (drop onto a note to toggle)
+  [['sharp','♯','升号'],['flat','♭','降号'],['natural','♮','还原']].forEach(([acc,glyph,label])=>{
+    const d=document.createElement('div');d.className='pal-note';d.draggable=true;d.dataset.acc=acc;
+    d.style.fontSize='22px';
+    d.innerHTML=`${glyph}<span>${label}</span>`;
+    d.addEventListener('dragstart',e=>{e.dataTransfer.setData('acc',acc);dragAcc=acc;dragDur=null;});
+    d.addEventListener('pointerdown',e=>{dragAcc=acc;dragDur=null;});
+    p.appendChild(d);
+  });
+}
+let dragDur=null, dragAcc=null;
+let movingNote=null, movingFromBar=null; // for repositioning existing notes
+
+function setupDragDrop(){
+  const area=document.getElementById('staff-area');
+  area.ondragover=e=>e.preventDefault();
+  area.ondrop=e=>{
+    e.preventDefault();
+    const acc=e.dataTransfer.getData('acc')||dragAcc;
+    const dur=e.dataTransfer.getData('dur')||dragDur;
+    if(acc){applyAccidentalAt(e.clientX,e.clientY,acc);}
+    else if(dur){placeNoteAt(e.clientX,e.clientY,dur);}
+    dragDur=null;dragAcc=null;
+  };
+
+  // ── pointer-based interaction for moving existing notes & touch palette ──
+  area.addEventListener('pointerdown',e=>{
+    if(dragDur||dragAcc)return; // palette drag in progress
+    const hit=noteAtPoint(e.clientX,e.clientY);
+    if(hit){movingNote=hit.nt;movingFromBar=hit.bar;area.setPointerCapture?.(e.pointerId);}
+  });
+  area.addEventListener('pointermove',e=>{
+    if(!movingNote)return;
+    // live preview: move note's pitch/bar following the pointer
+    repositionNote(movingNote,movingFromBar,e.clientX,e.clientY,true);
+  });
+  area.addEventListener('pointerup',e=>{
+    if(movingNote){
+      repositionNote(movingNote,movingFromBar,e.clientX,e.clientY,false);
+      movingNote=null;movingFromBar=null;return;
+    }
+    if(dragAcc){applyAccidentalAt(e.clientX,e.clientY,dragAcc);dragAcc=null;return;}
+    if(dragDur){placeNoteAt(e.clientX,e.clientY,dragDur);dragDur=null;return;}
+  });
+  // double-click/tap deletes
+  cv.addEventListener('dblclick',e=>{deleteNoteAt(e.clientX,e.clientY);});
+}
+
+// map a screen Y to the nearest {clef,row} and the snapped slot
+function yToClefRowSlot(y){
+  let best=null;
+  for(let row=0;row<2;row++){
+    for(const clef of['treble','bass']){
+      const base=clef==='treble'?SC.rows[row].trebleBottom:SC.rows[row].bassBottom;
+      const d=Math.abs(y-base);
+      if(!best||d<best.d) best={clef,row,base,d};
+    }
+  }
+  const slot=Math.round((best.base-y)/SC.hs);
+  return {clef:best.clef,row:best.row,slot};
+}
+// map screen X to bar column (0..3)
+function xToCol(x){
+  const bw=(SC.sheetR-SC.sheetL)/BARS_PER_ROW;
+  return Math.min(BARS_PER_ROW-1,Math.max(0,Math.floor((x-SC.sheetL)/bw)));
+}
+// find a placed note near a screen point
+function noteAtPoint(clientX,clientY){
+  const rect=cv.getBoundingClientRect();const x=clientX-rect.left,y=clientY-rect.top;
+  for(let bi=0;bi<practiceSheet.bars.length;bi++){
+    const bar=practiceSheet.bars[bi];
+    for(const nt of bar.notes){
+      const clef=clefFor(nt.nd.name);const nx=nt._x||0;const ny=s2y(slotOf(nt.nd.name,clef),clef,nt._row||0);
+      if(Math.abs(nx-x)<SC.hs*1.8&&Math.abs(ny-y)<SC.hs*1.8) return {nt,bar,bi};
+    }
+  }
+  return null;
+}
+
+// move an existing note to follow the pointer; if dragged outside staff → delete on release
+function repositionNote(nt,fromBar,clientX,clientY,preview){
+  const rect=cv.getBoundingClientRect();const x=clientX-rect.left,y=clientY-rect.top;
+  const outOfBounds = x<SC.sheetL-30||x>SC.sheetR+30||y<6||y>SC.H-6;
+  if(outOfBounds){
+    if(!preview){
+      fromBar.notes=fromBar.notes.filter(n=>n!==nt);
+      recalcBeats(fromBar);
+      toast('已删除');draw();
+    }else{ nt._ghost=true; draw(); }
+    return;
+  }
+  nt._ghost=false;
+  const {clef,row,slot}=yToClefRowSlot(y);
+  const col=xToCol(x);
+  const bi=row*BARS_PER_ROW+col;
+  const targetBar=practiceSheet.bars[bi];
+  const nm=nameFromSlot(slot,clef);
+  if(!nm)return;
+  nt.nd=BYNAME[nm];
+  if(targetBar!==fromBar){
+    const usedTarget=targetBar.notes.filter(z=>z!==nt&&clefFor(z.nd.name)===clef).reduce((s,z)=>s+DUR[z.dur],0);
+    if(usedTarget+DUR[nt.dur]<=targetBar.ts){
+      fromBar.notes=fromBar.notes.filter(z=>z!==nt);
+      targetBar.notes.push(nt);
+      recalcBeats(fromBar);recalcBeats(targetBar);
+      movingFromBar=targetBar;
+    }
+  }
+  if(!preview)playPiano(nm);
+  draw();
+}
+function recalcBeats(bar){
+  ['treble','bass'].forEach(clef=>{
+    let b=0;
+    bar.notes.filter(nt=>clefFor(nt.nd.name)===clef).forEach(nt=>{nt.beat=b;b+=DUR[nt.dur];});
+  });
+}
+
+function applyAccidentalAt(clientX,clientY,acc){
+  const hit=noteAtPoint(clientX,clientY);
+  if(!hit){toast('请把升降号拖到音符上');return;}
+  hit.nt.acc = (hit.nt.acc===acc)?null:acc;
+  draw();
+}
+
+function placeNoteAt(clientX,clientY,dur){
+  const rect=cv.getBoundingClientRect();
+  const x=clientX-rect.left, y=clientY-rect.top;
+  if(x<SC.sheetL||x>SC.sheetR){return;}
+  const {clef,row,slot}=yToClefRowSlot(y);
+  const col=xToCol(x);
+  const bi=row*BARS_PER_ROW+col;
+  const bar=practiceSheet.bars[bi];
+  const nm=nameFromSlot(slot,clef);
+  if(!nm){toast('超出音域');return;}
+  // capacity is PER CLEF — treble and bass are independent voices on the grand staff
+  const used=bar.notes.filter(nt=>clefFor(nt.nd.name)===clef).reduce((s,nt)=>s+DUR[nt.dur],0);
+  if(used+DUR[dur]>bar.ts){toast((clef==='treble'?'右手':'左手')+'本小节拍数已满');return;}
+  bar.notes.push({nd:BYNAME[nm],dur,beat:used,state:'pending',acc:null});
+  recalcBeats(bar);
+  playPiano(nm);draw();
+}
+function nameFromSlot(slot,clef){
+  for(const n of ALL){ if(slotOf(n.name,clef)===slot && n.name.indexOf('#')<0) return n.name; }
+  return null;
+}
+function deleteNoteAt(clientX,clientY){
+  const hit=noteAtPoint(clientX,clientY);
+  if(!hit)return;
+  hit.bar.notes=hit.bar.notes.filter(n=>n!==hit.nt);
+  recalcBeats(hit.bar);
+  draw();
+}
+function clearUserSheet(){practiceSheet.bars.forEach(b=>b.notes=[]);draw();toast('已清空');}
+
+let metroOn=false, metroIv=null;
+function toggleMetro(){
+  metroOn=!metroOn; updateMetroBtn();
+  if(metroOn){ startMetronome(); toast('节拍器开（'+getBPM()+' BPM 持续打拍）'); }
+  else { stopMetronome(); toast('节拍器关'); }
+}
+function startMetronome(){
+  stopMetronome(); ea();
+  const ts=practiceSheet?practiceSheet.ts:4;
+  let beat=0;
+  const tick=()=>{ metroTick(beat%ts===0); beat++; };
+  tick(); // immediate first tick
+  metroIv=setInterval(tick, 60000/getBPM());
+}
+function stopMetronome(){ if(metroIv){clearInterval(metroIv);metroIv=null;} }
+function updateMetroBtn(){const b=document.getElementById('metro-btn');if(b)b.textContent='🎵 节拍器 '+(metroOn?'开':'关');}
+function metroTick(accent){
+  ea();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+  o.type='square';o.frequency.value=accent?1600:1100;o.connect(g);g.connect(AC.destination);
+  g.gain.setValueAtTime(accent?0.13:0.08,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+  o.start(t);o.stop(t+0.06);
+}
+
+let playing=false;
+function getBPM(){const el=document.getElementById('bpm-input');let v=el?parseInt(el.value,10):80;if(!v||v<30)v=30;if(v>240)v=240;return v;}
+async function playUserSheet(){
+  if(playing)return; playing=true;
+  const bpm=getBPM(), beatMs=60000/bpm;
+  const ts=practiceSheet.ts;
+  for(const bar of practiceSheet.bars){
+    // play beat by beat so metronome demonstrates note values
+    // gather all notes sorted by beat across both clefs
+    const evts=[...bar.notes].sort((a,b)=>a.beat-b.beat);
+    let beatCursor=0;
+    // schedule metronome ticks for each beat of the bar
+    for(let beat=0; beat<ts; beat++){
+      // play any notes starting on this beat
+      evts.filter(nt=>Math.abs(nt.beat-beat)<1e-6).forEach(nt=>{
+        playPiano(nt.nd.name); nt.state='done';
+      });
+      draw();
+      await new Promise(r=>setTimeout(r,beatMs));
+      evts.forEach(nt=>{if(nt.state==='done')nt.state='pending';});
+    }
+    draw();
+  }
+  // reset visual
+  practiceSheet.bars.forEach(b=>b.notes.forEach(n=>n.state='pending'));
+  draw(); playing=false;
+}
+function saveUserSheet(){
+  const saved=JSON.parse(localStorage.getItem('psr_userSheets')||'[]');
+  const data=practiceSheet.bars.map(b=>b.notes.map(n=>({name:n.nd.name,dur:n.dur,acc:n.acc||null})));
+  saved.push({date:Date.now(),data});
+  localStorage.setItem('psr_userSheets',JSON.stringify(saved));
+  toast('已保存（共'+saved.length+'份）');
+}
+
+// ── Custom navigation practice: follow your own sheet, wrong note repeats, loops forever ──
+function startCustomGame(){
+  stopMetronome(); metroOn=false; updateMetroBtn();
+  const total=practiceSheet.bars.reduce((s,b)=>s+b.notes.length,0);
+  if(total===0){toast('请先在五线谱上放一些音符');return;}
+  gameKind='custom';ea();
+  document.getElementById('palette').classList.remove('show');
+  document.getElementById('pal-tools').classList.remove('show');
+  var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
+  document.getElementById('vs-bar').classList.remove('show');
+  document.getElementById('chips').style.display='flex';
+  document.getElementById('h-lvname').textContent='自编谱练习（弹错重来·循环）';
+  const accSuffix={sharp:'#',flat:'b'};
+  const sheet={ts:practiceSheet.ts,bars:practiceSheet.bars.map(b=>({
+    hand:b.hand,ts:b.ts,
+    notes:b.notes.slice().sort((x,y)=>x.beat-y.beat).map(n=>{
+      let nm=n.nd.name;
+      if(n.acc&&accSuffix[n.acc]&&!/[#b]/.test(nm)){
+        const p=parseNote(nm); nm=p.letter+accSuffix[n.acc]+p.oct;
+      }
+      return {nd:noteData(nm),dur:n.dur,beat:n.beat,state:'pending',acc:n.acc};
+    })
+  }))};
+  gs={lv:{id:'custom',sharps:true,flats:true},sheet,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
+      notesOK:0,notesWrong:0,active:true,paused:false,custom:true};
+  // skip leading empty bars
+  while(gs.curBar<sheet.bars.length && sheet.bars[gs.curBar].notes.length===0) gs.curBar++;
+  inputMode='piano';
+  buildInput();buildChips();updChips();updHUD();
+  requestAnimationFrame(()=>rz());
+  showCD(()=>{rz();});
+}
+
+// ═══════════════════════════════════════════════════════════
+// POP SONGS MODE (public-domain built-ins + import tool)
+// ═══════════════════════════════════════════════════════════
+// Song format: bars = [ {ts, notes:[{n:'C4', d:'q'}, ...]}, ... ]
+// d: w/hd/h/q/e/s   n: note name incl accidentals (C4, F#4, Bb3)
+// All built-in songs are PUBLIC DOMAIN works (safe to distribute).
+const BUILTIN_SONGS=[
+ {
+   id:'ode', title:'欢乐颂 Ode to Joy', author:'贝多芬 (公共版权)', ts:4, bpm:90,
+   bars:[
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'F4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'hd'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'F4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'hd'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'E4',d:'e'},{n:'F4',d:'e'},{n:'E4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'E4',d:'e'},{n:'F4',d:'e'},{n:'E4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'D4',d:'q'},{n:'G3',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'F4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'hd'},{n:'C4',d:'q'}]},
+   ]
+ },
+ {
+   id:'twinkle', title:'小星星 Twinkle Twinkle', author:'传统民谣 (公共版权)', ts:4, bpm:100,
+   bars:[
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'C4',d:'q'},{n:'G4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'G4',d:'q'},{n:'F4',d:'q'},{n:'F4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'G4',d:'q'},{n:'F4',d:'q'},{n:'F4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'h'}]},
+     {ts:4,notes:[{n:'C4',d:'q'},{n:'C4',d:'q'},{n:'G4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'h'}]},
+   ]
+ },
+ {
+   id:'mary', title:'玛丽有只小羊羔 Mary Had a Little Lamb', author:'传统童谣 (公共版权)', ts:4, bpm:100,
+   bars:[
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'h'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'D4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'G4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'w'}]},
+   ]
+ },
+ {
+   id:'jingle', title:'铃儿响叮当 Jingle Bells', author:'Pierpont 1857 (公共版权)', ts:4, bpm:120,
+   bars:[
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'G4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'w'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'F4',d:'q'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'D4',d:'h'},{n:'G4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'h'}]},
+     {ts:4,notes:[{n:'E4',d:'q'},{n:'G4',d:'q'},{n:'C4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'w'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'F4',d:'q'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'G4',d:'q'},{n:'F4',d:'q'},{n:'D4',d:'q'}]},
+     {ts:4,notes:[{n:'C4',d:'w'}]},
+   ]
+ },
+ {
+   id:'canon', title:'卡农 Canon in D', author:'帕赫贝尔 (公共版权)', ts:4, bpm:80,
+   bars:[
+     {ts:4,notes:[{n:'F#5',d:'h'},{n:'E5',d:'h'}]},
+     {ts:4,notes:[{n:'D5',d:'h'},{n:'C#5',d:'h'}]},
+     {ts:4,notes:[{n:'B4',d:'h'},{n:'A4',d:'h'}]},
+     {ts:4,notes:[{n:'B4',d:'h'},{n:'C#5',d:'h'}]},
+     {ts:4,notes:[{n:'D5',d:'h'},{n:'C#5',d:'h'}]},
+     {ts:4,notes:[{n:'B4',d:'h'},{n:'A4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'h'},{n:'F#4',d:'h'}]},
+     {ts:4,notes:[{n:'G4',d:'h'},{n:'E4',d:'h'}]},
+     {ts:4,notes:[{n:'D5',d:'q'},{n:'F#5',d:'q'},{n:'A5',d:'q'},{n:'G5',d:'q'}]},
+     {ts:4,notes:[{n:'F#5',d:'q'},{n:'D5',d:'q'},{n:'F#5',d:'q'},{n:'E5',d:'q'}]},
+     {ts:4,notes:[{n:'D5',d:'q'},{n:'B4',d:'q'},{n:'D5',d:'q'},{n:'A5',d:'q'}]},
+     {ts:4,notes:[{n:'G5',d:'q'},{n:'F#5',d:'q'},{n:'E5',d:'q'},{n:'D5',d:'q'}]},
+     {ts:4,notes:[{n:'D5',d:'q'},{n:'C#5',d:'q'},{n:'B4',d:'q'},{n:'C#5',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'A4',d:'q'},{n:'G4',d:'q'},{n:'F#4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'B4',d:'q'},{n:'G4',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'h'},{n:'D5',d:'h'}]},
+   ]
+ },
+ {
+   id:'elise', title:'致爱丽丝 Für Elise（主题）', author:'贝多芬 (公共版权)', ts:4, bpm:80,
+   bars:[
+     {ts:4,notes:[{n:'E5',d:'e'},{n:'D#5',d:'e'},{n:'E5',d:'e'},{n:'D#5',d:'e'},{n:'E5',d:'e'},{n:'B4',d:'e'},{n:'D5',d:'e'},{n:'C5',d:'e'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'C4',d:'e'},{n:'E4',d:'e'},{n:'A4',d:'q'},{n:'B4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'e'},{n:'G#4',d:'e'},{n:'B4',d:'q'},{n:'C5',d:'q'},{n:'E4',d:'q'}]},
+     {ts:4,notes:[{n:'E5',d:'e'},{n:'D#5',d:'e'},{n:'E5',d:'e'},{n:'D#5',d:'e'},{n:'E5',d:'e'},{n:'B4',d:'e'},{n:'D5',d:'e'},{n:'C5',d:'e'}]},
+     {ts:4,notes:[{n:'A4',d:'q'},{n:'C4',d:'e'},{n:'E4',d:'e'},{n:'A4',d:'q'},{n:'B4',d:'q'}]},
+     {ts:4,notes:[{n:'E4',d:'e'},{n:'C5',d:'e'},{n:'B4',d:'q'},{n:'A4',d:'h'}]},
+   ]
+ },
+];
+
+function showSongs(){ renderSongList(); renderMySongs(); show('scr-songs'); }
+
+function renderSongList(){
+  const box=document.getElementById('song-list');box.innerHTML='';
+  BUILTIN_SONGS.forEach(s=>{
+    const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin:0 0 8px;';
+    const b=document.createElement('button');
+    b.className='mbtn mb-dark';b.style.cssText='flex:1;margin:0;text-align:left;display:flex;justify-content:space-between;align-items:center;';
+    b.innerHTML=`<span>🎼 ${s.title}</span><span style="font-size:10px;opacity:.7;">${s.author}</span>`;
+    b.onclick=()=>startSongGame(s);
+    const listen=document.createElement('button');
+    listen.className='mbtn mb-ghost';listen.style.cssText='margin:0;width:44px;';listen.textContent='🔊';
+    listen.title='试听';
+    listen.onclick=(e)=>{e.stopPropagation();playSongPreview(s,listen);};
+    row.appendChild(b);row.appendChild(listen);box.appendChild(row);
+  });
+}
+function renderMySongs(){
+  const box=document.getElementById('my-song-list');box.innerHTML='';
+  const mine=JSON.parse(localStorage.getItem('psr_songs')||'[]');
+  if(!mine.length){box.innerHTML='<div style="font-size:11px;color:#b0a080;text-align:center;padding:6px 0;">还没有导入曲目</div>';return;}
+  mine.forEach((s,i)=>{
+    const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin:0 0 8px;';
+    const b=document.createElement('button');
+    b.className='mbtn mb-green';b.style.cssText='flex:1;margin:0;text-align:left;';
+    b.innerHTML=`🎵 ${s.title||('导入曲目'+(i+1))}`;
+    b.onclick=()=>startSongGame(s);
+    const listen=document.createElement('button');
+    listen.className='mbtn mb-ghost';listen.style.cssText='margin:0;width:40px;';listen.textContent='🔊';
+    listen.title='试听';
+    listen.onclick=(e)=>{e.stopPropagation();playSongPreview(s,listen);};
+    const del=document.createElement('button');
+    del.className='mbtn mb-ghost';del.style.cssText='margin:0;width:40px;';del.textContent='🗑';
+    del.onclick=()=>{const m=JSON.parse(localStorage.getItem('psr_songs')||'[]');m.splice(i,1);localStorage.setItem('psr_songs',JSON.stringify(m));renderMySongs();};
+    row.appendChild(b);row.appendChild(listen);row.appendChild(del);box.appendChild(row);
+  });
+}
+
+// ── Listen to a song: play its notes in time order (melody preview) ──
+let _previewTimer=null, _previewing=false;
+function playSongPreview(song, btn){
+  if(_previewing){ stopSongPreview(btn); return; }
+  _previewing=true; ea();
+  if(btn) btn.textContent='⏸';
+  const bpm=song.bpm||90, beatMs=60000/bpm;
+  // flatten to a time-ordered event list across all bars (treble voice = melody priority)
+  const events=[];
+  let elapsed=0;
+  (song.bars||[]).forEach(bar=>{
+    const barTs=bar.ts||song.ts||4;
+    // pick the melody line: prefer treble notes; if none, use all
+    const beatByClef={treble:0,bass:0};
+    const positioned=(bar.notes||[]).map(no=>{
+      const clef=clefFor(no.n);const beat=beatByClef[clef];beatByClef[clef]+=DUR[no.d]||1;
+      return {n:no.n,d:no.d,beat,clef};
+    });
+    const hasTreble=positioned.some(p=>p.clef==='treble');
+    const line=hasTreble?positioned.filter(p=>p.clef==='treble'):positioned;
+    line.forEach(p=>events.push({n:p.n,t:elapsed+p.beat*beatMs,dur:(DUR[p.d]||1)*beatMs}));
+    elapsed+=barTs*beatMs;
+  });
+  if(!events.length){_previewing=false;if(btn)btn.textContent='🔊';return;}
+  const t0=performance.now();
+  const tick=()=>{
+    if(!_previewing)return;
+    const now=performance.now()-t0;
+    while(events.length && events[0].t<=now){ const e=events.shift(); playPiano(e.n); }
+    if(events.length){ _previewTimer=setTimeout(tick,15); }
+    else { _previewTimer=setTimeout(()=>stopSongPreview(btn),800); }
+  };
+  tick();
+}
+function stopSongPreview(btn){
+  _previewing=false; if(_previewTimer){clearTimeout(_previewTimer);_previewTimer=null;}
+  if(btn)btn.textContent='🔊';
+  document.querySelectorAll('#song-list button, #my-song-list button').forEach(b=>{if(b.textContent==='⏸')b.textContent='🔊';});
+}
+
+// Convert a song object into a game sheet, then play it like a navigation practice
+// Convert a song's raw bars into render-ready bars (per-clef beats, time-sorted).
+// Shared by song mode AND online battle (so both use identical sheet construction).
+function buildSongBars(song){
+  const ts=song.ts||4;
+  return (song.bars||[]).map(bar=>{
+    const beatByClef={treble:0,bass:0};
+    const barTs=bar.ts||ts;
+    const notes=(bar.notes||[]).map(no=>{
+      const nd=noteData(no.n);
+      const clef=clefFor(no.n);
+      const beat=beatByClef[clef];
+      beatByClef[clef]+=DUR[no.d]||1;
+      return {nd,dur:no.d,beat,state:'pending',acc:nd.acc,_clefHint:clef};
+    }).filter(o=>o.beat < barTs + 1e-6);
+    notes.sort((a,b)=> a.beat-b.beat || (a._clefHint==='treble'?-1:1));
+    return {hand:'R',notes,ts:barTs};
+  });
+}
+function startSongGame(song){
+  stopMetronome(); metroOn=false; updateMetroBtn();
+  gameKind='song';ea();
+  show('scr-game');
+  document.getElementById('vs-bar').classList.remove('show');
+  document.getElementById('palette').classList.remove('show');
+  document.getElementById('pal-tools').classList.remove('show');
+  var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
+  document.getElementById('chips').style.display='flex';
+  document.getElementById('h-lvname').textContent='🎵 '+(song.title||'流行曲')+'（弹错重来·循环）';
+  const bars=buildSongBars(song);
+  songState={song,bars,page:0};
+  loadSongPage();
+  inputMode='piano';
+  buildInput();
+  requestAnimationFrame(()=>rz());
+  showCD(()=>{rz();});
+}
+let songState=null;
+function loadSongPage(){
+  // show up to 8 bars (current page) as the active sheet
+  const all=songState.bars;
+  const start=songState.page*TOTAL_BARS;
+  const slice=all.slice(start,start+TOTAL_BARS).map(b=>({hand:b.hand,ts:b.ts,
+    notes:b.notes.map(n=>({nd:n.nd,dur:n.dur,beat:n.beat,state:'pending',acc:n.acc}))}));
+  gs={lv:{id:'song',sharps:true,flats:true},sheet:{ts:songState.song.ts||4,bars:slice},
+      curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,active:true,paused:false,song:true};
+  while(gs.curBar<slice.length && slice[gs.curBar].notes.length===0) gs.curBar++;
+  buildChips();updChips();updHUD();draw();updHint();
+}
+
+// ── Import a song from JSON / Excel / CSV ──
+function importSong(ev){
+  const file=ev.target.files[0]; if(!file)return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let song;
+      if(ext==='musicxml'||ext==='xml'){ song=parseMusicXML(e.target.result, file.name); }
+      else if(ext==='mxl'){ throw new Error('.mxl 是压缩包，请在打谱软件里另存为 .musicxml 再导入'); }
+      else if(ext==='json'){ song=parseSongJSON(e.target.result); }
+      else if(ext==='txt'){ song=parseSimpleText(e.target.result, file.name); }
+      else { throw new Error('不支持的格式，请用 .musicxml / .xml'); }
+      if(!song||!song.bars||!song.bars.length){toast('未能识别谱面，请检查文件');return;}
+      const mine=JSON.parse(localStorage.getItem('psr_songs')||'[]');
+      mine.push(song);
+      localStorage.setItem('psr_songs',JSON.stringify(mine));
+      renderMySongs();
+      toast('导入成功：'+(song.title||'曲目')+'（'+song.bars.length+'小节）');
+    }catch(err){ console.error(err); toast('导入失败：'+err.message); }
+    ev.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ── MusicXML parser (the standard interchange format) ──
+// Extracts: title, time signature, per-note pitch(step/octave/alter), duration type, clef.
+// Industry standard exported by MuseScore, Sibelius, Finale, Flat, Noteflight, etc.
+function parseMusicXML(txt, fname){
+  const doc=new DOMParser().parseFromString(txt,'application/xml');
+  if(doc.querySelector('parsererror')) throw new Error('XML 解析错误，文件可能损坏');
+  const root=doc.querySelector('score-partwise, score-timewise');
+  if(!root) throw new Error('不是有效的 MusicXML 文件');
+
+  // title
+  let title=fname.replace(/\.[^.]+$/,'');
+  const wt=doc.querySelector('work work-title')||doc.querySelector('movement-title')||doc.querySelector('credit credit-words');
+  if(wt&&wt.textContent.trim()) title=wt.textContent.trim();
+
+  // MusicXML <type> → our duration codes
+  const typeMap={whole:'w',half:'h',quarter:'q',eighth:'e','16th':'s',
+                 breve:'w','32nd':'s','64th':'s'};
+  // divisions-based fallback (when <type> missing): duration/divisions = quarter-count
+  const durByQuarters=qc=>{
+    if(qc>=4)return 'w'; if(qc>=3)return 'hd'; if(qc>=2)return 'h';
+    if(qc>=1)return 'q'; if(qc>=0.5)return 'e'; return 's';
+  };
+
+  let ts=4, divisions=1, bpm=90;
+  const bars=[];
+  // first part's measures (defensive: fall back to first <part> if :first-of-type misses)
+  let measures=root.querySelectorAll('part:first-of-type > measure');
+  if(!measures.length){
+    const firstPart=root.querySelector('part');
+    if(firstPart) measures=firstPart.querySelectorAll(':scope > measure');
+  }
+  if(!measures.length) measures=root.querySelectorAll('measure'); // last resort
+  if(!measures.length) throw new Error('找不到小节 (measure)');
+
+  measures.forEach(m=>{
+    // divisions / time signature can appear in <attributes>
+    const divEl=m.querySelector('attributes divisions');
+    if(divEl) divisions=parseInt(divEl.textContent)||divisions;
+    const beatsEl=m.querySelector('attributes time beats');
+    if(beatsEl) ts=parseInt(beatsEl.textContent)||ts;
+    const tempoEl=m.querySelector('sound[tempo]');
+    if(tempoEl) bpm=Math.round(parseFloat(tempoEl.getAttribute('tempo')))||bpm;
+
+    const notes=[];
+    m.querySelectorAll(':scope > note').forEach(noteEl=>{
+      // skip rests and chord-stacked notes (we render single-line melody)
+      if(noteEl.querySelector('rest')) return;
+      if(noteEl.querySelector('chord')) return; // only the principal note of a chord
+      const pitch=noteEl.querySelector('pitch');
+      if(!pitch) return;
+      const step=(pitch.querySelector('step')||{}).textContent;
+      const octave=(pitch.querySelector('octave')||{}).textContent;
+      if(!step||octave==null) return;
+      const alterEl=pitch.querySelector('alter');
+      const alter=alterEl?parseInt(alterEl.textContent):0;
+      let name=step.toUpperCase();
+      if(alter===1)name+='#'; else if(alter===-1)name+='b';
+      // double sharps/flats → clamp to single (app limitation)
+      else if(alter===2)name+='#'; else if(alter===-2)name+='b';
+      name+=octave;
+      // duration
+      const typeEl=noteEl.querySelector('type');
+      let d;
+      if(typeEl && typeMap[typeEl.textContent.trim()]){
+        d=typeMap[typeEl.textContent.trim()];
+        // dotted
+        if(noteEl.querySelector('dot') && d==='h') d='hd';
+      }else{
+        const durEl=noteEl.querySelector('duration');
+        const qc=durEl?(parseInt(durEl.textContent)/divisions):1;
+        d=durByQuarters(qc);
+      }
+      notes.push({n:name,d});
+    });
+    if(notes.length) bars.push({ts,notes});
+  });
+
+  if(!bars.length) throw new Error('没有可识别的音符（可能整曲是休止符或和弦）');
+  return {id:'mxl'+Date.now(), title, ts, bpm, bars, src:'musicxml'};
+}
+
+function parseSongJSON(txt){
+  const o=JSON.parse(txt);
+  if(o.bars) return o;
+  throw new Error('JSON 缺少 bars 字段');
+}
+
+// ── Simple single-line text fallback (for quick manual entry) ──
+// Format: pipe-separated bars, space-separated notes, note:duration
+//   Title: My Tune
+//   TS: 4
+//   C4:q D4:q E4:h | F4:q G4:q A4:h
+function parseSimpleText(txt, fname){
+  let title=fname.replace(/\.[^.]+$/,''), ts=4, bpm=90;
+  const bodyLines=[];
+  txt.split(/\r?\n/).forEach(line=>{
+    const t=line.trim(); if(!t)return;
+    const mt=t.match(/^(title|标题)\s*[:：]\s*(.+)$/i); if(mt){title=mt[2].trim();return;}
+    const mts=t.match(/^(ts|拍号)\s*[:：]\s*(\d+)/i); if(mts){ts=parseInt(mts[2])||4;return;}
+    const mb=t.match(/^(bpm|速度)\s*[:：]\s*(\d+)/i); if(mb){bpm=parseInt(mb[2])||90;return;}
+    bodyLines.push(t);
+  });
+  const bars=[];
+  bodyLines.join(' ').split('|').forEach(barStr=>{
+    const notes=[];
+    barStr.trim().split(/\s+/).forEach(tok=>{
+      if(!tok)return;
+      const [nRaw,dRaw]=tok.split(/[:：]/);
+      const n=normNote(nRaw); if(!n)return;
+      notes.push({n,d:normDur(dRaw)});
+    });
+    if(notes.length) bars.push({ts,notes});
+  });
+  if(!bars.length) throw new Error('文本里没有可识别的音符');
+  return {id:'txt'+Date.now(), title, ts, bpm, bars, src:'text'};
+}
+function normNote(s){
+  if(!s)return null;
+  s=s.trim().replace('＃','#').replace('♯','#').replace('♭','b');
+  const m=s.match(/^([A-Ga-g])([#b]?)(-?\d)$/);
+  if(!m)return null;
+  return m[1].toUpperCase()+m[2]+m[3];
+}
+function normDur(s){
+  s=(s||'').trim().toLowerCase();
+  const map={'全':'w','二分':'h','附点二分':'hd','四分':'q','八分':'e','十六分':'s',
+             'whole':'w','half':'h','quarter':'q','eighth':'e','sixteenth':'s',
+             'w':'w','hd':'hd','h':'h','q':'q','e':'e','s':'s','1':'w','2':'h','4':'q','8':'e'};
+  return map[s]||'q';
+}
+
+// ── Download a simple-text template so user sees the manual format ──
+function downloadSongTemplate(){
+  const demo=BUILTIN_SONGS.find(s=>s.id==='twinkle');
+  const lines=['Title: 小星星(示例)','TS: 4','BPM: 100',''];
+  demo.bars.forEach(bar=>{
+    lines.push(bar.notes.map(no=>no.n+':'+no.d).join(' ')+' |');
+  });
+  lines.push('');
+  lines.push('# 说明：每行一个或多个小节，用 | 分隔小节；音符写法 音名:时值');
+  lines.push('# 时值 w=全 h=二分 hd=附点二分 q=四分 e=八分 s=十六分');
+  lines.push('# 升降号：C#4 表示升C，Bb3 表示降B');
+  lines.push('# 推荐：直接在 MuseScore(免费) 里打谱，导出 .musicxml 导入，更准更省事');
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='流行曲模板.txt';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('模板已下载。推荐用 MuseScore 导出 MusicXML 导入');
+}
+function durLabel(d){return {w:'全',hd:'附点二分',h:'二分',q:'四分',e:'八分',s:'十六分'}[d]||'四分';}
+function showImportHelp(){
+  toast('看弹窗说明');
+  alert(
+'【如何导入流行曲（MusicXML）】\n\n'+
+'MusicXML 是各大乐谱软件通用的标准格式。三种获取方式：\n\n'+
+'方式1 — MuseScore（免费，推荐）\n'+
+'  • 在 MuseScore 里打谱或打开已有谱\n'+
+'  • 文件 → 导出 → 选择 MusicXML(.musicxml)\n'+
+'  • 回到本页点「导入 MusicXML」选该文件\n\n'+
+'方式2 — 网上现成谱\n'+
+'  • musescore.com 等网站很多谱可下载 MusicXML\n'+
+'  • 下载后直接导入\n\n'+
+'方式3 — 手动输入\n'+
+'  • 点「下载简易文本模板」，按格式填音符，存成 .txt 导入\n\n'+
+'注意：\n'+
+'  • 本App是单旋律视奏练习，导入时会取主旋律音符，'+
+'和弦只保留主音、休止符跳过\n'+
+'  • 支持音高/时值/拍号/升降号；多声部、装饰音、连音线暂不处理\n'+
+'  • .mxl 是压缩格式，请在软件里另存为 .musicxml'
+  );
+}
+
+
+// ═══════════════════════════════════════════════════════════
+function renderKeybindUI(){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('on',+b.dataset.preset===kbPreset));
+  const bp=document.getElementById('bind-piano');bp.innerHTML='';
+  // FULL range C2..C6 (all white keys) so every key is bindable
+  const names=WHITES.slice(); // C2..C6 whites
+  const kw=26;
+  bp.style.position='relative';
+  bp.style.width=kw*names.length+'px';
+  bp.style.height='90px';
+  names.forEach((nm,i)=>{
+    const k=document.createElement('div');
+    const isC=nm[0]==='C';
+    k.style.cssText=`position:absolute;left:${i*kw}px;width:${kw-2}px;height:88px;background:linear-gradient(180deg,#f8f6f0,#fff);border:1px solid ${isC?'#b09060':'#cfc8b6'};border-radius:0 0 5px 5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:4px;cursor:pointer;font-size:8px;color:#8a7a60;`;
+    const kb=keyForNote(nm);
+    k.dataset.note=nm;
+    k.innerHTML=`<div style="font-size:10px;font-weight:700;color:${kb?'#ba7517':'#cfc8b6'};">${kb?(kb===' '?'⎵':kb.toUpperCase()):'·'}</div>${nm}`;
+    if(kbPreset===CUSTOM_PRESET_IDX){k.onclick=()=>startBinding(nm,k);}
+    bp.appendChild(k);
+  });
+  // auto-scroll to C4 so user sees the center
+  setTimeout(()=>{const c4=bp.querySelector('[data-note="C4"]');if(c4&&c4.scrollIntoView)c4.scrollIntoView({inline:'center',block:'nearest'});},20);
+  const hint=document.getElementById('bind-hint');
+  if(kbPreset===CUSTOM_PRESET_IDX){
+    hint.textContent='① 点一个琴键 ② 再按下你想绑定的物理按键。左右滑动查看全部音域。';
+  }else{
+    hint.textContent='已选「'+KB_PRESETS[kbPreset].name+'」预设（点「全自定义」可逐键绑定）';
+  }
+}
+let bindingNote=null, bindingEl=null;
+function startBinding(nm,el){
+  bindingNote=nm; bindingEl=el;
+  document.querySelectorAll('#bind-piano>div').forEach(d=>d.style.outline='');
+  if(el)el.style.outline='3px solid #ba7517';
+  document.getElementById('bind-status').textContent='请按下要绑定到 '+nm+' 的键盘按键…（Esc 取消）';
+}
+document.addEventListener('keydown',e=>{
+  if(bindingNote){
+    e.preventDefault();e.stopPropagation();
+    if(e.key==='Escape'){bindingNote=null;if(bindingEl)bindingEl.style.outline='';document.getElementById('bind-status').textContent='已取消';return;}
+    const key=e.key===' '?' ':e.key.toLowerCase();
+    // remove any existing note bound to this key
+    delete kbCustom[key];
+    // also remove any other key currently bound to this note (one key per note)
+    for(const k in kbCustom){if(kbCustom[k]===bindingNote)delete kbCustom[k];}
+    kbCustom[key]=bindingNote;
+    document.getElementById('bind-status').textContent=bindingNote+' ← 「'+(key===' '?'空格':key.toUpperCase())+'」✓';
+    bindingNote=null;if(bindingEl)bindingEl.style.outline='';
+    renderKeybindUI();
+    return;
+  }
+},true);
+function pickPreset(p,el){
+  kbPreset=p;
+  if(p===CUSTOM_PRESET_IDX&&Object.keys(kbCustom).length===0){kbCustom={...KB_PRESETS[1].map};} // seed from split
+  renderKeybindUI();
+}
+function saveKeybind(){
+  localStorage.setItem('psr_kbPreset',kbPreset);
+  localStorage.setItem('psr_kbCustom',JSON.stringify(kbCustom));
+  toast('键盘设定已保存');show('scr-menu');
+}
+function exportKeybind(){
+  // build rows: 物理按键 | 音符 ; plus a preset row
+  const map=activeKeyMap();
+  const rows=[['物理按键(Key)','音符(Note)']];
+  Object.keys(map).forEach(k=>rows.push([k===' '?'SPACE':k.toUpperCase(),map[k]]));
+  const presetName=KB_PRESETS[kbPreset]?KB_PRESETS[kbPreset].name:'自定义';
+  rows.push([]);rows.push(['预设方案',presetName]);
+  const fname='谱战键盘设定_'+new Date().toISOString().slice(0,10);
+  if(window.XLSX){
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Keybind');
+    XLSX.writeFile(wb,fname+'.xlsx');
+    toast('已导出 '+fname+'.xlsx');
+  }else{
+    // CSV fallback (opens in Excel)
+    const csv=rows.map(r=>r.join(',')).join('\n');
+    const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname+'.csv';a.click();
+    toast('已导出 '+fname+'.csv');
+  }
+}
+function importKeybind(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let rows;
+      if(window.XLSX){
+        const wb=XLSX.read(e.target.result,{type:'binary'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      }else{
+        rows=String(e.target.result).split(/\r?\n/).map(l=>l.split(','));
+      }
+      const newMap={};let preset=null;
+      rows.forEach(r=>{
+        if(!r||r.length<2)return;
+        const a=String(r[0]).trim(), b=String(r[1]).trim();
+        if(a==='物理按键(Key)'||a==='')return;
+        if(a==='预设方案'){preset=b;return;}
+        const key = a.toUpperCase()==='SPACE'?' ':a.toLowerCase();
+        if(b&&BYNAME[b]) newMap[key]=b;
+      });
+      if(Object.keys(newMap).length){
+        kbCustom=newMap; kbPreset=CUSTOM_PRESET_IDX;
+        localStorage.setItem('psr_kbCustom',JSON.stringify(kbCustom));
+        localStorage.setItem('psr_kbPreset',kbPreset);
+        renderKeybindUI();
+        toast('已导入 '+Object.keys(newMap).length+' 个键位');
+      }else{toast('文件中未找到有效键位');}
+    }catch(err){toast('导入失败：文件格式不对');}
+  };
+  if(window.XLSX) reader.readAsBinaryString(file); else reader.readAsText(file);
+  ev.target.value='';
+}
+
+// global gameplay key handler (uses active map)
+document.addEventListener('keydown',e=>{
+  if(bindingNote)return; // binding mode handled above
+  if(e.repeat)return;
+  if(e.key==='Escape'){togglePause();return;}
+  const key=e.key===' '?' ':e.key.toLowerCase();
+  const map=activeKeyMap();
+  if(map[key]){e.preventDefault();handleInput(map[key]);}
+});
+
+// ═══════════════════════════════════════════════════════════
+// ONLINE MULTIPLAYER (Firebase Realtime DB)
+// ═══════════════════════════════════════════════════════════
+// myId 由 Firebase Auth 设置（见模块脚本）；Auth 未就绪前用临时随机值兜底
+let myId = window.myId || Math.random().toString(36).slice(2,9);
+window.addEventListener('fb-ready', () => { myId = window.myId || myId; });
+function getPlayerName(){ const v=(document.getElementById('player-name')?.value||'').trim(); return v||('玩家'+myId.slice(0,4)); }
+let roomCode=null, isHost=false, onlineVsMode='speed', roomRef=null, roomUnsub=null;
+let onlineLevel=3, onlineSheetSeed=null, opponentId=null, onlineSongRef='builtin:ode', onlineSongState=null;
+
+window.addEventListener('fb-ready',()=>{document.getElementById('fb-status').textContent='✓ 已连接服务器';});
+setTimeout(()=>{if(!window.FB)document.getElementById('fb-status').textContent='⚠ 服务器连接失败，请检查网络';},3000);
+
+function genCode(){return Math.random().toString(36).slice(2,8).toUpperCase();}
+
+function populateVsLevels(){
+  // battle题目 is now a song. List built-in public-domain songs + user-imported songs.
+  const sel=document.getElementById('vs-song');if(!sel)return;sel.innerHTML='';
+  BUILTIN_SONGS.forEach(s=>{const o=document.createElement('option');o.value='builtin:'+s.id;o.textContent='🎼 '+s.title;sel.appendChild(o);});
+  const mine=JSON.parse(localStorage.getItem('psr_songs')||'[]');
+  mine.forEach((s,i)=>{const o=document.createElement('option');o.value='mine:'+i;o.textContent='🎵 '+(s.title||('导入曲'+(i+1)))+'（仅本地）';sel.appendChild(o);});
+  if(BUILTIN_SONGS[0]) sel.value='builtin:'+BUILTIN_SONGS[0].id;
+}
+// resolve a song-ref string ("builtin:ode" / "mine:0") to a song object
+function resolveSong(refStr){
+  if(!refStr)return BUILTIN_SONGS[0];
+  if(refStr.startsWith('builtin:')) return BUILTIN_SONGS.find(s=>s.id===refStr.slice(8))||BUILTIN_SONGS[0];
+  if(refStr.startsWith('mine:')){const mine=JSON.parse(localStorage.getItem('psr_songs')||'[]');return mine[+refStr.slice(5)]||BUILTIN_SONGS[0];}
+  return BUILTIN_SONGS[0];
+}
+
+async function createRoom(){
+  if(!window.FB){toast('服务器未连接');return;}
+  isHost=true;roomCode=genCode();
+  const {db,ref,set,onDisconnect}=window.FB;
+  roomRef=ref(db,'rooms/'+roomCode);
+  const initData={
+    host:myId,vsMode:'speed',level:3,minutes:3,goal:16,song:'builtin:ode',state:'waiting',seed:Date.now(),
+    players:{[myId]:{name:getPlayerName(),ready:false,progress:0,bars:0,hp:100,score:0,alive:true,atk:0}}
+  };
+  await set(roomRef,initData);
+  onDisconnect(ref(db,'rooms/'+roomCode+'/players/'+myId)).remove();
+  enterRoom();
+}
+async function joinRoom(){
+  if(!window.FB){toast('服务器未连接');return;}
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  if(code.length<4){toast('请输入房间码');return;}
+  const {db,ref,get,update,onDisconnect}=window.FB;
+  const snap=await get(ref(db,'rooms/'+code));
+  if(!snap.exists()){toast('房间不存在');return;}
+  const data=snap.val();
+  if(data.players&&Object.keys(data.players).length>=2){toast('房间已满');return;}
+  isHost=false;roomCode=code;roomRef=ref(db,'rooms/'+code);
+  await update(ref(db,'rooms/'+code+'/players/'+myId),{name:getPlayerName(),ready:false,progress:0,bars:0,hp:100,score:0,alive:true,atk:0});
+  onDisconnect(ref(db,'rooms/'+code+'/players/'+myId)).remove();
+  enterRoom();
+}
+function enterRoom(){
+  show('scr-room');
+  document.getElementById('room-code').textContent=roomCode;
+  document.getElementById('host-controls').style.display=isHost?'block':'none';
+  if(isHost)populateVsLevels();
+  const {db,ref,onValue}=window.FB;
+  if(roomUnsub)roomUnsub();
+  roomUnsub=onValue(ref(db,'rooms/'+roomCode),snap=>{
+    if(!snap.exists()){toast('房间已关闭');leaveRoom();return;}
+    onRoomUpdate(snap.val());
+  });
+}
+function onRoomUpdate(data){
+  if(!data)return;
+  onlineVsMode=data.vsMode;onlineLevel=data.level;onlineSheetSeed=data.seed;onlineSongRef=data.song||'builtin:ode';
+  onlineMinutes=data.minutes||3;
+  SPEED_GOAL=data.goal||16;
+  if(isHost){
+    document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('on',c.dataset.vsmode===data.vsMode));
+    if(document.getElementById('vs-song')) document.getElementById('vs-song').value=onlineSongRef;
+    document.getElementById('vs-time-row').style.display = data.vsMode==='hp'?'block':'none';
+    document.getElementById('vs-goal-row').style.display = data.vsMode==='speed'?'block':'none';
+    if(document.getElementById('vs-time')) document.getElementById('vs-time').value=String(data.minutes||3);
+    if(document.getElementById('vs-goal')) document.getElementById('vs-goal').value=String(data.goal||16);
+  }
+  // render player slots
+  const slots=document.getElementById('player-slots');slots.innerHTML='';
+  const players=data.players||{};
+  const ids=Object.keys(players);
+  opponentId=ids.find(id=>id!==myId)||null;
+  ids.forEach(id=>{
+    const p=players[id];
+    const d=document.createElement('div');d.className='player-slot'+(p.ready?' ready':'');
+    d.innerHTML=`<div class="ps-av">${id===data.host?'👑':'🎮'}</div><div style="flex:1"><div class="ps-nm">${p.name}${id===myId?'（你）':''}</div><div class="ps-st">${p.ready?'✓ 已准备':'等待准备…'}</div></div>`;
+    slots.appendChild(d);
+  });
+  const allReady=ids.length===2&&ids.every(id=>players[id].ready);
+  if(isHost){
+    document.getElementById('start-btn').classList.toggle('hidden',!allReady);
+    document.getElementById('ready-btn').classList.toggle('hidden',allReady);
+  }
+  // transition to playing
+  if(data.state==='playing'&&gameKind!=='online'&&!onlineEnded){
+    beginOnlineGame(data);
+  }
+  // back to waiting (after a rematch reset) — return everyone to room screen
+  if(data.state==='waiting'&&gameKind==='online'){
+    gameKind=null; gs&&(gs.active=false); clearInterval(timerIv);
+    onlineEnded=false; myReady=false;
+    document.getElementById('ready-btn').textContent='准备';
+    show('scr-room');
+  }
+  // live opponent state during game
+  if(data.state==='playing'&&gameKind==='online'&&opponentId&&players[opponentId]&&players[myId]){
+    const me=players[myId], opp=players[opponentId];
+    // 实时更新对手昵称
+    const oppNameEl=document.getElementById('vs-opp-name');
+    if(oppNameEl&&opp.name) oppNameEl.textContent=opp.name;
+    // ── HP MODE: detect incoming attacks via counter, decrement OWN hp locally ──
+    if(onlineVsMode==='hp'){
+      const incoming = opp.atk||0;            // total attacks opponent has sent me
+      if(incoming>myAtkSeen){
+        const dmg=(incoming-myAtkSeen)*8;     // each opponent bar-clear hits me for 8
+        myAtkSeen=incoming;
+        gs.hp=Math.max(0,gs.hp-dmg);
+        showFB('⚔️ 被攻击 -'+dmg,'bad');
+        pushOnlineProgress();
+        if(gs.hp<=0){onlineLose();return;}
+      }
+      // opponent's hp reached 0 (from my attacks) → I win
+      if((opp.hp!=null) && opp.hp<=0 && gs.hp>0){ onlineWin(); return; }
+      updateVsBar({hp:gs.hp,bars:gs.barsDone},{hp:opp.hp,bars:opp.bars});
+    } else {
+      updateVsBar({progress:me.progress,bars:gs.barsDone},{progress:opp.progress,bars:opp.bars});
+      if((opp.bars||0)>=SPEED_GOAL){onlineLose();}
+    }
+  }
+}
+function pickVsMode(m,el){
+  if(!isHost)return;onlineVsMode=m;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('on'));el.classList.add('on');
+  document.getElementById('vs-time-row').style.display = m==='hp'?'block':'none';
+  document.getElementById('vs-goal-row').style.display = m==='speed'?'block':'none';
+  const {db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{vsMode:m});
+}
+document.getElementById('vs-goal')?.addEventListener('change',e=>{
+  if(!isHost)return;const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{goal:+e.target.value});
+});
+document.getElementById('vs-song')?.addEventListener('change',e=>{
+  if(!isHost)return;const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{song:e.target.value});
+});
+document.getElementById('vs-time')?.addEventListener('change',e=>{
+  if(!isHost)return;const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{minutes:+e.target.value});
+});
+let myReady=false;
+function toggleReady(){
+  myReady=!myReady;
+  const {db,ref,update}=window.FB;
+  update(ref(db,'rooms/'+roomCode+'/players/'+myId),{ready:myReady});
+  document.getElementById('ready-btn').textContent=myReady?'取消准备':'准备';
+}
+function hostStart(){
+  if(!isHost)return;
+  const {db,ref,update}=window.FB;
+  // reset both players' battle state for a clean (re)match
+  const upd={state:'playing',seed:Date.now(),startAt:Date.now()+3000};
+  update(ref(db,'rooms/'+roomCode),upd);
+  resetPlayersForMatch();
+}
+function resetPlayersForMatch(){
+  if(!window.FB||!roomCode)return;
+  const {db,ref,get,update}=window.FB;
+  get(ref(db,'rooms/'+roomCode+'/players')).then(s=>{
+    if(!s.exists())return;const players=s.val();
+    Object.keys(players).forEach(id=>{
+      update(ref(db,'rooms/'+roomCode+'/players/'+id),{progress:0,bars:0,hp:100,score:0,alive:true,atk:0,ready:false});
+    });
+  });
+}
+
+let SPEED_GOAL=16; // bars to win speed mode (configurable, 16+ in steps of 8)
+let onlineMinutes=3, myAtkSeen=0, myAtkSent=0;
+
+// Deterministic sheet from seed so both players get SAME sheet (speed mode)
+function seededRandom(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return ()=>{s=s*16807%2147483647;return (s-1)/2147483646;};}
+function genSheetSeeded(lv,rng){
+  const ts=rng()<0.7?4:3;const pats=ts===4?lv.pats44:lv.pats34;const bars=[];let lastHand=rng()<.5?'R':'L';
+  for(let b=0;b<TOTAL_BARS;b++){
+    let hand;if(lv.hand==='R')hand='R';else if(lv.hand==='L')hand='L';else{hand=lastHand==='R'?'L':'R';lastHand=hand;}
+    const pool=lv.pool.filter(nm=>{const c=clefFor(nm);return hand==='R'?c==='treble':c==='bass';});
+    const usePool=pool.length?pool:lv.pool;const pat=pats[Math.floor(rng()*pats.length)];
+    let beat=0;const notes=pat.map(d=>{const nm=usePool[Math.floor(rng()*usePool.length)];const nd=noteData(nm);const o={nd,dur:d,beat,state:'pending',acc:nd.acc};beat+=DUR[d];return o;});
+    bars.push({hand,notes,ts});
+  }
+  return {bars,ts};
+}
+
+function beginOnlineGame(data){
+  gameKind='online';ea();show('scr-game');
+  document.getElementById('vs-bar').classList.add('show');
+  document.getElementById('chips').style.display='flex';
+  document.getElementById('palette').classList.remove('show');
+  document.getElementById('pal-tools').classList.remove('show');
+  var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
+  onlineVsMode=data.vsMode; onlineMinutes=data.minutes||3; SPEED_GOAL=data.goal||16;
+  onlineSongRef=data.song||'builtin:ode';
+  onlineEnded=false; myAtkSeen=0; myAtkSent=0;
+  const song=resolveSong(onlineSongRef);
+  curLv=data.level;
+  const allBars=buildSongBars(song);
+  onlineSongState={song,bars:allBars,page:0};
+  document.getElementById('h-lvname').textContent=(onlineVsMode==='speed'?'🏁速度':'⚔️血量 '+onlineMinutes+'分钟')+' · 🎵'+(song.title||'流行曲');
+  gs={lv:{id:'song',sharps:true,flats:true},sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
+      notesOK:0,notesWrong:0,wrongStreak:0,maxWrongStreak:0,timeLeft:onlineMinutes*60,active:true,paused:false,hp:100};
+  loadOnlineSongPage();
+  buildInput();buildChips();updChips();
+  // HUD: show hp-mode countdown in timer slot, or speed progress
+  document.getElementById('h-score').textContent=0;
+  const tEl=document.getElementById('h-timer');tEl.style.fontSize='22px';
+  document.getElementById('vs-me-name').textContent=getPlayerName();
+  document.getElementById('vs-opp-name').textContent='对手';
+  // reset my state on server
+  pushOnlineProgress();
+  requestAnimationFrame(()=>rz());
+  showCD(()=>{rz(); if(onlineVsMode==='hp'){updTimer();startTimer();} else {tEl.textContent='🏁';} });
+}
+// load the current page (8 bars) of the battle song into the active sheet
+function loadOnlineSongPage(){
+  const all=onlineSongState.bars;
+  const start=onlineSongState.page*TOTAL_BARS;
+  const slice=all.slice(start,start+TOTAL_BARS).map(b=>({hand:b.hand,ts:b.ts,
+    notes:b.notes.map(n=>({nd:n.nd,dur:n.dur,beat:n.beat,state:'pending',acc:n.acc}))}));
+  gs.sheet={ts:onlineSongState.song.ts||4,bars:slice};
+  gs.curBar=0;gs.curNote=0;
+  while(gs.curBar<slice.length && slice[gs.curBar].notes.length===0) gs.curBar++;
+}
+// advance to next page of the song; loop back to start when the song ends (keeps battle going)
+function newSheetOnline(){
+  const totalPages=Math.ceil(onlineSongState.bars.length/TOTAL_BARS);
+  onlineSongState.page++;
+  if(onlineSongState.page>=totalPages){ onlineSongState.page=0; showFB('🔁 整首完成，再来一轮','ok'); }
+  loadOnlineSongPage();
+  updChips();draw();updHint();
+}
+const _origNewSheet=newSheet;
+newSheet=function(){if(gameKind==='online'){newSheetOnline();}else{_origNewSheet();}};
+
+function pushOnlineProgress(){
+  if(!window.FB||!roomCode)return;
+  const {db,ref,update}=window.FB;
+  const progress=Math.min(100,(gs.barsDone/SPEED_GOAL)*100);
+  // each player writes ONLY their own authoritative state (incl. own hp + attacks sent)
+  update(ref(db,'rooms/'+roomCode+'/players/'+myId),{progress,bars:gs.barsDone,score:gs.score,hp:gs.hp,alive:gs.hp>0,atk:myAtkSent});
+}
+function attackOpponent(){
+  // don't write opponent hp directly — increment my "attacks sent" counter; victim applies it
+  myAtkSent++;
+  showFB('⚔️ 攻击对手 -8','ok');
+  pushOnlineProgress();
+}
+function updateVsBar(me,opp){
+  if(onlineVsMode==='speed'){
+    document.getElementById('vs-me-fill').style.width=(me.progress||0)+'%';
+    document.getElementById('vs-opp-fill').style.width=(opp.progress||0)+'%';
+    document.getElementById('vs-me-hp').textContent=(me.bars||0)+'/'+SPEED_GOAL+' 小节';
+    document.getElementById('vs-opp-hp').textContent=(opp.bars||0)+'/'+SPEED_GOAL+' 小节';
+  }else{
+    document.getElementById('vs-me-fill').style.width=(me.hp||0)+'%';
+    document.getElementById('vs-opp-fill').style.width=(opp.hp||0)+'%';
+    document.getElementById('vs-me-hp').textContent='❤ '+(me.hp||0);
+    document.getElementById('vs-opp-hp').textContent='❤ '+(opp.hp||0);
+  }
+}
+let onlineEnded=false;
+function onlineWin(){if(onlineEnded)return;onlineEnded=true;finishOnline(true);}
+function onlineLose(){if(onlineEnded)return;onlineEnded=true;finishOnline(false);}
+function endOnlineGame(){ // time ran out OR my hp hit 0
+  if(onlineEnded)return;
+  // decide by current standings; need opponent snapshot
+  if(!window.FB||!roomCode||!opponentId){onlineEnded=true;finishOnline(null);return;}
+  const {db,ref,get}=window.FB;
+  get(ref(db,'rooms/'+roomCode+'/players/'+opponentId)).then(s=>{
+    if(onlineEnded)return;onlineEnded=true;
+    const opp=s.exists()?s.val():{hp:100,bars:0};
+    let win;
+    if(onlineVsMode==='hp'){ win = gs.hp>(opp.hp||0) ? true : gs.hp<(opp.hp||0) ? false : null; }
+    else { win = gs.barsDone>(opp.bars||0) ? true : gs.barsDone<(opp.bars||0) ? false : null; }
+    finishOnline(win);
+  }).catch(()=>{onlineEnded=true;finishOnline(null);});
+}
+function finishOnline(won){
+  gs.active=false;clearInterval(timerIv);clearInterval(strikeTimer);
+  document.getElementById('strike-ov').classList.remove('show');
+  show('scr-result');
+  document.getElementById('r-ic').textContent=won?'🏆':won===false?'😢':'🤝';
+  document.getElementById('r-tt').textContent=won?'胜利！':won===false?'惜败':'平局';
+  document.getElementById('r-st').textContent=won?'★★★':won===false?'☆☆☆':'★★☆';
+  const tot=gs.notesOK+gs.notesWrong;
+  const acc=tot?Math.round(gs.notesOK/tot*100):100;
+  document.getElementById('r-grid').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">分数</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">完成小节</div></div>
+   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?('❤'+gs.hp):(gs.barsDone+'/'+SPEED_GOAL)}</div><div class="rsl">${onlineVsMode==='hp'?'剩余血量':'进度'}</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>
+   <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">答对音符</div></div>
+   <div class="rs"><div class="rsv">${gs.notesWrong}</div><div class="rsl">弹错次数</div></div>`;
+  document.getElementById('btn-next').style.display='none';
+  pushOnlineProgress();
+}
+function leaveRoom(){leaveRoomQuiet();show('scr-menu');}
+function leaveRoomQuiet(){
+  if(window.FB&&roomCode){
+    const {db,ref,set,get,update}=window.FB;
+    update(ref(db,'rooms/'+roomCode+'/players/'+myId),{}).catch(()=>{});
+    import("https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js").then(m=>{
+      m.remove(ref(db,'rooms/'+roomCode+'/players/'+myId)).catch(()=>{});
+      if(isHost){m.get(ref(db,'rooms/'+roomCode+'/players')).then(s=>{if(!s.exists()||Object.keys(s.val()||{}).length===0)m.remove(ref(db,'rooms/'+roomCode));});}
+    });
+  }
+  if(roomUnsub){roomUnsub();roomUnsub=null;}
+  roomCode=null;isHost=false;myReady=false;onlineEnded=false;
+}
+
+// ═══ keybind screen hook ═══
+// ═══════════════════════════════════════════════════════════
+// WEB MIDI — connect a real digital piano (USB-to-Host) or MIDI keyboard
+// ═══════════════════════════════════════════════════════════
+let midiAccess=null, midiInputs=[], midiEnabled=false;
+function midiSupported(){ return typeof navigator!=='undefined' && !!navigator.requestMIDIAccess; }
+
+async function connectMIDI(){
+  if(!midiSupported()){
+    toast('此浏览器不支持 Web MIDI，请用 Chrome / Edge');
+    return false;
+  }
+  try{
+    midiAccess=await navigator.requestMIDIAccess({sysex:false});
+    bindMIDIInputs();
+    midiAccess.onstatechange=()=>bindMIDIInputs();
+    midiEnabled=true;
+    updateMIDIStatus();
+    return true;
+  }catch(e){
+    console.error('MIDI access failed',e);
+    toast('无法访问 MIDI 设备（需授权 / HTTPS）');
+    return false;
+  }
+}
+function bindMIDIInputs(){
+  if(!midiAccess)return;
+  midiInputs=[];
+  midiAccess.inputs.forEach(inp=>{
+    midiInputs.push(inp);
+    inp.onmidimessage=onMIDIMessage;   // (re)attach handler
+  });
+  updateMIDIStatus();
+}
+function onMIDIMessage(ev){
+  if(!midiEnabled)return;
+  const [status,d1,d2]=ev.data;
+  const cmd=status & 0xf0;
+  // note-on with velocity>0 = key pressed; note-off (or vel 0) ignored for our single-shot input
+  if(cmd===0x90 && d2>0){
+    const name=midiToName(d1);
+    ea();                       // ensure audio context is live
+    handleInput(name);          // feed the real key into the game exactly like a screen key
+    flashScreenKey(name);       // light up the matching on-screen key
+  }
+}
+// briefly highlight the on-screen key when a physical key is played
+function flashScreenKey(name){
+  const k=document.getElementById('pk-'+name);
+  if(k){ k.classList.add('midi-hit'); setTimeout(()=>k.classList.remove('midi-hit'),160); }
+}
+function disconnectMIDI(){
+  midiEnabled=false;
+  if(midiAccess){ midiAccess.inputs.forEach(inp=>{inp.onmidimessage=null;}); midiAccess.onstatechange=null; }
+  midiInputs=[];
+  updateMIDIStatus();
+}
+function toggleMIDI(){
+  if(midiEnabled){ disconnectMIDI(); toast('已断开 MIDI'); }
+  else { connectMIDI(); }
+}
+function updateMIDIStatus(){
+  const el=document.getElementById('midi-status');
+  const btn=document.getElementById('midi-btn');
+  if(!el)return;
+  if(!midiSupported()){
+    el.innerHTML='<span style="color:#c0392b;">✗ 浏览器不支持（请用 Chrome / Edge）</span>';
+    if(btn)btn.style.display='none';
+    return;
+  }
+  if(midiEnabled){
+    const names=midiInputs.map(i=>i.name).filter(Boolean);
+    el.innerHTML = names.length
+      ? '<span style="color:#1d9e75;">🎹 已连接：'+names.join('、')+'</span>'
+      : '<span style="color:#c8900a;">已开启，等待设备…（插上电钢并确认已开机）</span>';
+    if(btn)btn.textContent='断开 MIDI';
+  }else{
+    el.innerHTML='<span style="color:#8a7a60;">未连接。插上电钢/MIDI键盘后点下方按钮</span>';
+    if(btn)btn.textContent='🎹 连接 MIDI 设备';
+  }
+}
+
+const _origShow=show;
+show=function(id){_origShow(id);if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-online'&&window.FB){document.getElementById('fb-status').textContent='✓ 已连接服务器';}};
+
+window.addEventListener('DOMContentLoaded',()=>{
+  initCv();
+  // 版本号显示
+  const vl=document.getElementById('ver-label');
+  if(vl) vl.textContent='Piano Clash · v'+APP_VERSION;
+  // 昵称本地记忆
+  const pn=document.getElementById('player-name');
+  if(pn){
+    const saved=localStorage.getItem('psr_playerName');
+    if(saved) pn.value=saved;
+    pn.addEventListener('input',()=>localStorage.setItem('psr_playerName',pn.value.trim()));
+  }
+});
+</script>
+</body>
+</html>
