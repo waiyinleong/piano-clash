@@ -191,7 +191,21 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 <body>
 
 <!-- ════ MENU ════ -->
-<div id="scr-menu" class="screen active">
+<!-- ════ LOGIN ════ -->
+<div id="scr-login" class="screen active" style="align-items:center;justify-content:center;background:linear-gradient(150deg,#f9f4ea,#ede4cc);">
+  <div class="ccard" style="max-width:360px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:8px;">🎹</div>
+    <div style="font-family:Georgia;font-size:28px;font-weight:700;color:#1a1209;margin-bottom:4px;">Piano<span style="color:#c0392b;">Clash</span></div>
+    <div style="font-size:12px;color:#8a7a60;letter-spacing:2px;margin-bottom:28px;">SIGHT-READ · BATTLE · WIN</div>
+    <button id="btn-google-login" class="mbtn mb-dark" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;" onclick="window.fbSignIn&&window.fbSignIn()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;">
+      使用 Google 账号登录
+    </button>
+    <div style="font-size:11px;color:#b0a890;margin-top:16px;">登录后可跨设备保存关卡进度</div>
+  </div>
+</div>
+
+<div id="scr-menu" class="screen">
   <div class="mcard">
     <div class="m-eyebrow">Piano Sight-Reading Battle</div>
     <div class="m-title">Piano<span>Clash</span></div>
@@ -209,7 +223,14 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
     <button class="mbtn mb-red" onclick="show('scr-online')">⚔️ 联机对战</button>
     <div class="mini-link" onclick="show('scr-keybind')">⌨️ 键盘设定</div>
     <div class="mini-link" onclick="show('scr-midi')">🎹 连接电钢 / MIDI</div>
-    <div style="font-size:10px;color:#c0b8a0;margin-top:14px;" id="ver-label"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:16px;padding:8px 12px;background:rgba(0,0,0,.04);border-radius:10px;" id="user-bar">
+      <img id="user-avatar" style="width:28px;height:28px;border-radius:50%;display:none;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:600;color:#3a2e1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="user-name"></div>
+        <div style="font-size:10px;color:#8a7a60;" id="ver-label"></div>
+      </div>
+      <button class="mbtn mb-ghost" style="margin:0;padding:4px 10px;font-size:11px;" onclick="window.fbSignOut&&window.fbSignOut()">登出</button>
+    </div>
   </div>
 </div>
 
@@ -482,7 +503,7 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, onDisconnect, child } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 const firebaseConfig = {
   apiKey: "AIzaSyDiMY7gFRIoH9pYcG1UXF3mpnUsyvCnB50",
   authDomain: "uth-project-ebefc.firebaseapp.com",
@@ -496,13 +517,20 @@ try {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
   window.FB = { db, ref, set, get, update, onValue, onDisconnect, child };
-  // 匿名登录，用 Firebase UID 替换随机 ID（跨设备稳定）
-  signInAnonymously(auth).catch(e => console.warn('Auth failed', e));
+  window.fbSignIn = () => signInWithPopup(auth, provider).catch(e => { console.error('SignIn failed', e); window.toast&&window.toast('登录失败：'+e.message); });
+  window.fbSignOut = () => signOut(auth);
   onAuthStateChanged(auth, user => {
     if (user) {
       window.myId = user.uid;
-      window.dispatchEvent(new Event('fb-ready'));
+      window.myDisplayName = user.displayName || user.email || '玩家';
+      window.myPhotoURL = user.photoURL || null;
+      window.dispatchEvent(new CustomEvent('fb-user', { detail: user }));
+    } else {
+      window.myId = null;
+      window.myDisplayName = null;
+      window.dispatchEvent(new CustomEvent('fb-user', { detail: null }));
     }
   });
 } catch(e){ console.error('FB init failed',e); window.FB=null; }
@@ -662,7 +690,14 @@ function keyForNote(note){
 let inputMode='piano', curLv=1, gs=null, SC={};
 let gameKind='campaign'; // campaign | practice | online
 const lp=()=>{try{return JSON.parse(localStorage.getItem('psr3')||'{}')}catch{return{}}};
-const sp=p=>{try{localStorage.setItem('psr3',JSON.stringify(p))}catch{}};
+const sp=p=>{
+  try{localStorage.setItem('psr3',JSON.stringify(p));}catch{}
+  // 同步到 Firebase
+  if(window.FB&&window.myId){
+    const {db,ref,set}=window.FB;
+    set(ref(db,'users/'+window.myId+'/progress'),p).catch(()=>{});
+  }
+};
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function setIM(m,b){inputMode=m;document.querySelectorAll('#imt button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
@@ -2467,15 +2502,43 @@ document.addEventListener('keydown',e=>{
 // ═══════════════════════════════════════════════════════════
 // ONLINE MULTIPLAYER (Firebase Realtime DB)
 // ═══════════════════════════════════════════════════════════
-// myId 由 Firebase Auth 设置（见模块脚本）；Auth 未就绪前用临时随机值兜底
-let myId = window.myId || Math.random().toString(36).slice(2,9);
-window.addEventListener('fb-ready', () => { myId = window.myId || myId; });
-function getPlayerName(){ const v=(document.getElementById('player-name')?.value||'').trim(); return v||('玩家'+myId.slice(0,4)); }
+let myId = Math.random().toString(36).slice(2,9);
+function getPlayerName(){ return window.myDisplayName || ('玩家'+myId.slice(0,4)); }
 let roomCode=null, isHost=false, onlineVsMode='speed', roomRef=null, roomUnsub=null;
 let onlineLevel=3, onlineSheetSeed=null, opponentId=null, onlineSongRef='builtin:ode', onlineSongState=null;
 
-window.addEventListener('fb-ready',()=>{document.getElementById('fb-status').textContent='✓ 已连接服务器';});
-setTimeout(()=>{if(!window.FB)document.getElementById('fb-status').textContent='⚠ 服务器连接失败，请检查网络';},3000);
+window.addEventListener('fb-user', async e => {
+  const user = e.detail;
+  if(user){
+    myId = user.uid;
+    // 更新 UI
+    const nameEl=document.getElementById('user-name');
+    const avatarEl=document.getElementById('user-avatar');
+    if(nameEl) nameEl.textContent=user.displayName||user.email||'玩家';
+    if(avatarEl&&user.photoURL){ avatarEl.src=user.photoURL; avatarEl.style.display=''; }
+    document.getElementById('fb-status').textContent='✓ 已连接服务器';
+    // 从 Firebase 载入进度，合并到 localStorage
+    if(window.FB){
+      const {db,ref,get}=window.FB;
+      try{
+        const snap=await get(ref(db,'users/'+myId+'/progress'));
+        if(snap.exists()){
+          const remote=snap.val();
+          const local=lp();
+          // 合并：取每关最高星级
+          const merged={...local};
+          Object.keys(remote).forEach(k=>{ if(!merged[k]||remote[k].stars>merged[k].stars) merged[k]=remote[k]; });
+          localStorage.setItem('psr3',JSON.stringify(merged));
+        }
+      }catch(err){ console.warn('progress load failed',err); }
+    }
+    show('scr-menu');
+  } else {
+    myId = Math.random().toString(36).slice(2,9);
+    show('scr-login');
+  }
+});
+setTimeout(()=>{if(!window.FB)document.getElementById('fb-status').textContent='⚠ 服务器连接失败，请检查网络';},4000);
 
 function genCode(){return Math.random().toString(36).slice(2,8).toUpperCase();}
 
