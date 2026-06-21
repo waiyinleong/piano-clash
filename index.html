@@ -640,7 +640,7 @@ const I18N = {
     'lobby.yourName':'你的昵称','lobby.namePlaceholder':'输入昵称',
     'lobby.openRooms':'公开房间','lobby.refresh':'🔄 刷新',
     'lobby.loading':'加载中…','lobby.empty':'暂无公开房间，创建第一个吧！',
-    'lobby.join':'加入','lobby.players':'人',
+    'lobby.join':'加入','lobby.players':'人','lobby.connected':'✓ 已连接服务器','lobby.loadFail':'加载失败，请刷新',
     'createRoom.title':'🏠 创建房间','createRoom.vsMode':'对战模式',
     'createRoom.song':'对战曲目','createRoom.duration':'对战时长',
     'createRoom.goal':'目标小节数','createRoom.visibility':'房间类型',
@@ -667,7 +667,7 @@ const I18N = {
     'lobby.yourName':'Your Nickname','lobby.namePlaceholder':'Enter nickname',
     'lobby.openRooms':'Open Rooms','lobby.refresh':'🔄 Refresh',
     'lobby.loading':'Loading…','lobby.empty':'No open rooms yet — create one!',
-    'lobby.join':'Join','lobby.players':'players',
+    'lobby.join':'Join','lobby.players':'players','lobby.connected':'✓ Connected','lobby.loadFail':'Failed to load, please refresh',
     'createRoom.title':'🏠 Create Room','createRoom.vsMode':'Battle Mode',
     'createRoom.song':'Song','createRoom.duration':'Duration',
     'createRoom.goal':'Target Bars','createRoom.visibility':'Room Type',
@@ -1761,7 +1761,7 @@ function retryGame(){
     onlineEnded=false; myReady=false;
     if(isHost&&window.FB&&roomCode){
       const {db,ref,update}=window.FB;
-      update(ref(db,'rooms/'+roomCode),{state:'waiting'});
+      update(ref(db,'rooms/'+roomCode),{state:'waiting',winner:null});
       resetPlayersForMatch();
     }
     document.getElementById('ready-btn')&&(document.getElementById('ready-btn').textContent='准备');
@@ -2839,7 +2839,7 @@ async function submitRoomPassword(){
 // Lobby list
 function refreshLobby(){
   if(!window.FB){
-    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${curLang==='en'?'Server not connected':'服务器未连接'}</div>`;
+    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loadFail')}</div>`;
     return;
   }
   const {db,ref,get}=window.FB;
@@ -2859,14 +2859,14 @@ function refreshLobby(){
       el.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--ui-border);border-radius:10px;margin-bottom:8px;background:#fff;';
       el.innerHTML=`
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${r.hostName||'玩家'}</span> 的房间</div>
+          <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${r.hostName||t('guest.label')}</span>${curLang==='en'?' \'s Room':' 的房间'}</div>
           <div style="font-size:11px;color:#8a7a60;margin-top:2px;">${r.vsMode==='hp'?'⚔️':'🏁'} ${song?.title||''} · ${playerCount}/2 ${t('lobby.players')}</div>
         </div>
         <button class="mbtn mb-blue" style="margin:0;padding:6px 14px;width:auto;font-size:12px;" onclick="joinRoomByCode('${code}',false)">${t('lobby.join')}</button>`;
       list.appendChild(el);
     });
   }).catch(()=>{
-    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${curLang==='en'?'Failed to load rooms':'加载失败，请刷新'}</div>`;
+    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loadFail')}</div>`;
   });
 }
 
@@ -2875,8 +2875,8 @@ function enterRoom(){
   document.getElementById('room-code').textContent=roomCode;
   const badgeEl=document.getElementById('room-visibility-badge');
   const modeBadgeEl=document.getElementById('room-mode-badge');
-  if(badgeEl) badgeEl.textContent=roomIsPublic?(curLang==='en'?'🌐 Public':'🌐 公开'):(curLang==='en'?'🔒 Private':'🔒 私密');
-  if(modeBadgeEl) modeBadgeEl.textContent=onlineVsMode==='hp'?(curLang==='en'?'⚔️ HP Battle':'⚔️ 血量对战'):(curLang==='en'?'🏁 Speed Race':'🏁 速度对决');
+  if(badgeEl) badgeEl.textContent=roomIsPublic?t('createRoom.public'):t('createRoom.private').replace(/（.*）/,'').replace(/\s*\(.*\)/,'');
+  if(modeBadgeEl) modeBadgeEl.textContent=onlineVsMode==='hp'?('⚔️ '+t('vsMode.hp')):('🏁 '+t('vsMode.speed'));
   const {db,ref,onValue}=window.FB;
   if(roomUnsub)roomUnsub();
   roomUnsub=onValue(ref(db,'rooms/'+roomCode),snap=>{
@@ -2911,6 +2911,10 @@ function onRoomUpdate(data){
   // transition to playing
   if(data.state==='playing'&&gameKind!=='online'&&!onlineEnded){
     beginOnlineGame(data);
+  }
+  // opponent won — show loser result screen
+  if(data.winner&&data.winner!==myId&&gameKind==='online'&&!onlineEnded){
+    onlineEnded=true;endOnlineGame();
   }
   // back to waiting (after a rematch reset) — return everyone to room screen
   if(data.state==='waiting'&&gameKind==='online'){
@@ -3082,7 +3086,11 @@ function updateVsBar(me,opp){
   }
 }
 let onlineEnded=false;
-function onlineWin(){if(onlineEnded)return;onlineEnded=true;finishOnline(true);}
+function onlineWin(){
+  if(onlineEnded)return;onlineEnded=true;
+  if(window.FB&&roomCode){const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{winner:myId}).catch(()=>{});}
+  finishOnline(true);
+}
 function onlineLose(){if(onlineEnded)return;onlineEnded=true;finishOnline(false);}
 function endOnlineGame(){ // time ran out OR my hp hit 0
   if(onlineEnded)return;
@@ -3379,7 +3387,7 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent='✓ 已连接服务器';}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
