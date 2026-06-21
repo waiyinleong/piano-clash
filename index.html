@@ -620,7 +620,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -2888,7 +2888,7 @@ function refreshLobby(){
     if(!snap.exists()||!snap.val()){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
     const rooms=snap.val();
     const cutoff=Date.now()-2*60*60*1000;
-    const open=Object.entries(rooms).filter(([,r])=>r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined)&&(!r.created||r.created>cutoff));
+    const open=Object.entries(rooms).filter(([,r])=>r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined)&&r.created&&r.created>cutoff);
     if(!open.length){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
     list.innerHTML='';
     open.slice(0,20).forEach(([code,r])=>{
