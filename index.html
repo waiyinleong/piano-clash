@@ -1680,8 +1680,6 @@ function handleInput(note){
       // custom & free play: just repeat the bar, no penalty
       showFB('✗ 重来本小节','bad');
     }
-    // 3 consecutive mistakes → 3-second forced pause (applies to all single-player + online)
-    if(gs.wrongStreak>=3 && gs.active){ triggerStrikePause(); }
   }
   updChips();updHUD();draw();updHint();
   if(gameKind==='online')pushOnlineProgress();
@@ -3242,15 +3240,19 @@ function bindMIDIInputs(){
 }
 function onMIDIMessage(ev){
   if(!midiEnabled)return;
-  const [status,d1,d2]=ev.data;
+  if(!ev.data||ev.data.length<2)return;
+  const [status,d1,d2=0]=ev.data;
   const cmd=status & 0xf0;
-  // note-on with velocity>0 = key pressed; note-off (or vel 0) ignored for our single-shot input
-  if(cmd===0x90 && d2>0){
-    const name=midiToName(d1);
-    ea();                       // ensure audio context is live
-    handleInput(name);          // feed the real key into the game exactly like a screen key
-    flashScreenKey(name);       // light up the matching on-screen key
-  }
+  // note-on with velocity>0 only; ignore note-off and all other messages
+  if(cmd!==0x90||d2===0)return;
+  // clamp to game range C2(36)–C6(84); ignore out-of-range keys entirely
+  if(d1<36||d1>84)return;
+  const name=midiToName(d1);
+  // only handle notes that exist on the on-screen piano
+  if(!document.getElementById('pk-'+name))return;
+  ea();
+  handleInput(name);
+  flashScreenKey(name);
 }
 // briefly highlight the on-screen key when a physical key is played
 function flashScreenKey(name){
