@@ -186,11 +186,40 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 .hidden{display:none!important;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;}
 .toast.show{opacity:1;}
+
+/* floating score popup */
+.score-pop{position:fixed;font-family:Georgia,serif;font-size:22px;font-weight:700;pointer-events:none;z-index:150;animation:scorePop .9s ease-out forwards;}
+.score-pop.ok{color:var(--correct);}
+.score-pop.bad{color:var(--wrong);}
+@keyframes scorePop{0%{opacity:1;transform:translateY(0) scale(1);}80%{opacity:.8;}100%{opacity:0;transform:translateY(-54px) scale(.7);}}
+
+/* combo badge */
+#combo-badge{position:fixed;top:60px;right:14px;background:var(--gold);color:#fff;font-family:Georgia,serif;font-weight:700;font-size:13px;padding:5px 11px;border-radius:20px;z-index:110;display:none;animation:comboPulse .25s ease-out;}
+@keyframes comboPulse{0%{transform:scale(1.4);}100%{transform:scale(1);}}
+
+/* mobile responsive */
+@media(max-width:600px){
+  .mcard{padding:24px 20px;width:94vw;}
+  .ccard{padding:20px 18px;}
+  .mbtn{padding:12px;font-size:14px;margin-bottom:7px;}
+  .lvgrid{grid-template-columns:repeat(4,1fr);gap:6px;}
+  .rgrid{grid-template-columns:repeat(2,1fr);}
+  .rtt{font-size:24px;}
+  .ric{font-size:44px;}
+  .room-code{font-size:32px;letter-spacing:5px;}
+  .code-input{font-size:22px;letter-spacing:4px;}
+  #h-bar{font-size:11px;}
+  .hv{font-size:17px;}
+  .hl{font-size:8px;}
+}
+@media(max-width:400px){
+  .lvgrid{grid-template-columns:repeat(3,1fr);}
+  .mcard{padding:18px 14px;}
+}
 </style>
 </head>
 <body>
 
-<!-- ════ MENU ════ -->
 <!-- ════ LOGIN ════ -->
 <div id="scr-login" class="screen active" style="align-items:center;justify-content:center;background:linear-gradient(150deg,#f9f4ea,#ede4cc);">
   <div class="ccard" style="max-width:360px;text-align:center;">
@@ -199,37 +228,50 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
     <div style="font-size:12px;color:#8a7a60;letter-spacing:2px;margin-bottom:28px;">SIGHT-READ · BATTLE · WIN</div>
     <button id="btn-google-login" class="mbtn mb-dark" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;" onclick="window.fbSignIn&&window.fbSignIn()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px;height:20px;">
-      使用 Google 账号登录
+      <span data-i18n="login.google">使用 Google 账号登录</span>
     </button>
-    <div style="font-size:11px;color:#b0a890;margin-top:16px;">登录后可跨设备保存关卡进度</div>
+    <div style="font-size:11px;color:#b0a890;margin-top:10px;" data-i18n="login.hint">登录后可跨设备保存关卡进度和设置</div>
+    <div style="margin:14px 0;font-size:11px;color:#c0b8a8;">— <span data-i18n="login.or">或者</span> —</div>
+    <button class="mbtn mb-ghost" style="margin-bottom:0;" onclick="playAsGuest()"><span data-i18n="login.guest">🎮 作为访客游玩（进度不保存）</span></button>
+    <div style="margin-top:18px;display:flex;justify-content:center;gap:8px;">
+      <button style="background:none;border:none;cursor:pointer;font-size:11px;color:#b0a890;padding:4px 8px;border-radius:6px;" onclick="setLang('zh')">中文</button>
+      <span style="color:#c0b8a8;line-height:2;">|</span>
+      <button style="background:none;border:none;cursor:pointer;font-size:11px;color:#b0a890;padding:4px 8px;border-radius:6px;" onclick="setLang('en')">English</button>
+    </div>
   </div>
 </div>
 
 <div id="scr-menu" class="screen">
   <div class="mcard">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+      <button style="background:none;border:1px solid var(--ui-border);cursor:pointer;font-size:11px;color:#8a7a60;padding:3px 9px;border-radius:8px;" onclick="toggleLang()" id="lang-btn">EN</button>
+    </div>
     <div class="m-eyebrow">Piano Sight-Reading Battle</div>
     <div class="m-title">Piano<span>Clash</span></div>
     <div class="m-sub">SIGHT-READ · BATTLE · WIN</div>
     <hr class="dv">
-    <div style="font-size:11px;color:#8a7a60;margin-bottom:6px;">作答方式</div>
+    <div style="font-size:11px;color:#8a7a60;margin-bottom:6px;" data-i18n="menu.inputMethod">作答方式</div>
     <div class="toggle" id="imt">
-      <button class="on" onclick="setIM('piano',this)">🎹 钢琴键盘</button>
+      <button class="on" onclick="setIM('piano',this)" data-i18n="menu.piano">🎹 钢琴键盘</button>
       <button onclick="setIM('solfege',this)">🎵 Do Re Mi</button>
     </div>
-    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-tutorial')">🎓 新手教程 Tutorial</button>
-    <button class="mbtn mb-dark" onclick="showLevels()">📚 关卡模式</button>
-    <button class="mbtn mb-green" onclick="startPractice()">✏️ 练习模式（自由编谱）</button>
-    <button class="mbtn mb-blue" onclick="showSongs()">🎵 流行曲模式</button>
-    <button class="mbtn mb-red" onclick="show('scr-online')">⚔️ 联机对战</button>
-    <div class="mini-link" onclick="show('scr-keybind')">⌨️ 键盘设定</div>
-    <div class="mini-link" onclick="show('scr-midi')">🎹 连接电钢 / MIDI</div>
+    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-tutorial')" data-i18n="menu.tutorial">🎓 新手教程 Tutorial</button>
+    <button class="mbtn mb-dark" onclick="showLevels()" data-i18n="menu.levels">📚 关卡模式</button>
+    <button class="mbtn mb-green" onclick="startPractice()" data-i18n="menu.practice">✏️ 练习模式（自由编谱）</button>
+    <button class="mbtn mb-blue" onclick="showSongs()" data-i18n="menu.songs">🎵 流行曲模式</button>
+    <button class="mbtn mb-red" onclick="show('scr-lobby')" data-i18n="menu.online">⚔️ 联机对战</button>
+    <div class="mini-link" onclick="show('scr-keybind')" data-i18n="menu.keybind">⌨️ 键盘设定</div>
+    <div class="mini-link" onclick="show('scr-midi')" data-i18n="menu.midi">🎹 连接电钢 / MIDI</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:16px;padding:8px 12px;background:rgba(0,0,0,.04);border-radius:10px;" id="user-bar">
       <img id="user-avatar" style="width:28px;height:28px;border-radius:50%;display:none;">
       <div style="flex:1;min-width:0;">
         <div style="font-size:12px;font-weight:600;color:#3a2e1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="user-name"></div>
         <div style="font-size:10px;color:#8a7a60;" id="ver-label"></div>
       </div>
-      <button class="mbtn mb-ghost" style="margin:0;padding:4px 10px;font-size:11px;" onclick="window.fbSignOut&&window.fbSignOut()">登出</button>
+      <button class="mbtn mb-ghost" style="margin:0;padding:4px 10px;font-size:11px;" id="signout-btn" onclick="handleSignOut()" data-i18n="menu.signout">登出</button>
+    </div>
+    <div id="guest-login-bar" style="display:none;margin-top:8px;text-align:center;">
+      <button class="mbtn mb-dark" style="margin:0;font-size:12px;" onclick="window.fbSignIn&&window.fbSignIn()" data-i18n="menu.loginToSave">🔑 登录以保存进度</button>
     </div>
   </div>
 </div>
@@ -326,65 +368,103 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
   </div>
 </div>
 
-<!-- ════ ONLINE LOBBY ════ -->
-<div id="scr-online" class="screen cscreen">
-  <div class="ccard">
-    <div class="cttl">⚔️ 联机对战</div>
-    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">你的昵称</div>
-    <input id="player-name" maxlength="12" placeholder="输入昵称（最多12字）"
-      style="width:100%;padding:12px;border-radius:11px;border:2px solid var(--ui-border);font-size:15px;margin-bottom:14px;font-family:inherit;box-sizing:border-box;">
-    <button class="mbtn mb-red" onclick="createRoom()">🏠 创建房间</button>
-    <div style="text-align:center;font-size:12px;color:#8a7a60;margin:14px 0;">— 或 —</div>
-    <input class="code-input" id="join-code" maxlength="6" placeholder="房间码">
-    <button class="mbtn mb-blue" onclick="joinRoom()">🚪 加入房间</button>
-    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回</button>
-    <div style="font-size:10px;color:#8a7a60;text-align:center;margin-top:10px;" id="fb-status">连接中…</div>
+<!-- ════ LOBBY ════ -->
+<div id="scr-lobby" class="screen cscreen">
+  <div class="ccard" style="max-width:500px;">
+    <div style="display:flex;align-items:center;margin-bottom:16px;">
+      <div class="cttl" style="margin:0;flex:1;" data-i18n="lobby.title">⚔️ 联机大厅</div>
+      <button class="mbtn mb-red" style="margin:0;padding:8px 16px;width:auto;" onclick="show('scr-create-room')" data-i18n="lobby.create">＋ 创建房间</button>
+    </div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="lobby.yourName">你的昵称</div>
+    <input id="player-name" maxlength="12" placeholder="输入昵称" data-i18n-placeholder="lobby.namePlaceholder"
+      style="width:100%;padding:10px 12px;border-radius:11px;border:2px solid var(--ui-border);font-size:14px;margin-bottom:14px;font-family:inherit;box-sizing:border-box;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div style="font-size:13px;font-weight:600;" data-i18n="lobby.openRooms">公开房间</div>
+      <div style="flex:1;"></div>
+      <button style="background:none;border:1px solid var(--ui-border);border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;color:#8a7a60;" onclick="refreshLobby()" data-i18n="lobby.refresh">🔄 刷新</button>
+    </div>
+    <div id="lobby-list" style="min-height:80px;max-height:260px;overflow-y:auto;margin-bottom:12px;">
+      <div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;" data-i18n="lobby.loading">加载中…</div>
+    </div>
+    <div style="font-size:10px;color:#8a7a60;text-align:center;margin-bottom:10px;" id="fb-status">连接中…</div>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
   </div>
 </div>
 
-<!-- ════ ROOM (waiting) ════ -->
-<div id="scr-room" class="screen cscreen">
-  <div class="ccard">
-    <div class="cttl">房间</div>
-    <div class="room-code" id="room-code">------</div>
-    <div style="text-align:center;font-size:11px;color:#8a7a60;margin-bottom:14px;">把房间码发给朋友加入</div>
-
-    <div id="host-controls">
-      <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">对战模式</div>
-      <div class="mode-pick">
-        <div class="mode-card on" data-vsmode="speed" onclick="pickVsMode('speed',this)">
-          <div class="mc-ic">🏁</div><div class="mc-tt">速度对决</div><div class="mc-ds">同一份谱<br>先完成获胜</div>
-        </div>
-        <div class="mode-card" data-vsmode="hp" onclick="pickVsMode('hp',this)">
-          <div class="mc-ic">⚔️</div><div class="mc-tt">血量对战</div><div class="mc-ds">完成小节<br>扣对手血</div>
-        </div>
+<!-- ════ CREATE ROOM ════ -->
+<div id="scr-create-room" class="screen cscreen">
+  <div class="ccard" style="max-width:420px;">
+    <div class="cttl" data-i18n="createRoom.title">🏠 创建房间</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.vsMode">对战模式</div>
+    <div class="mode-pick" style="margin-bottom:14px;">
+      <div class="mode-card on" data-vsmode="speed" onclick="pickVsMode('speed',this)">
+        <div class="mc-ic">🏁</div><div class="mc-tt" data-i18n="vsMode.speed">速度对决</div><div class="mc-ds" data-i18n="vsMode.speedDesc">同一份谱<br>先完成获胜</div>
       </div>
-      <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">对战曲目</div>
-      <select id="vs-song" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;"></select>
-      <div id="vs-time-row" style="display:none;">
-        <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">对战时长（血量模式）</div>
-        <select id="vs-time" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
-          <option value="1">1 分钟</option><option value="2">2 分钟</option><option value="3" selected>3 分钟</option>
-          <option value="5">5 分钟</option><option value="7">7 分钟</option><option value="10">10 分钟</option>
-        </select>
-      </div>
-      <div id="vs-goal-row" style="display:none;">
-        <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;">目标小节数（速度模式，8小节为一组）</div>
-        <select id="vs-goal" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
-          <option value="16" selected>16 小节（2组）</option>
-          <option value="24">24 小节（3组）</option>
-          <option value="32">32 小节（4组）</option>
-          <option value="40">40 小节（5组）</option>
-          <option value="48">48 小节（6组）</option>
-        </select>
+      <div class="mode-card" data-vsmode="hp" onclick="pickVsMode('hp',this)">
+        <div class="mc-ic">⚔️</div><div class="mc-tt" data-i18n="vsMode.hp">血量对战</div><div class="mc-ds" data-i18n="vsMode.hpDesc">完成小节<br>扣对手血</div>
       </div>
     </div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.song">对战曲目</div>
+    <select id="vs-song" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;"></select>
+    <div id="vs-time-row" style="display:none;">
+      <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.duration">对战时长（血量模式）</div>
+      <select id="vs-time" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
+        <option value="1">1 分钟</option><option value="2">2 分钟</option><option value="3" selected>3 分钟</option>
+        <option value="5">5 分钟</option><option value="7">7 分钟</option><option value="10">10 分钟</option>
+      </select>
+    </div>
+    <div id="vs-goal-row" style="display:none;">
+      <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.goal">目标小节数</div>
+      <select id="vs-goal" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
+        <option value="16" selected>16 小节</option><option value="24">24 小节</option>
+        <option value="32">32 小节</option><option value="40">40 小节</option>
+      </select>
+    </div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.visibility">房间类型</div>
+    <div class="toggle" style="margin-bottom:14px;">
+      <button class="on" id="room-public-btn" onclick="setRoomPublic(true,this)" data-i18n="createRoom.public">🌐 公开</button>
+      <button id="room-private-btn" onclick="setRoomPublic(false,this)" data-i18n="createRoom.private">🔒 私密（设密码）</button>
+    </div>
+    <div id="room-password-row" style="display:none;margin-bottom:14px;">
+      <input id="room-password" maxlength="12" placeholder="设置密码（最多12位）" data-i18n-placeholder="createRoom.passwordHint"
+        style="width:100%;padding:10px 12px;border-radius:10px;border:2px solid var(--ui-border);font-size:14px;font-family:inherit;box-sizing:border-box;">
+    </div>
+    <button class="mbtn mb-red" onclick="createRoom()" data-i18n="createRoom.start">🚀 创建并进入房间</button>
+    <button class="mbtn mb-ghost" onclick="show('scr-lobby')" data-i18n="common.back">← 返回</button>
+  </div>
+</div>
 
+<!-- 旧 scr-online 保留为兼容别名 -->
+<div id="scr-online" style="display:none;"></div>
+
+<!-- ════ ROOM (waiting) ════ -->
+<div id="scr-room" class="screen cscreen">
+  <div class="ccard" style="max-width:420px;">
+    <div style="display:flex;align-items:center;margin-bottom:4px;">
+      <div class="cttl" style="margin:0;flex:1;" data-i18n="room.title">房间</div>
+      <div style="font-size:11px;color:#8a7a60;" id="room-visibility-badge"></div>
+    </div>
+    <div class="room-code" id="room-code">------</div>
+    <div style="text-align:center;font-size:11px;color:#8a7a60;margin-bottom:6px;" data-i18n="room.codeHint">分享房间码给朋友加入</div>
+    <div style="text-align:center;margin-bottom:14px;">
+      <span style="font-size:12px;background:var(--bg);border:1px solid var(--ui-border);border-radius:8px;padding:3px 10px;color:#5a4a30;" id="room-mode-badge"></span>
+    </div>
     <div id="player-slots"></div>
+    <button class="mbtn mb-green" id="ready-btn" onclick="toggleReady()" data-i18n="room.ready">准备</button>
+    <button class="mbtn mb-dark hidden" id="start-btn" onclick="hostStart()" data-i18n="room.start">开始对战</button>
+    <button class="mbtn mb-ghost" onclick="leaveRoom()" data-i18n="room.leave">离开房间</button>
+  </div>
+</div>
 
-    <button class="mbtn mb-green" id="ready-btn" onclick="toggleReady()">准备</button>
-    <button class="mbtn mb-dark hidden" id="start-btn" onclick="hostStart()">开始对战</button>
-    <button class="mbtn mb-ghost" onclick="leaveRoom()">离开房间</button>
+<!-- ════ PASSWORD MODAL ════ -->
+<div id="pw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;">
+  <div class="ccard" style="max-width:320px;text-align:center;">
+    <div class="cttl" style="font-size:18px;" data-i18n="pwModal.title">🔒 私密房间</div>
+    <div style="font-size:13px;color:#8a7a60;margin-bottom:12px;" data-i18n="pwModal.hint">请输入密码加入</div>
+    <input id="pw-input" maxlength="12" placeholder="密码" type="password"
+      style="width:100%;padding:10px 12px;border-radius:10px;border:2px solid var(--ui-border);font-size:16px;letter-spacing:3px;text-align:center;margin-bottom:12px;font-family:inherit;box-sizing:border-box;">
+    <button class="mbtn mb-dark" onclick="submitRoomPassword()" data-i18n="pwModal.join">加入</button>
+    <button class="mbtn mb-ghost" onclick="document.getElementById('pw-modal').style.display='none'" data-i18n="common.cancel">取消</button>
   </div>
 </div>
 
@@ -498,12 +578,13 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="combo-badge"></div>
 
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, onDisconnect, child } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 const firebaseConfig = {
   apiKey: "AIzaSyDiMY7gFRIoH9pYcG1UXF3mpnUsyvCnB50",
   authDomain: "uth-project-ebefc.firebaseapp.com",
@@ -519,7 +600,11 @@ try {
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   window.FB = { db, ref, set, get, update, onValue, onDisconnect, child };
-  window.fbSignIn = () => signInWithPopup(auth, provider).catch(e => { console.error('SignIn failed', e); window.toast&&window.toast('登录失败：'+e.message); });
+  window.fbSignIn = () => signInWithRedirect(auth, provider).catch(e => { console.error('SignIn failed', e); window.toast&&window.toast('登录失败：'+e.message); });
+  // 处理登录跳转回来的结果
+  getRedirectResult(auth).then(result => {
+    if(result?.user) console.log('Redirect sign-in success:', result.user.displayName);
+  }).catch(e => console.error('Redirect result error', e));
   window.fbSignOut = () => signOut(auth);
   onAuthStateChanged(auth, user => {
     if (user) {
@@ -539,7 +624,107 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.5.0';
+
+// ═══════════════════════════════════════════════════════════
+// i18n — LANGUAGE SYSTEM
+// ═══════════════════════════════════════════════════════════
+let curLang = localStorage.getItem('psr_lang') || 'zh';
+const I18N = {
+  zh: {
+    'login.google':'使用 Google 账号登录','login.hint':'登录后可跨设备保存进度和设置',
+    'login.or':'或者','login.guest':'🎮 作为访客游玩（进度只存本地）',
+    'menu.inputMethod':'作答方式','menu.piano':'🎹 钢琴键盘',
+    'menu.tutorial':'🎓 新手教程','menu.levels':'📚 关卡模式',
+    'menu.practice':'✏️ 练习模式','menu.songs':'🎵 流行曲模式',
+    'menu.online':'⚔️ 联机对战','menu.keybind':'⌨️ 键盘设定',
+    'menu.midi':'🎹 连接电钢 / MIDI','menu.signout':'登出',
+    'menu.loginToSave':'🔑 登录以保存进度',
+    'lobby.title':'⚔️ 联机大厅','lobby.create':'＋ 创建房间',
+    'lobby.yourName':'你的昵称','lobby.namePlaceholder':'输入昵称',
+    'lobby.openRooms':'公开房间','lobby.refresh':'🔄 刷新',
+    'lobby.loading':'加载中…','lobby.empty':'暂无公开房间，创建第一个吧！',
+    'lobby.join':'加入','lobby.players':'人',
+    'createRoom.title':'🏠 创建房间','createRoom.vsMode':'对战模式',
+    'createRoom.song':'对战曲目','createRoom.duration':'对战时长',
+    'createRoom.goal':'目标小节数','createRoom.visibility':'房间类型',
+    'createRoom.public':'🌐 公开','createRoom.private':'🔒 私密（设密码）',
+    'createRoom.passwordHint':'设置密码','createRoom.start':'🚀 创建并进入房间',
+    'vsMode.speed':'速度对决','vsMode.speedDesc':'同一份谱<br>先完成获胜',
+    'vsMode.hp':'血量对战','vsMode.hpDesc':'完成小节<br>扣对手血',
+    'room.title':'房间','room.codeHint':'分享房间码给朋友加入',
+    'room.ready':'准备','room.start':'开始对战','room.leave':'离开房间',
+    'pwModal.title':'🔒 私密房间','pwModal.hint':'请输入密码加入','pwModal.join':'加入',
+    'common.back':'← 返回','common.cancel':'取消',
+    'guest.label':'访客','result.win':'胜利！','result.lose':'惜败','result.draw':'平局',
+  },
+  en: {
+    'login.google':'Sign in with Google','login.hint':'Login to save progress & settings across devices',
+    'login.or':'or','login.guest':'🎮 Play as Guest (progress saved locally only)',
+    'menu.inputMethod':'Input Method','menu.piano':'🎹 Piano Keys',
+    'menu.tutorial':'🎓 Tutorial','menu.levels':'📚 Level Mode',
+    'menu.practice':'✏️ Practice Mode','menu.songs':'🎵 Songs Mode',
+    'menu.online':'⚔️ Online Battle','menu.keybind':'⌨️ Key Bindings',
+    'menu.midi':'🎹 Connect Piano / MIDI','menu.signout':'Sign Out',
+    'menu.loginToSave':'🔑 Login to save progress',
+    'lobby.title':'⚔️ Online Lobby','lobby.create':'＋ Create Room',
+    'lobby.yourName':'Your Nickname','lobby.namePlaceholder':'Enter nickname',
+    'lobby.openRooms':'Open Rooms','lobby.refresh':'🔄 Refresh',
+    'lobby.loading':'Loading…','lobby.empty':'No open rooms yet — create one!',
+    'lobby.join':'Join','lobby.players':'players',
+    'createRoom.title':'🏠 Create Room','createRoom.vsMode':'Battle Mode',
+    'createRoom.song':'Song','createRoom.duration':'Duration',
+    'createRoom.goal':'Target Bars','createRoom.visibility':'Room Type',
+    'createRoom.public':'🌐 Public','createRoom.private':'🔒 Private (set password)',
+    'createRoom.passwordHint':'Set password','createRoom.start':'🚀 Create & Enter Room',
+    'vsMode.speed':'Speed Race','vsMode.speedDesc':'Same sheet<br>Finish first to win',
+    'vsMode.hp':'HP Battle','vsMode.hpDesc':'Complete bars<br>to damage opponent',
+    'room.title':'Room','room.codeHint':'Share this code with friends',
+    'room.ready':'Ready','room.start':'Start Battle','room.leave':'Leave Room',
+    'pwModal.title':'🔒 Private Room','pwModal.hint':'Enter password to join','pwModal.join':'Join',
+    'common.back':'← Back','common.cancel':'Cancel',
+    'guest.label':'Guest','result.win':'Victory!','result.lose':'Defeat','result.draw':'Draw',
+  }
+};
+function t(key){ return (I18N[curLang]||I18N.zh)[key] || (I18N.zh[key]) || key; }
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.dataset.i18n;
+    if(el.tagName==='INPUT') return;
+    el.innerHTML=t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    el.placeholder=t(el.dataset.i18nPlaceholder);
+  });
+  const langBtn=document.getElementById('lang-btn');
+  if(langBtn) langBtn.textContent=curLang==='zh'?'EN':'中文';
+}
+function setLang(lang){ curLang=lang; localStorage.setItem('psr_lang',lang); applyLang(); }
+function toggleLang(){ setLang(curLang==='zh'?'en':'zh'); }
+
+// ═══════════════════════════════════════════════════════════
+// GUEST MODE
+// ═══════════════════════════════════════════════════════════
+let isGuest = false;
+function playAsGuest(){
+  isGuest = true;
+  window.myId = 'guest_'+Math.random().toString(36).slice(2,9);
+  window.myDisplayName = t('guest.label');
+  const nameEl=document.getElementById('user-name');
+  const avatarEl=document.getElementById('user-avatar');
+  if(nameEl) nameEl.textContent='🎮 '+t('guest.label');
+  if(avatarEl) avatarEl.style.display='none';
+  const guestBar=document.getElementById('guest-login-bar');
+  if(guestBar) guestBar.style.display='';
+  const signoutBtn=document.getElementById('signout-btn');
+  if(signoutBtn) signoutBtn.style.display='none';
+  show('scr-menu');
+}
+function handleSignOut(){
+  if(isGuest){ isGuest=false; show('scr-login'); }
+  else { window.fbSignOut&&window.fbSignOut(); }
+}
+
 // ═══════════════════════════════════════════════════════════
 // NOTE DATA — slot system (slot 0 = bottom staff line)
 // Treble bottom line = E4 ; Bass bottom line = G2
@@ -692,13 +877,18 @@ let gameKind='campaign'; // campaign | practice | online
 const lp=()=>{try{return JSON.parse(localStorage.getItem('psr3')||'{}')}catch{return{}}};
 const sp=p=>{
   try{localStorage.setItem('psr3',JSON.stringify(p));}catch{}
-  // 同步到 Firebase
-  if(window.FB&&window.myId){
+  if(!isGuest&&window.FB&&window.myId){
     const {db,ref,set}=window.FB;
     set(ref(db,'users/'+window.myId+'/progress'),p).catch(()=>{});
   }
 };
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);if(!el)return;el.classList.add('active');
+  if(id==='scr-tutorial'){tutStep=0;tutRender();}
+  if(id==='scr-lobby'){refreshLobby();}
+  if(id==='scr-create-room'){populateVsLevels();roomIsPublic=true;document.getElementById('room-password-row').style.display='none';document.getElementById('room-public-btn').classList.add('on');document.getElementById('room-private-btn').classList.remove('on');}
+}
 function setIM(m,b){inputMode=m;document.querySelectorAll('#imt button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 
@@ -721,6 +911,32 @@ function playPiano(note){
 }
 function buzz(){ea();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.value=98;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.22);}
 function ding(){ea();const t=AC.currentTime;[1320,1760].forEach((fr,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=fr;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.1,t+i*.08);g.gain.exponentialRampToValueAtTime(.001,t+i*.08+.3);o.start(t+i*.08);o.stop(t+i*.08+.32);});}
+function barClearSound(){ea();const t=AC.currentTime;[523,659,784,1047].forEach((fr,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=fr;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.12,t+i*.07);g.gain.exponentialRampToValueAtTime(.001,t+i*.07+.35);o.start(t+i*.07);o.stop(t+i*.07+.38);});}
+
+// ── Score popup & combo ──
+let comboCount=0,comboTimer=null;
+function scorePopup(pts, isOk){
+  const el=document.createElement('div');
+  el.className='score-pop '+(isOk?'ok':'bad');
+  el.textContent=(isOk?'+':'')+pts;
+  el.style.left=(Math.random()*40+30)+'%';
+  el.style.top='40%';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),950);
+}
+function addCombo(){
+  comboCount++;
+  clearTimeout(comboTimer);
+  comboTimer=setTimeout(()=>{comboCount=0;document.getElementById('combo-badge').style.display='none';},2500);
+  if(comboCount>=3){
+    const b=document.getElementById('combo-badge');
+    const labels={3:'🔥 x3',4:'🔥 x4',5:'⚡ x5',6:'⚡ x6',7:'💥 x7',8:'💥 x8',9:'🌟 x9',10:'🌟 x10'};
+    b.textContent=labels[Math.min(comboCount,10)]||(comboCount+'x COMBO');
+    b.style.display='block';
+    b.style.animation='none'; void b.offsetWidth; b.style.animation='comboPulse .25s ease-out';
+  }
+}
+function resetCombo(){comboCount=0;clearTimeout(comboTimer);document.getElementById('combo-badge').style.display='none';}
 
 // ═══════════════════════════════════════════════════════════
 // CANVAS / STAFF RENDERING
@@ -1247,6 +1463,7 @@ const CAMPAIGN_LIVES=3;
 const CAMPAIGN_GOAL=8; // bars to complete to clear the level
 function startLevel(id){
   stopMetronome(); metroOn=false; updateMetroBtn();
+  resetCombo();
   gameKind='campaign';curLv=id;
   const lv=LEVELS.find(l=>l.id===id);
   show('scr-game');ea();
@@ -1357,14 +1574,14 @@ function handleInput(note){
   }
   const hlName = document.getElementById('pk-'+note)?note:note;
   if(matchIdx>=0){
-    bar.notes[matchIdx].state='done';gs.notesOK++;gs.score+=10;hl(hlName,'ok');
+    bar.notes[matchIdx].state='done';gs.notesOK++;gs.score+=10;hl(hlName,'ok');scorePopup(10,true);addCombo();
     // group complete only when every note in it is done
     let groupDone=true;
     for(let i=gStart;i<gEnd;i++){ if(bar.notes[i].state!=='done'){groupDone=false;break;} }
     if(!groupDone){ updChips();updHUD();draw();updHint(); return; } // wait for remaining chord notes
     gs.curNote=gEnd;
     if(gs.curNote>=bar.notes.length){
-      gs.barsDone++;gs.score+=20;ding();showFB('Bar '+(gs.curBar+1)+' ✓','ok');
+      gs.barsDone++;gs.score+=20;barClearSound();scorePopup(20,true);showFB('Bar '+(gs.curBar+1)+' ✓','ok');
       gs.curBar++;gs.curNote=0;
       gs.wrongStreak=0; // a fully-correct bar clears the mistake streak
       if(gameKind==='online'&&onlineVsMode==='hp'){
@@ -1412,7 +1629,7 @@ function handleInput(note){
     }
   }else{
     // WRONG answer
-    gs.notesWrong++;buzz();hl(note,'bad');
+    gs.notesWrong++;buzz();hl(note,'bad');resetCombo();
     bar.notes.forEach(n=>n.state='pending');gs.curNote=0;
     gs.wrongStreak=(gs.wrongStreak||0)+1;
     if(gs.wrongStreak>gs.maxWrongStreak) gs.maxWrongStreak=gs.wrongStreak;
@@ -1517,7 +1734,7 @@ function togglePause(){
 }
 function quitGame(){gs.active=false;clearInterval(timerIv);clearInterval(strikeTimer);document.getElementById('pov').classList.remove('show');document.getElementById('strike-ov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
 function endGame(){
-  gs.active=false;clearInterval(timerIv);
+  gs.active=false;clearInterval(timerIv);resetCombo();
   if(gameKind==='online'){return endOnlineGame();}
   const cleared = gs.barsDone>=gs.goal;
   // stars: cleared with 3 lives = ★★★, 2 lives = ★★, 1 life = ★, failed = none
@@ -2510,31 +2727,28 @@ let onlineLevel=3, onlineSheetSeed=null, opponentId=null, onlineSongRef='builtin
 window.addEventListener('fb-user', async e => {
   const user = e.detail;
   if(user){
-    myId = user.uid;
-    // 更新 UI
+    isGuest=false; myId=user.uid;
     const nameEl=document.getElementById('user-name');
     const avatarEl=document.getElementById('user-avatar');
-    if(nameEl) nameEl.textContent=user.displayName||user.email||'玩家';
+    if(nameEl) nameEl.textContent=user.displayName||user.email||t('guest.label');
     if(avatarEl&&user.photoURL){ avatarEl.src=user.photoURL; avatarEl.style.display=''; }
-    document.getElementById('fb-status').textContent='✓ 已连接服务器';
-    // 从 Firebase 载入进度，合并到 localStorage
+    const guestBar=document.getElementById('guest-login-bar');if(guestBar)guestBar.style.display='none';
+    const signoutBtn=document.getElementById('signout-btn');if(signoutBtn)signoutBtn.style.display='';
+    const fbSt=document.getElementById('fb-status');if(fbSt)fbSt.textContent='✓ 已连接服务器';
     if(window.FB){
       const {db,ref,get}=window.FB;
       try{
         const snap=await get(ref(db,'users/'+myId+'/progress'));
         if(snap.exists()){
-          const remote=snap.val();
-          const local=lp();
-          // 合并：取每关最高星级
-          const merged={...local};
-          Object.keys(remote).forEach(k=>{ if(!merged[k]||remote[k].stars>merged[k].stars) merged[k]=remote[k]; });
+          const remote=snap.val();const local=lp();const merged={...local};
+          Object.keys(remote).forEach(k=>{if(!merged[k]||remote[k].stars>merged[k].stars)merged[k]=remote[k];});
           localStorage.setItem('psr3',JSON.stringify(merged));
         }
-      }catch(err){ console.warn('progress load failed',err); }
+      }catch(err){console.warn('progress load failed',err);}
     }
     show('scr-menu');
-  } else {
-    myId = Math.random().toString(36).slice(2,9);
+  } else if(!isGuest){
+    myId=Math.random().toString(36).slice(2,9);
     show('scr-login');
   }
 });
@@ -2558,13 +2772,31 @@ function resolveSong(refStr){
   return BUILTIN_SONGS[0];
 }
 
+// ── Lobby state ──
+let lobbyUnsub=null, pendingJoinCode=null, roomIsPublic=true;
+function setRoomPublic(pub,btn){
+  roomIsPublic=pub;
+  document.querySelectorAll('#scr-create-room .toggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('room-password-row').style.display=pub?'none':'block';
+}
+
 async function createRoom(){
-  if(!window.FB){toast('服务器未连接，请刷新重试');return;}
+  if(!window.FB){toast(curLang==='en'?'Server not connected, please refresh':'服务器未连接，请刷新重试');return;}
   isHost=true;roomCode=genCode();
   const {db,ref,set,onDisconnect}=window.FB;
   roomRef=ref(db,'rooms/'+roomCode);
+  const selSong=document.getElementById('vs-song');
+  const selTime=document.getElementById('vs-time');
+  const selGoal=document.getElementById('vs-goal');
+  const songVal=selSong?selSong.value:'builtin:'+BUILTIN_SONGS[0].id;
+  const minsVal=selTime?+(selTime.value):3;
+  const goalVal=selGoal?+(selGoal.value):16;
+  const password=roomIsPublic?'':(document.getElementById('room-password')?.value?.trim()||'');
   const initData={
-    host:myId,vsMode:'speed',level:3,minutes:3,goal:16,song:'builtin:ode',state:'waiting',seed:Date.now(),
+    host:myId,hostName:getPlayerName(),vsMode:onlineVsMode||'speed',level:3,
+    minutes:minsVal,goal:goalVal,song:songVal,state:'waiting',seed:Date.now(),
+    isPublic:roomIsPublic,password,created:Date.now(),
     players:{[myId]:{name:getPlayerName(),ready:false,progress:0,bars:0,hp:100,score:0,alive:true,atk:0}}
   };
   try{
@@ -2572,33 +2804,87 @@ async function createRoom(){
     onDisconnect(ref(db,'rooms/'+roomCode+'/players/'+myId)).remove();
     enterRoom();
   }catch(e){
-    toast('创建失败：'+e.message);
-    console.error('createRoom error',e);
+    toast((curLang==='en'?'Create failed: ':'创建失败：')+e.message);
   }
 }
-async function joinRoom(){
-  if(!window.FB){toast('服务器未连接');return;}
-  const code=document.getElementById('join-code').value.trim().toUpperCase();
-  if(code.length<4){toast('请输入房间码');return;}
+
+async function joinRoomByCode(code, skipPasswordCheck){
+  if(!window.FB){toast(curLang==='en'?'Server not connected':'服务器未连接');return;}
   const {db,ref,get,update,onDisconnect}=window.FB;
   const snap=await get(ref(db,'rooms/'+code));
-  if(!snap.exists()){toast('房间不存在');return;}
+  if(!snap.exists()){toast(curLang==='en'?'Room not found':'房间不存在');return;}
   const data=snap.val();
-  if(data.players&&Object.keys(data.players).length>=2){toast('房间已满');return;}
+  if(data.players&&Object.keys(data.players).length>=2){toast(curLang==='en'?'Room full':'房间已满');return;}
+  if(!skipPasswordCheck&&data.password){
+    pendingJoinCode=code;
+    const m=document.getElementById('pw-modal');
+    m.style.display='flex';
+    document.getElementById('pw-input').value='';
+    return;
+  }
   isHost=false;roomCode=code;roomRef=ref(db,'rooms/'+code);
   await update(ref(db,'rooms/'+code+'/players/'+myId),{name:getPlayerName(),ready:false,progress:0,bars:0,hp:100,score:0,alive:true,atk:0});
   onDisconnect(ref(db,'rooms/'+code+'/players/'+myId)).remove();
   enterRoom();
 }
+
+async function submitRoomPassword(){
+  const pw=document.getElementById('pw-input').value.trim();
+  if(!pendingJoinCode||!window.FB)return;
+  const {db,ref,get}=window.FB;
+  const snap=await get(ref(db,'rooms/'+pendingJoinCode));
+  if(!snap.exists()){toast(curLang==='en'?'Room not found':'房间不存在');return;}
+  const data=snap.val();
+  if(data.password&&data.password!==pw){toast(curLang==='en'?'Wrong password':'密码错误');return;}
+  document.getElementById('pw-modal').style.display='none';
+  joinRoomByCode(pendingJoinCode, true);
+}
+
+// Lobby list
+function refreshLobby(){
+  if(!window.FB){
+    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${curLang==='en'?'Server not connected':'服务器未连接'}</div>`;
+    return;
+  }
+  const {db,ref,get}=window.FB;
+  document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loading')}</div>`;
+  get(ref(db,'rooms')).then(snap=>{
+    const list=document.getElementById('lobby-list');
+    if(!snap.exists()||!snap.val()){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
+    const rooms=snap.val();
+    const open=Object.entries(rooms).filter(([,r])=>r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined));
+    if(!open.length){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
+    list.innerHTML='';
+    open.slice(0,20).forEach(([code,r])=>{
+      const playerCount=r.players?Object.keys(r.players).length:1;
+      const isPrivate=!!r.password;
+      const song=resolveSong(r.song||'');
+      const el=document.createElement('div');
+      el.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--ui-border);border-radius:10px;margin-bottom:8px;background:#fff;';
+      el.innerHTML=`
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${r.hostName||'玩家'}</span> 的房间</div>
+          <div style="font-size:11px;color:#8a7a60;margin-top:2px;">${r.vsMode==='hp'?'⚔️':'🏁'} ${song?.title||''} · ${playerCount}/2 ${t('lobby.players')}</div>
+        </div>
+        <button class="mbtn mb-blue" style="margin:0;padding:6px 14px;width:auto;font-size:12px;" onclick="joinRoomByCode('${code}',false)">${t('lobby.join')}</button>`;
+      list.appendChild(el);
+    });
+  }).catch(()=>{
+    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${curLang==='en'?'Failed to load rooms':'加载失败，请刷新'}</div>`;
+  });
+}
+
 function enterRoom(){
   show('scr-room');
   document.getElementById('room-code').textContent=roomCode;
-  document.getElementById('host-controls').style.display=isHost?'block':'none';
-  if(isHost)populateVsLevels();
+  const badgeEl=document.getElementById('room-visibility-badge');
+  const modeBadgeEl=document.getElementById('room-mode-badge');
+  if(badgeEl) badgeEl.textContent=roomIsPublic?(curLang==='en'?'🌐 Public':'🌐 公开'):(curLang==='en'?'🔒 Private':'🔒 私密');
+  if(modeBadgeEl) modeBadgeEl.textContent=onlineVsMode==='hp'?(curLang==='en'?'⚔️ HP Battle':'⚔️ 血量对战'):(curLang==='en'?'🏁 Speed Race':'🏁 速度对决');
   const {db,ref,onValue}=window.FB;
   if(roomUnsub)roomUnsub();
   roomUnsub=onValue(ref(db,'rooms/'+roomCode),snap=>{
-    if(!snap.exists()){toast('房间已关闭');leaveRoom();return;}
+    if(!snap.exists()){toast(curLang==='en'?'Room closed':'房间已关闭');leaveRoom();return;}
     onRoomUpdate(snap.val());
   });
 }
@@ -2607,14 +2893,9 @@ function onRoomUpdate(data){
   onlineVsMode=data.vsMode;onlineLevel=data.level;onlineSheetSeed=data.seed;onlineSongRef=data.song||'builtin:ode';
   onlineMinutes=data.minutes||3;
   SPEED_GOAL=data.goal||16;
-  if(isHost){
-    document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('on',c.dataset.vsmode===data.vsMode));
-    if(document.getElementById('vs-song')) document.getElementById('vs-song').value=onlineSongRef;
-    document.getElementById('vs-time-row').style.display = data.vsMode==='hp'?'block':'none';
-    document.getElementById('vs-goal-row').style.display = data.vsMode==='speed'?'block':'none';
-    if(document.getElementById('vs-time')) document.getElementById('vs-time').value=String(data.minutes||3);
-    if(document.getElementById('vs-goal')) document.getElementById('vs-goal').value=String(data.goal||16);
-  }
+  // update room badge
+  const modeBadgeEl=document.getElementById('room-mode-badge');
+  if(modeBadgeEl) modeBadgeEl.textContent=onlineVsMode==='hp'?(curLang==='en'?'⚔️ HP Battle':'⚔️ 血量对战'):(curLang==='en'?'🏁 Speed Race':'🏁 速度对决');
   // render player slots
   const slots=document.getElementById('player-slots');slots.innerHTML='';
   const players=data.players||{};
@@ -2669,11 +2950,12 @@ function onRoomUpdate(data){
   }
 }
 function pickVsMode(m,el){
-  if(!isHost)return;onlineVsMode=m;
+  onlineVsMode=m;
   document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('on'));el.classList.add('on');
   document.getElementById('vs-time-row').style.display = m==='hp'?'block':'none';
   document.getElementById('vs-goal-row').style.display = m==='speed'?'block':'none';
-  const {db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{vsMode:m});
+  // only push to Firebase if we're already in a room
+  if(isHost&&roomCode&&window.FB){const {db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{vsMode:m});}
 }
 document.getElementById('vs-goal')?.addEventListener('change',e=>{
   if(!isHost)return;const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{goal:+e.target.value});
@@ -3076,7 +3358,7 @@ const TUT_STEPS=[
       <p style="margin-bottom:14px;text-align:center;">建议从 <b>关卡1</b> 开始，熟悉基本音符后再挑战对战模式。</p>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button class="mbtn mb-dark" style="margin:0;" onclick="show('scr-levels')">📚 开始关卡模式</button>
-        <button class="mbtn mb-red" style="margin:0;" onclick="show('scr-online')">⚔️ 直接联机对战</button>
+        <button class="mbtn mb-red" style="margin:0;" onclick="show('scr-lobby')">⚔️ 直接联机对战</button>
       </div>
     `
   }
@@ -3101,13 +3383,13 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-online'&&window.FB){document.getElementById('fb-status').textContent='✓ 已连接服务器';}if(id==='scr-tutorial'){tutStep=0;tutRender();}};
+show=function(id){_origShow(id);if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent='✓ 已连接服务器';}};
 
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
-  // 版本号显示
+  applyLang();
   const vl=document.getElementById('ver-label');
-  if(vl) vl.textContent='Piano Clash · v'+APP_VERSION;
+  if(vl) vl.textContent='v'+APP_VERSION;
   // 昵称本地记忆
   const pn=document.getElementById('player-name');
   if(pn){
