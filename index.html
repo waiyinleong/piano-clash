@@ -697,6 +697,7 @@ function applyLang(){
 }
 function setLang(lang){ curLang=lang; localStorage.setItem('psr_lang',lang); applyLang(); }
 function toggleLang(){ setLang(curLang==='zh'?'en':'zh'); }
+window.setLang=setLang; window.toggleLang=toggleLang; window.applyLang=applyLang;
 
 // ═══════════════════════════════════════════════════════════
 // GUEST MODE
