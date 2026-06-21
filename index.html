@@ -3248,7 +3248,8 @@ function updateMIDIStatus(){
 }
 
 // ═══ TUTORIAL ═══
-const TUT_STEPS=[
+function getTutSteps(){
+const zh=[
   {
     title:'欢迎来到 Piano Clash！',
     content:`
@@ -3368,21 +3369,117 @@ const TUT_STEPS=[
     `
   }
 ];
+const en=[
+  {title:'Welcome to Piano Clash!',content:`
+    <div style="text-align:center;font-size:48px;margin-bottom:12px;">🎹</div>
+    <p style="margin-bottom:10px;">Piano Clash is a <b>piano sight-reading battle game</b>.</p>
+    <p style="margin-bottom:10px;">Notes appear on a staff — play the correct pitch using your <b>keyboard or piano</b>. Faster = more points.</p>
+    <p>Play solo levels or <b>battle other players</b> online!</p>
+  `},
+  {title:'Reading the Staff',content:`
+    <div style="text-align:center;font-size:36px;margin-bottom:8px;">𝄞</div>
+    <p style="margin-bottom:10px;"><b>Treble Clef 𝄞</b> = right hand. Lines bottom→top: <b>E G B D F</b> · Spaces: <b>F A C E</b></p>
+    <p style="margin-bottom:10px;"><b>Bass Clef 𝄢</b> = left hand. Lines bottom→top: <b>G B D F A</b> · Spaces: <b>A C E G</b></p>
+    <div style="background:var(--bg2);border-radius:10px;padding:12px;font-size:13px;color:#5a4a30;">
+      💡 Mnemonic for treble lines: <b>Every Good Boy Does Fine</b><br>
+      Spaces spell: <b>F A C E</b>
+    </div>
+  `},
+  {title:'Note Values',content:`
+    <p style="margin-bottom:12px;">Different note shapes = different <b>beat lengths</b>:</p>
+    <div style="display:grid;grid-template-columns:60px 1fr;gap:8px;align-items:center;font-size:14px;">
+      <div style="font-size:28px;text-align:center;">𝅝</div><div><b>Whole note</b> — 4 beats</div>
+      <div style="font-size:28px;text-align:center;">𝅗𝅥</div><div><b>Half note</b> — 2 beats</div>
+      <div style="font-size:24px;text-align:center;">♩</div><div><b>Quarter note</b> — 1 beat</div>
+      <div style="font-size:22px;text-align:center;">♪</div><div><b>Eighth note</b> — ½ beat</div>
+    </div>
+    <div style="background:var(--bg2);border-radius:10px;padding:10px;font-size:13px;color:#5a4a30;margin-top:12px;">
+      💡 In this game, only the <b>pitch</b> matters — note duration doesn't affect your answer.
+    </div>
+  `},
+  {title:'How to Answer',content:`
+    <p style="margin-bottom:10px;">Two ways to input your answer:</p>
+    <div style="background:var(--bg2);border-radius:10px;padding:12px;margin-bottom:10px;">
+      <b>🎹 Piano Keyboard (Recommended)</b><br>
+      <span style="font-size:13px;">Tap the on-screen piano keys, or use these computer keys:</span><br>
+      <div style="font-family:monospace;font-size:13px;margin-top:6px;color:#1a6fb5;">A S D F G H J K = C4 D4 E4 F4 G4 A4 B4 C5</div>
+    </div>
+    <div style="background:var(--bg2);border-radius:10px;padding:12px;">
+      <b>🎵 Do Re Mi Mode</b><br>
+      <span style="font-size:13px;">Tap Do Re Mi Fa Sol La Si buttons. Great for beginners who don't know note names yet.</span>
+    </div>
+  `},
+  {title:'Game Modes',content:`
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:#f0f7ff;border-radius:10px;padding:12px;border-left:4px solid var(--blue);">
+        <b>📚 Level Mode</b><br>
+        <span style="font-size:13px;">32 levels from easy to hard — basics to two-hand reading and accidentals. Great for structured learning.</span>
+      </div>
+      <div style="background:#f0fff7;border-radius:10px;padding:12px;border-left:4px solid var(--correct);">
+        <b>✏️ Practice Mode</b><br>
+        <span style="font-size:13px;">Build your own sheet and loop any passage for targeted practice.</span>
+      </div>
+      <div style="background:#fff7f0;border-radius:10px;padding:12px;border-left:4px solid var(--red);">
+        <b>⚔️ Online Battle</b><br>
+        <span style="font-size:13px;">Create or join a room and battle a friend in real time!</span>
+      </div>
+    </div>
+  `},
+  {title:'How to Play Online',content:`
+    <ol style="padding-left:18px;line-height:2;">
+      <li>Tap <b>⚔️ Online Battle</b> from the main menu</li>
+      <li>Enter your <b>nickname</b></li>
+      <li><b>Create a room</b> and share the code, or <b>join</b> an open room</li>
+      <li>Both players hit <b>Ready</b></li>
+      <li>The host starts the match</li>
+      <li>The player who answers more notes wins!</li>
+    </ol>
+    <div style="background:var(--bg2);border-radius:10px;padding:10px;font-size:13px;color:#5a4a30;margin-top:10px;">
+      💡 In HP mode, wrong notes drain your HP — first to zero loses.
+    </div>
+  `},
+  {title:'Connect a Real Piano',content:`
+    <div style="text-align:center;font-size:36px;margin-bottom:10px;">🎹</div>
+    <p style="margin-bottom:10px;">Have a MIDI piano? Play with a real keyboard!</p>
+    <ol style="padding-left:18px;line-height:2;font-size:14px;">
+      <li>Connect your digital piano via USB</li>
+      <li>Use <b>Chrome or Edge</b> browser</li>
+      <li>Tap <b>🎹 Connect Piano / MIDI</b> in the menu</li>
+      <li>Click Connect and grant MIDI permission</li>
+      <li>Green "Connected" = ready to play</li>
+    </ol>
+    <div style="background:#fff3cd;border-radius:10px;padding:10px;font-size:13px;color:#856404;margin-top:10px;">
+      ⚠️ Web MIDI requires Chrome / Edge. Safari and mobile browsers are not supported.
+    </div>
+  `},
+  {title:"Let's Play!",content:`
+    <div style="text-align:center;font-size:52px;margin-bottom:12px;">🏆</div>
+    <p style="margin-bottom:10px;text-align:center;font-size:16px;font-weight:700;">You're all set!</p>
+    <p style="margin-bottom:14px;text-align:center;">Start with <b>Level 1</b> to get comfortable, then challenge someone online.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="mbtn mb-dark" style="margin:0;" onclick="show('scr-levels')">📚 Start Level Mode</button>
+      <button class="mbtn mb-red" style="margin:0;" onclick="show('scr-lobby')">⚔️ Online Battle</button>
+    </div>
+  `}
+];
+return curLang==='en'?en:zh;
+}
 let tutStep=0;
 function tutRender(){
-  const s=TUT_STEPS[tutStep];
-  // tabs
+  const steps=getTutSteps();
+  const s=steps[tutStep];
   const tabs=document.getElementById('tut-tabs');
-  tabs.innerHTML=TUT_STEPS.map((t,i)=>`<div onclick="tutGo(${i})" style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:2px solid ${i===tutStep?'var(--ink)':'var(--ui-border)'};background:${i===tutStep?'var(--ink)':'#fff'};color:${i===tutStep?'#fff':'#8a7a60'};">${i+1}</div>`).join('');
-  // body
+  tabs.innerHTML=steps.map((s2,i)=>`<div onclick="tutGo(${i})" style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:2px solid ${i===tutStep?'var(--ink)':'var(--ui-border)'};background:${i===tutStep?'var(--ink)':'#fff'};color:${i===tutStep?'#fff':'#8a7a60'};">${i+1}</div>`).join('');
   document.getElementById('tut-body').innerHTML=`<div style="font-weight:700;font-size:16px;margin-bottom:12px;">${s.title}</div><div style="font-size:14px;line-height:1.7;color:#3d3020;">${s.content}</div>`;
-  // buttons
   document.getElementById('tut-prev').style.display=tutStep===0?'none':'';
-  document.getElementById('tut-next').textContent=tutStep===TUT_STEPS.length-1?'完成 ✓':'下一步 →';
+  document.getElementById('tut-next').textContent=tutStep===steps.length-1?(curLang==='en'?'Done ✓':'完成 ✓'):(curLang==='en'?'Next →':'下一步 →');
+  const backBtn=document.querySelector('#scr-tutorial .mbtn.mb-ghost');
+  if(backBtn) backBtn.textContent=curLang==='en'?'← Back to Menu':'← 返回主菜单';
 }
 function tutNav(d){
-  if(d>0 && tutStep===TUT_STEPS.length-1){ show('scr-menu'); return; }
-  tutStep=Math.max(0,Math.min(TUT_STEPS.length-1,tutStep+d));
+  const steps=getTutSteps();
+  if(d>0 && tutStep===steps.length-1){ show('scr-menu'); return; }
+  tutStep=Math.max(0,Math.min(steps.length-1,tutStep+d));
   tutRender();
 }
 function tutGo(i){ tutStep=i; tutRender(); }
