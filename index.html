@@ -584,7 +584,7 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, onDisconnect, child } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 const firebaseConfig = {
   apiKey: "AIzaSyDiMY7gFRIoH9pYcG1UXF3mpnUsyvCnB50",
   authDomain: "uth-project-ebefc.firebaseapp.com",
@@ -600,11 +600,7 @@ try {
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   window.FB = { db, ref, set, get, update, onValue, onDisconnect, child };
-  window.fbSignIn = () => signInWithRedirect(auth, provider).catch(e => { console.error('SignIn failed', e); window.toast&&window.toast('登录失败：'+e.message); });
-  // 处理登录跳转回来的结果
-  getRedirectResult(auth).then(result => {
-    if(result?.user) console.log('Redirect sign-in success:', result.user.displayName);
-  }).catch(e => console.error('Redirect result error', e));
+  window.fbSignIn = () => signInWithPopup(auth, provider).catch(e => { console.error('SignIn failed', e); window.toast&&window.toast('登录失败：'+e.message); });
   window.fbSignOut = () => signOut(auth);
   onAuthStateChanged(auth, user => {
     if (user) {
