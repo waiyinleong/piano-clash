@@ -480,20 +480,20 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
       <div class="hl" id="h-lvname">LEVEL 1</div>
     </div>
     <div style="display:flex;gap:10px;">
-      <div class="hblk"><div class="hv" id="h-bars" style="color:var(--correct)">0</div><div class="hl">小节</div></div>
-      <div class="hblk"><div class="hv" id="h-sheet" style="color:var(--gold)">100%</div><div class="hl">正确率</div></div>
+      <div class="hblk"><div class="hv" id="h-bars" style="color:var(--correct)">0</div><div class="hl" data-i18n="game.bars">小节</div></div>
+      <div class="hblk"><div class="hv" id="h-sheet" style="color:var(--gold)">100%</div><div class="hl" data-i18n="game.accuracy">正确率</div></div>
     </div>
   </div>
 
   <div class="vs-bar" id="vs-bar">
     <div class="vs-side">
-      <div class="vs-name" style="color:var(--blue)" id="vs-me-name">我</div>
+      <div class="vs-name" style="color:var(--blue)" id="vs-me-name" data-i18n="game.me">我</div>
       <div class="vs-track"><div class="vs-fill me" id="vs-me-fill"></div></div>
       <div class="vs-hp" id="vs-me-hp"></div>
     </div>
     <div style="font-family:Georgia;font-weight:700;color:#888;">VS</div>
     <div class="vs-side">
-      <div class="vs-name" style="color:var(--red);text-align:right" id="vs-opp-name">对手</div>
+      <div class="vs-name" style="color:var(--red);text-align:right" id="vs-opp-name" data-i18n="game.opp">对手</div>
       <div class="vs-track"><div class="vs-fill opp" id="vs-opp-fill" style="margin-left:auto"></div></div>
       <div class="vs-hp" style="text-align:right" id="vs-opp-hp"></div>
     </div>
@@ -506,16 +506,16 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
     <div class="feedback" id="fb"></div>
     <div class="palette" id="palette"></div>
     <div class="pal-tools" id="pal-tools">
-      <button class="ptool play" onclick="playUserSheet()">▶ 播放</button>
+      <button class="ptool play" onclick="playUserSheet()" data-i18n="practice.play">▶ 播放</button>
       <button class="ptool" id="metro-btn" onclick="toggleMetro()">🎵 节拍器 关</button>
-      <span class="ptool" style="display:flex;align-items:center;gap:4px;cursor:default;">速度
+      <span class="ptool" style="display:flex;align-items:center;gap:4px;cursor:default;"><span data-i18n="practice.speed">速度</span>
         <input id="bpm-input" type="number" min="30" max="240" value="80" style="width:46px;border:1px solid var(--ui-border);border-radius:5px;padding:2px 4px;font-size:12px;text-align:center;"> BPM
       </span>
-      <button class="ptool save" onclick="saveUserSheet()">💾 保存</button>
-      <button class="ptool" onclick="clearUserSheet()">🗑 清空</button>
-      <button class="ptool" style="background:var(--red);color:#fff;border:none;" onclick="startCustomGame()">🎮 开始游戏</button>
+      <button class="ptool save" onclick="saveUserSheet()" data-i18n="practice.save">💾 保存</button>
+      <button class="ptool" onclick="clearUserSheet()" data-i18n="practice.clear">🗑 清空</button>
+      <button class="ptool" style="background:var(--red);color:#fff;border:none;" onclick="startCustomGame()" data-i18n="practice.start">🎮 开始游戏</button>
     </div>
-    <div class="practice-help" id="practice-help">
+    <div class="practice-help" id="practice-help" data-i18n="practice.help">
       把右侧音符 <b>拖到五线谱</b> 上放置 · 拖动 <b>已有音符</b> 可移动/改音高 · 拖出谱外或双击 <b>删除</b> · ♯♭♮ 拖到音符上加记号
     </div>
   </div>
@@ -525,14 +525,14 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
   </div>
 
   <div class="pov" id="pov">
-    <div id="pov-title" style="font-family:Georgia,serif;font-size:34px;">暂停</div>
-    <button class="mbtn mb-dark" style="width:180px" onclick="togglePause()">继续</button>
-    <button class="mbtn mb-ghost" style="width:180px" onclick="quitGame()">退出</button>
+    <div id="pov-title" style="font-family:Georgia,serif;font-size:34px;" data-i18n="game.pause">暂停</div>
+    <button class="mbtn mb-dark" style="width:180px" onclick="togglePause()" data-i18n="game.resume">继续</button>
+    <button class="mbtn mb-ghost" style="width:180px" onclick="quitGame()" data-i18n="game.quit">退出</button>
   </div>
   <div class="strike-ov" id="strike-ov">
     <div class="strike-icon">⏸</div>
-    <div class="strike-title">连续弹错 3 次</div>
-    <div class="strike-sub">冷静一下，<span id="strike-count">3</span> 秒后继续</div>
+    <div class="strike-title" data-i18n="game.strike">连续弹错 3 次</div>
+    <div class="strike-sub"><span data-i18n="game.strikeWait">冷静一下，</span><span id="strike-count">3</span><span data-i18n="game.strikeWaitSuffix"> 秒后继续</span></div>
   </div>
 </div>
 
@@ -554,14 +554,14 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
         <div style="flex:1;background:rgba(26,111,181,.08);border:2px solid var(--blue);border-radius:12px;padding:12px;text-align:center;">
           <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px;" id="ro-me-name">我</div>
           <div style="font-size:28px;font-weight:700;font-family:Georgia;" id="ro-me-score">0</div>
-          <div style="font-size:10px;color:#8a7a60;">分数</div>
+          <div style="font-size:10px;color:#8a7a60;" data-i18n="result.scoreLbl">分数</div>
           <div style="margin-top:8px;font-size:13px;" id="ro-me-stats"></div>
         </div>
         <div style="display:flex;align-items:center;font-family:Georgia;font-weight:700;color:#888;font-size:18px;">VS</div>
         <div style="flex:1;background:rgba(192,57,43,.08);border:2px solid var(--red);border-radius:12px;padding:12px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px;" id="ro-opp-name">对手</div>
+          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px;" id="ro-opp-name" data-i18n="game.opp">对手</div>
           <div style="font-size:28px;font-weight:700;font-family:Georgia;" id="ro-opp-score">0</div>
-          <div style="font-size:10px;color:#8a7a60;">分数</div>
+          <div style="font-size:10px;color:#8a7a60;" data-i18n="result.scoreLbl">分数</div>
           <div style="margin-top:8px;font-size:13px;" id="ro-opp-stats"></div>
         </div>
       </div>
@@ -569,10 +569,10 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
     </div>
 
     <div class="racts">
-      <button class="mbtn mb-red" id="btn-rematch" onclick="retryGame()" style="display:none;">🔄 再来一局</button>
-      <button class="mbtn mb-ghost" onclick="retryGame()" id="btn-retry">重试</button>
-      <button class="mbtn mb-dark" id="btn-next" onclick="nextLevel()">下一关 →</button>
-      <button class="mbtn mb-ghost" onclick="show('scr-menu')">主菜单</button>
+      <button class="mbtn mb-red" id="btn-rematch" onclick="retryGame()" style="display:none;" data-i18n="result.rematch">🔄 再来一局</button>
+      <button class="mbtn mb-ghost" onclick="retryGame()" id="btn-retry" data-i18n="result.retry">重试</button>
+      <button class="mbtn mb-dark" id="btn-next" onclick="nextLevel()" data-i18n="result.next">下一关 →</button>
+      <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="result.menu">主菜单</button>
     </div>
   </div>
 </div>
@@ -653,6 +653,25 @@ const I18N = {
     'pwModal.title':'🔒 私密房间','pwModal.hint':'请输入密码加入','pwModal.join':'加入',
     'common.back':'← 返回','common.cancel':'取消',
     'guest.label':'访客','result.win':'胜利！','result.lose':'惜败','result.draw':'平局',
+    'result.perfect':'完美通关！','result.clear':'过关！','result.fail':'失败 — 生命耗尽','result.customClear':'自编关卡完成！',
+    'result.retry':'重试','result.next':'下一关 →','result.rematch':'🔄 再来一局','result.menu':'主菜单',
+    'result.score':'总分','result.bars':'完成小节','result.accuracy':'正确率','result.lives':'剩余生命',
+    'result.notesOK':'答对音符','result.notesWrong':'弹错次数','result.scoreLbl':'分数',
+    'result.myBars':'我的小节','result.oppBars':'对手小节','result.myHp':'剩余血量','result.oppHp':'对手血量',
+    'result.myAcc':'我的正确率','result.oppAcc':'对手正确率',
+    'result.correct':'答对','result.wrong':'弹错',
+    'game.pause':'暂停','game.resume':'继续','game.quit':'退出',
+    'game.strike':'连续弹错 3 次','game.strikeWait':'冷静一下，','game.strikeWaitSuffix':' 秒后继续',
+    'game.bars':'小节','game.accuracy':'正确率',
+    'game.wrongCampaign':'✗ 弹错 -1命，本小节重来','game.wrongOnline':'✗ 弹错 -3血，本小节重来',
+    'game.barBonus':'完成一组 回血+10','game.attacked':'⚔️ 被攻击 -','game.attack':'⚔️ 攻击对手 -8',
+    'game.onlinePaused':'游戏进行中（对手仍在继续）',
+    'game.me':'我','game.opp':'对手',
+    'practice.play':'▶ 播放','practice.metro':'🎵 节拍器','practice.on':'开','practice.off':'关',
+    'practice.speed':'速度','practice.save':'💾 保存','practice.clear':'🗑 清空','practice.start':'🎮 开始游戏',
+    'practice.help':'把右侧音符 <b>拖到五线谱</b> 上放置 · 拖动 <b>已有音符</b> 可移动/改音高 · 拖出谱外或双击 <b>删除</b> · ♯♭♮ 拖到音符上加记号',
+    'practice.levelName':'自编谱练习（弹错重来·循环）',
+    'songs.levelName':'（弹错重来·循环）',
   },
   en: {
     'login.google':'Sign in with Google','login.hint':'Login to save progress & settings across devices',
@@ -680,6 +699,25 @@ const I18N = {
     'pwModal.title':'🔒 Private Room','pwModal.hint':'Enter password to join','pwModal.join':'Join',
     'common.back':'← Back','common.cancel':'Cancel',
     'guest.label':'Guest','result.win':'Victory!','result.lose':'Defeat','result.draw':'Draw',
+    'result.perfect':'Perfect Clear!','result.clear':'Level Clear!','result.fail':'Failed — Lives Depleted','result.customClear':'Custom Level Complete!',
+    'result.retry':'Retry','result.next':'Next Level →','result.rematch':'🔄 Play Again','result.menu':'Main Menu',
+    'result.score':'Total Score','result.bars':'Bars Done','result.accuracy':'Accuracy','result.lives':'Lives Left',
+    'result.notesOK':'Correct Notes','result.notesWrong':'Wrong Notes','result.scoreLbl':'Score',
+    'result.myBars':'My Bars','result.oppBars':'Opp Bars','result.myHp':'My HP','result.oppHp':'Opp HP',
+    'result.myAcc':'My Accuracy','result.oppAcc':'Opp Accuracy',
+    'result.correct':'Correct','result.wrong':'Wrong',
+    'game.pause':'Pause','game.resume':'Resume','game.quit':'Quit',
+    'game.strike':'3 Mistakes in a Row','game.strikeWait':'Take a breath… ','game.strikeWaitSuffix':'s',
+    'game.bars':'Bars','game.accuracy':'Accuracy',
+    'game.wrongCampaign':'✗ Wrong — lost 1 life, bar restarted','game.wrongOnline':'✗ Wrong — -3 HP, bar restarted',
+    'game.barBonus':'Group done! +10 HP','game.attacked':'⚔️ Hit for -','game.attack':'⚔️ Attacked opponent -8',
+    'game.onlinePaused':'Game in progress (opponent continues)',
+    'game.me':'Me','game.opp':'Opponent',
+    'practice.play':'▶ Play','practice.metro':'🎵 Metronome','practice.on':'ON','practice.off':'OFF',
+    'practice.speed':'Tempo','practice.save':'💾 Save','practice.clear':'🗑 Clear','practice.start':'🎮 Start Game',
+    'practice.help':'Drag notes from the right <b>onto the staff</b> · Drag <b>existing notes</b> to move/change pitch · Drag off or double-click to <b>delete</b> · Drag ♯♭♮ onto a note',
+    'practice.levelName':'Custom Sheet Practice (repeat on error)',
+    'songs.levelName':'(repeat on error)',
   }
 };
 function t(key){ return (I18N[curLang]||I18N.zh)[key] || (I18N.zh[key]) || key; }
@@ -1620,7 +1658,7 @@ function handleInput(note){
         }
       } else if(gs.curBar>=TOTAL_BARS){
         gs.score+=50;gs.sheetNum++;
-        if(gameKind==='online'&&onlineVsMode==='hp'){gs.hp=Math.min(100,gs.hp+10);pushOnlineProgress();showFB('完成一组 回血+10','ok');}
+        if(gameKind==='online'&&onlineVsMode==='hp'){gs.hp=Math.min(100,gs.hp+10);pushOnlineProgress();showFB(t('game.barBonus'),'ok');}
         setTimeout(()=>{if(gs&&gs.active)newSheet();},450);
       }
     }
@@ -1632,11 +1670,11 @@ function handleInput(note){
     if(gs.wrongStreak>gs.maxWrongStreak) gs.maxWrongStreak=gs.wrongStreak;
     if(gameKind==='campaign'){
       gs.lives--; updLivesDisplay();
-      showFB('✗ 弹错 -1命，本小节重来','bad');
+      showFB(t('game.wrongCampaign'),'bad');
       if(gs.lives<=0){updChips();updHUD();draw();endGame();return;}
     }else if(gameKind==='online'&&onlineVsMode==='hp'){
       gs.hp=Math.max(0,gs.hp-3); pushOnlineProgress();   // self-error: light penalty (-3)
-      showFB('✗ 弹错 -3血，本小节重来','bad');
+      showFB(t('game.wrongOnline'),'bad');
       if(gs.hp<=0){updChips();updHUD();draw();endOnlineGame();return;}
     }else{
       // custom & free play: just repeat the bar, no penalty
@@ -1708,12 +1746,12 @@ function endCustomGame(){
   const tot=gs.notesOK+gs.notesWrong||1;const acc=Math.round(gs.notesOK/tot*100);
   show('scr-result');
   document.getElementById('r-ic').textContent=cleared?'🎹':'💔';
-  document.getElementById('r-tt').textContent=cleared?'自编关卡完成！':'失败 — 生命耗尽';
+  document.getElementById('r-tt').textContent=cleared?t('result.customClear'):t('result.fail');
   document.getElementById('r-st').textContent=cleared?(acc>=95?'★★★':acc>=80?'★★☆':'★☆☆'):'☆☆☆';
   document.getElementById('r-grid').innerHTML=`
-   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">总分</div></div>
-   <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">完成小节</div></div>
-   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>`;
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">${t('result.bars')}</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>`;
   document.getElementById('btn-next').style.display='none';
   // retry restarts the same custom sheet
   const _retry=document.querySelector('#scr-result .racts .mbtn');
@@ -1724,7 +1762,7 @@ function togglePause(){
     // online can't truly pause (opponent plays on) — just open the overlay so 退出 is reachable
     const ov=document.getElementById('pov');
     const showing=ov.classList.toggle('show');
-    document.getElementById('pov-title').textContent = showing ? '游戏进行中（对手仍在继续）' : '暂停';
+    document.getElementById('pov-title').textContent = showing ? t('game.onlinePaused') : t('game.pause');
     return;
   }
   gs.paused=!gs.paused;document.getElementById('pov').classList.toggle('show',gs.paused);
@@ -1743,16 +1781,16 @@ function endGame(){
   document.getElementById('btn-retry').style.display='';
   document.getElementById('btn-rematch').style.display='none';
   document.getElementById('r-ic').textContent=cleared?(st===3?'🏆':'🎹'):'💔';
-  document.getElementById('r-tt').textContent=cleared?(st===3?'完美通关！':'过关！'):'失败 — 生命耗尽';
+  document.getElementById('r-tt').textContent=cleared?(st===3?t('result.perfect'):t('result.clear')):t('result.fail');
   document.getElementById('r-st').textContent='★'.repeat(st)+'☆'.repeat(3-st);
   const tot=gs.notesOK+gs.notesWrong;const acc=tot?Math.round(gs.notesOK/tot*100):100;
   document.getElementById('r-grid').innerHTML=`
-   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">总分</div></div>
-   <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">完成小节</div></div>
-   <div class="rs"><div class="rsv">${gs.lives}</div><div class="rsl">剩余生命</div></div>
-   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>
-   <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">答对音符</div></div>
-   <div class="rs"><div class="rsv">${gs.notesWrong}</div><div class="rsl">弹错次数</div></div>`;
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">${t('result.bars')}</div></div>
+   <div class="rs"><div class="rsv">${gs.lives}</div><div class="rsl">${t('result.lives')}</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>
+   <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">${t('result.notesOK')}</div></div>
+   <div class="rs"><div class="rsv">${gs.notesWrong}</div><div class="rsl">${t('result.notesWrong')}</div></div>`;
   document.getElementById('btn-next').style.display=(cleared&&curLv<LEVELS.length)?'block':'none';
   document.getElementById('btn-next').onclick=()=>nextLevel();
 }
@@ -1964,8 +2002,8 @@ function clearUserSheet(){practiceSheet.bars.forEach(b=>b.notes=[]);draw();toast
 let metroOn=false, metroIv=null;
 function toggleMetro(){
   metroOn=!metroOn; updateMetroBtn();
-  if(metroOn){ startMetronome(); toast('节拍器开（'+getBPM()+' BPM 持续打拍）'); }
-  else { stopMetronome(); toast('节拍器关'); }
+  if(metroOn){ startMetronome(); toast(t('practice.metro')+' '+t('practice.on')+'（'+getBPM()+' BPM）'); }
+  else { stopMetronome(); toast(t('practice.metro')+' '+t('practice.off')); }
 }
 function startMetronome(){
   stopMetronome(); ea();
@@ -1976,7 +2014,7 @@ function startMetronome(){
   metroIv=setInterval(tick, 60000/getBPM());
 }
 function stopMetronome(){ if(metroIv){clearInterval(metroIv);metroIv=null;} }
-function updateMetroBtn(){const b=document.getElementById('metro-btn');if(b)b.textContent='🎵 节拍器 '+(metroOn?'开':'关');}
+function updateMetroBtn(){const b=document.getElementById('metro-btn');if(b)b.textContent=t('practice.metro')+' '+(metroOn?t('practice.on'):t('practice.off'));}
 function metroTick(accent){
   ea();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
   o.type='square';o.frequency.value=accent?1600:1100;o.connect(g);g.connect(AC.destination);
@@ -2030,7 +2068,7 @@ function startCustomGame(){
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
   document.getElementById('vs-bar').classList.remove('show');
   document.getElementById('chips').style.display='flex';
-  document.getElementById('h-lvname').textContent='自编谱练习（弹错重来·循环）';
+  document.getElementById('h-lvname').textContent=t('practice.levelName');
   const accSuffix={sharp:'#',flat:'b'};
   const sheet={ts:practiceSheet.ts,bars:practiceSheet.bars.map(b=>({
     hand:b.hand,ts:b.ts,
@@ -2365,7 +2403,7 @@ function startSongGame(song){
   document.getElementById('pal-tools').classList.remove('show');
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
   document.getElementById('chips').style.display='flex';
-  document.getElementById('h-lvname').textContent='🎵 '+(song.title||'流行曲')+'（弹错重来·循环）';
+  document.getElementById('h-lvname').textContent='🎵 '+(song.title||'')+(t('songs.levelName'));
   const bars=buildSongBars(song);
   songState={song,bars,page:0};
   loadSongPage();
@@ -2779,6 +2817,7 @@ function setRoomPublic(pub,btn){
 }
 
 async function createRoom(){
+  if(isGuest){toast(curLang==='en'?'Please log in to play online':'请登录后再联机对战');return;}
   if(!window.FB){toast(curLang==='en'?'Server not connected, please refresh':'服务器未连接，请刷新重试');return;}
   isHost=true;roomCode=genCode();
   const {db,ref,set,onDisconnect}=window.FB;
@@ -2806,6 +2845,7 @@ async function createRoom(){
 }
 
 async function joinRoomByCode(code, skipPasswordCheck){
+  if(isGuest){toast(curLang==='en'?'Please log in to play online':'请登录后再联机对战');return;}
   if(!window.FB){toast(curLang==='en'?'Server not connected':'服务器未连接');return;}
   const {db,ref,get,update,onDisconnect}=window.FB;
   const snap=await get(ref(db,'rooms/'+code));
@@ -2849,7 +2889,8 @@ function refreshLobby(){
     const list=document.getElementById('lobby-list');
     if(!snap.exists()||!snap.val()){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
     const rooms=snap.val();
-    const open=Object.entries(rooms).filter(([,r])=>r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined));
+    const cutoff=Date.now()-2*60*60*1000;
+    const open=Object.entries(rooms).filter(([,r])=>r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined)&&(!r.created||r.created>cutoff));
     if(!open.length){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
     list.innerHTML='';
     open.slice(0,20).forEach(([code,r])=>{
@@ -2937,7 +2978,7 @@ function onRoomUpdate(data){
         const dmg=(incoming-myAtkSeen)*8;     // each opponent bar-clear hits me for 8
         myAtkSeen=incoming;
         gs.hp=Math.max(0,gs.hp-dmg);
-        showFB('⚔️ 被攻击 -'+dmg,'bad');
+        showFB(t('game.attacked')+dmg,'bad');
         pushOnlineProgress();
         if(gs.hp<=0){onlineLose();return;}
       }
@@ -3070,7 +3111,7 @@ function pushOnlineProgress(){
 function attackOpponent(){
   // don't write opponent hp directly — increment my "attacks sent" counter; victim applies it
   myAtkSent++;
-  showFB('⚔️ 攻击对手 -8','ok');
+  showFB(t('game.attack'),'ok');
   pushOnlineProgress();
 }
 function updateVsBar(me,opp){
@@ -3113,7 +3154,7 @@ function finishOnline(won, oppData){
 
   // icons & title
   document.getElementById('r-ic').textContent=won?'🏆':won===false?'😢':'🤝';
-  document.getElementById('r-tt').textContent=won?'胜利！':won===false?'惜败':'平局';
+  document.getElementById('r-tt').textContent=won?t('result.win'):won===false?t('result.lose'):t('result.draw');
   document.getElementById('r-st').textContent=won?'★★★':won===false?'☆☆☆':'★★☆';
 
   // show online panel, hide solo panel
@@ -3130,24 +3171,24 @@ function finishOnline(won, oppData){
   document.getElementById('ro-me-name').textContent=myName;
   document.getElementById('ro-me-score').textContent=gs.score;
   document.getElementById('ro-me-stats').innerHTML=
-    `✅ ${gs.notesOK} 答对<br>❌ ${gs.notesWrong} 弹错<br>🎯 ${acc}% 正确率`;
+    `✅ ${gs.notesOK} ${t('result.correct')}<br>❌ ${gs.notesWrong} ${t('result.wrong')}<br>🎯 ${acc}% ${t('result.accuracy')}`;
 
   // opponent stats
   const opp=oppData||{score:0,bars:0,hp:100};
   const oppTot=(opp.notesOK||0)+(opp.notesWrong||0);
   const oppAcc=oppTot?Math.round((opp.notesOK||0)/oppTot*100):100;
-  const oppName=opp.name||'对手';
+  const oppName=opp.name||t('game.opp');
   document.getElementById('ro-opp-name').textContent=oppName;
   document.getElementById('ro-opp-score').textContent=opp.score||0;
   document.getElementById('ro-opp-stats').innerHTML=
-    `✅ ${opp.notesOK||0} 答对<br>❌ ${opp.notesWrong||0} 弹错<br>🎯 ${oppAcc}% 正确率`;
+    `✅ ${opp.notesOK||0} ${t('result.correct')}<br>❌ ${opp.notesWrong||0} ${t('result.wrong')}<br>🎯 ${oppAcc}% ${t('result.accuracy')}`;
 
   // bottom stats
   document.getElementById('r-grid-online').innerHTML=`
-   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">我的小节</div></div>
-   <div class="rs"><div class="rsv">${opp.bars||0}</div><div class="rsl">对手小节</div></div>
-   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+gs.hp:acc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?'剩余血量':'我的正确率'}</div></div>
-   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+(opp.hp||0):oppAcc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?'对手血量':'对手正确率'}</div></div>`;
+   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">${t('result.myBars')}</div></div>
+   <div class="rs"><div class="rsv">${opp.bars||0}</div><div class="rsl">${t('result.oppBars')}</div></div>
+   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+gs.hp:acc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?t('result.myHp'):t('result.myAcc')}</div></div>
+   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+(opp.hp||0):oppAcc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?t('result.oppHp'):t('result.oppAcc')}</div></div>`;
 
   pushOnlineProgress();
 }
