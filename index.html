@@ -205,24 +205,78 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 #combo-badge{position:fixed;top:60px;right:14px;background:var(--gold);color:#fff;font-family:Georgia,serif;font-weight:700;font-size:13px;padding:5px 11px;border-radius:20px;z-index:110;display:none;animation:comboPulse .25s ease-out;}
 @keyframes comboPulse{0%{transform:scale(1.4);}100%{transform:scale(1);}}
 
-/* mobile responsive */
+/* touch optimisation — prevent double-tap zoom on interactive elements */
+button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action:manipulation;}
+
+/* ─── iPad / tablet (601 – 1024 px) ─── */
+@media(min-width:601px) and (max-width:1024px){
+  .mcard{width:min(500px,78vw);}
+  .ccard{width:min(560px,84vw);}
+  .lvgrid{grid-template-columns:repeat(6,1fr);}
+  .m-title{font-size:44px;}
+  .hud{height:54px;padding:6px 18px;}
+  .hv{font-size:22px;}
+  .timer{font-size:28px;}
+  .sol-btn .s-nm{font-size:clamp(14px,3vw,22px);}
+  .sol-btn .s-zh{font-size:10px;}
+  .cttl{font-size:26px;}
+  .strike-title{font-size:44px;}
+  .strike-icon{font-size:180px;}
+}
+
+/* ─── Phone (≤600px) ─── */
 @media(max-width:600px){
   .mcard{padding:24px 20px;width:94vw;}
-  .ccard{padding:20px 18px;}
+  .ccard{padding:18px 16px;}
   .mbtn{padding:12px;font-size:14px;margin-bottom:7px;}
   .lvgrid{grid-template-columns:repeat(4,1fr);gap:6px;}
   .rgrid{grid-template-columns:repeat(2,1fr);}
   .rtt{font-size:24px;}
   .ric{font-size:44px;}
-  .room-code{font-size:32px;letter-spacing:5px;}
-  .code-input{font-size:22px;letter-spacing:4px;}
+  .room-code{font-size:30px;letter-spacing:4px;}
+  .code-input{font-size:20px;letter-spacing:3px;}
   #h-bar{font-size:11px;}
-  .hv{font-size:17px;}
-  .hl{font-size:8px;}
+  .hud{height:42px;padding:3px 8px;}
+  .hv{font-size:16px;}
+  .hl{font-size:7px;}
+  .timer{font-size:20px;}
+  .icon-btn{font-size:15px;padding:1px 3px;}
+  .chips{padding:2px 6px;gap:3px;}
+  .chip{padding:2px 7px;font-size:10px;}
+  .vs-bar{padding:4px 8px;}
+  .pal-tools{flex-wrap:wrap;left:4px;right:4px;bottom:4px;gap:4px;width:auto;}
+  .ptool{padding:5px 8px;font-size:11px;}
+  .practice-help{font-size:10px;padding:4px 8px;right:66px;}
+  .sol-row{padding:4px 6px;gap:5px;}
+  .sol-btn .s-nm{font-size:clamp(10px,4.5vw,18px);}
+  .racts{flex-wrap:wrap;gap:6px;}
+  .racts .mbtn{margin:0;flex:none;min-width:calc(50% - 3px);}
+  .mode-pick{gap:6px;}
+  .mode-card{padding:10px 6px;}
+  .mode-card .mc-ic{font-size:22px;}
+  .mode-card .mc-tt{font-size:12px;}
+  .cttl{font-size:20px;}
+  .strike-title{font-size:28px;}
+  .strike-sub{font-size:15px;}
+  .strike-icon{font-size:110px;}
+  .preset-row{gap:6px;}
 }
+
+/* ─── Tiny phone (≤400px) ─── */
 @media(max-width:400px){
   .lvgrid{grid-template-columns:repeat(3,1fr);}
   .mcard{padding:18px 14px;}
+  .ccard{padding:14px 12px;}
+  .hud{height:38px;}
+  .hv{font-size:14px;}
+  .timer{font-size:17px;}
+  .hl{font-size:6px;}
+  .chip{padding:1px 5px;font-size:9px;}
+  .cttl{font-size:18px;}
+  .rsv{font-size:20px;}
+  .room-code{font-size:26px;letter-spacing:3px;padding:10px;}
+  .preset-row{flex-wrap:wrap;}
+  .preset-btn{min-width:calc(50% - 4px);flex:none;}
 }
 </style>
 </head>
