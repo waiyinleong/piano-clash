@@ -507,8 +507,35 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
         <div class="mc-ic">⚔️</div><div class="mc-tt" data-i18n="vsMode.hp">血量对战</div><div class="mc-ds" data-i18n="vsMode.hpDesc">完成小节<br>扣对手血</div>
       </div>
     </div>
-    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.song">对战曲目</div>
-    <select id="vs-song" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;"></select>
+
+    <!-- ── Input method for battle ── -->
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">🎮 作答方式</div>
+    <div class="toggle" id="vs-imt" style="margin-bottom:14px;">
+      <button class="on" onclick="setVsInputMode('piano',this)">🎹 钢琴键盘</button>
+      <button onclick="setVsInputMode('solfege',this)">🎵 Do Re Mi</button>
+    </div>
+
+    <!-- ── Battle source: song OR random range ── -->
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">📖 对战内容</div>
+    <div class="toggle" id="vs-src-toggle" style="margin-bottom:10px;">
+      <button class="on" onclick="setVsBattleSrc('song',this)">🎼 流行曲目</button>
+      <button onclick="setVsBattleSrc('range',this)">🎲 随机音符</button>
+    </div>
+
+    <!-- song panel -->
+    <div id="vs-song-panel">
+      <select id="vs-song" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;"></select>
+    </div>
+    <!-- range panel -->
+    <div id="vs-range-panel" style="display:none;">
+      <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">🎵 音域范围</div>
+      <select id="vs-note-range" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
+        <option value="1oct">🟢 初级：C4–B4（一个八度）</option>
+        <option value="2oct">🟡 中级：C3–B5（两个八度）</option>
+        <option value="full">🔴 高级：C2–C6（全音域）</option>
+      </select>
+    </div>
+
     <div id="vs-time-row" style="display:none;">
       <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.duration">对战时长（血量模式）</div>
       <select id="vs-time" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--ui-border);margin-bottom:14px;font-size:14px;">
@@ -3257,14 +3284,17 @@ async function createRoom(){
   const selSong=document.getElementById('vs-song');
   const selTime=document.getElementById('vs-time');
   const selGoal=document.getElementById('vs-goal');
-  const songVal=selSong?selSong.value:'builtin:'+BUILTIN_SONGS[0].id;
+  const rangeVal=document.getElementById('vs-note-range')?.value||'1oct';
+  const isRangeMode=vsBattleSrc==='range';
+  const songVal=isRangeMode?('range:'+rangeVal):(selSong?selSong.value:'builtin:'+BUILTIN_SONGS[0].id);
   const minsVal=selTime?+(selTime.value):3;
   const goalVal=selGoal?+(selGoal.value):16;
   const password=roomIsPublic?'':(document.getElementById('room-password')?.value?.trim()||'');
   // embed imported song data so guest can play even without local import
-  const songData=songVal.startsWith('mine:')?resolveSong(songVal):null;
+  const songData=(!isRangeMode&&songVal.startsWith('mine:'))?resolveSong(songVal):null;
   const initData={
     host:myId,hostName:getPlayerName(),vsMode:onlineVsMode||'speed',level:3,
+    inputMode:vsInputMode||'piano',
     minutes:minsVal,goal:goalVal,song:songVal,state:'waiting',seed:Date.now(),
     ...(songData?{songData}:{}),
     isPublic:roomIsPublic,password,created:Date.now(),
@@ -3385,14 +3415,30 @@ function enterRoom(){
     onRoomUpdate(snap.val());
   });
 }
+function applyRoomInputMode(mode){
+  const m=mode||'piano';
+  inputMode=m;
+  // sync the main menu toggle
+  document.querySelectorAll('#imt button').forEach((b,i)=>{
+    const modes=['piano','solfege'];b.classList.toggle('on',modes[i]===m);
+  });
+}
 function onRoomUpdate(data){
   if(!data)return;
   onlineVsMode=data.vsMode;onlineLevel=data.level;onlineSheetSeed=data.seed;onlineSongRef=data.song||'builtin:ode';
   onlineMinutes=data.minutes||3;
   SPEED_GOAL=data.goal||16;
+  if(data.inputMode) applyRoomInputMode(data.inputMode);
   // update room badge
   const modeBadgeEl=document.getElementById('room-mode-badge');
-  if(modeBadgeEl) modeBadgeEl.textContent=onlineVsMode==='hp'?t('room.modeHP'):t('room.modeSpeed');
+  if(modeBadgeEl){
+    const modeLabel=onlineVsMode==='hp'?t('room.modeHP'):t('room.modeSpeed');
+    const song=data.song||'';
+    const contentLabel=song.startsWith('range:')?
+      ((RANGE_LABELS[song.slice(6)]||song.slice(6))+' 🎲 '+((data.inputMode||'piano')==='solfege'?'Do Re Mi':'🎹')):
+      ((data.inputMode||'piano')==='solfege'?'🎵 Do Re Mi':'🎹 钢琴');
+    modeBadgeEl.textContent=modeLabel+' · '+contentLabel;
+  }
   // render player slots
   const slots=document.getElementById('player-slots');slots.innerHTML='';
   const players=data.players||{};
@@ -3459,8 +3505,57 @@ function pickVsMode(m,el){
   document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('on'));el.classList.add('on');
   document.getElementById('vs-time-row').style.display = m==='hp'?'block':'none';
   document.getElementById('vs-goal-row').style.display = m==='speed'?'block':'none';
-  // only push to Firebase if we're already in a room
   if(isHost&&roomCode&&window.FB){const {db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{vsMode:m});}
+}
+
+let vsInputMode='piano', vsBattleSrc='song';
+function setVsInputMode(m,el){
+  vsInputMode=m;
+  document.querySelectorAll('#vs-imt button').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+}
+function setVsBattleSrc(src,el){
+  vsBattleSrc=src;
+  document.querySelectorAll('#vs-src-toggle button').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  document.getElementById('vs-song-panel').style.display=src==='song'?'':'none';
+  document.getElementById('vs-range-panel').style.display=src==='range'?'':'none';
+}
+
+// Generate random bars from a note-range seed (used when song=range:xxx)
+const RANGE_POOLS={
+  '1oct':['C4','D4','E4','F4','G4','A4','B4'],
+  '2oct':['C3','D3','E3','F3','G3','A3','B3','C4','D4','E4','F4','G4','A4','B4','C5'],
+  'full':['C2','D2','E2','F2','G2','A2','B2','C3','D3','E3','F3','G3','A3','B3',
+          'C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5','A5','B5','C6']
+};
+const RANGE_LABELS={'1oct':'🟢 C4–B4','2oct':'🟡 C3–B5','full':'🔴 C2–C6'};
+const FREE_PATS44=[['q','q','q','q'],['h','h'],['h','q','q'],['q','q','h']];
+const FREE_PATS34=[['q','q','q'],['hd'],['h','q']];
+function genRangeBars(range, seed, numBars){
+  const rng=seededRandom(seed);
+  const pool=RANGE_POOLS[range]||RANGE_POOLS['1oct'];
+  const bars=[];
+  for(let b=0;b<numBars;b++){
+    const ts=rng()<0.7?4:3;
+    const pats=ts===4?FREE_PATS44:FREE_PATS34;
+    const pat=pats[Math.floor(rng()*pats.length)];
+    // pick hand based on pool contents
+    const hasLow=pool.some(n=>clefFor(n)==='bass');
+    const hasHigh=pool.some(n=>clefFor(n)==='treble');
+    let hand='R';
+    if(hasLow&&hasHigh) hand=rng()<0.5?'R':'L';
+    else if(hasLow) hand='L';
+    const handPool=pool.filter(n=>hand==='R'?clefFor(n)==='treble':clefFor(n)==='bass');
+    const usePool=handPool.length?handPool:pool;
+    let beat=0;
+    const notes=pat.map(d=>{
+      const nm=usePool[Math.floor(rng()*usePool.length)];
+      const nd=noteData(nm);
+      const o={nd,dur:d,beat,state:'pending',acc:null};
+      beat+=DUR[d];return o;
+    });
+    bars.push({hand,notes,ts});
+  }
+  return bars;
 }
 document.getElementById('vs-goal')?.addEventListener('change',e=>{
   if(!isHost)return;const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{goal:+e.target.value});
@@ -3524,11 +3619,23 @@ function beginOnlineGame(data){
   onlineVsMode=data.vsMode; onlineMinutes=data.minutes||3; SPEED_GOAL=data.goal||16;
   onlineSongRef=data.song||'builtin:ode';
   onlineEnded=false; myAtkSeen=0; myAtkSent=0;
-  const song=resolveSong(onlineSongRef,data.songData||null);
+  // Apply input mode (piano / solfege) set by the room host
+  applyRoomInputMode(data.inputMode||'piano');
+  let allBars, songTitle;
+  if(onlineSongRef.startsWith('range:')){
+    // Random-note range mode: generate bars deterministically from seed
+    const range=onlineSongRef.slice(6)||'1oct';
+    allBars=genRangeBars(range, data.seed||Date.now(), 200);
+    songTitle=(RANGE_LABELS[range]||range)+' 🎲';
+    onlineSongState={song:{title:songTitle,ts:4},bars:allBars,page:0};
+  } else {
+    const song=resolveSong(onlineSongRef,data.songData||null);
+    allBars=buildSongBars(song);
+    songTitle=song.title||'流行曲';
+    onlineSongState={song,bars:allBars,page:0};
+  }
   curLv=data.level;
-  const allBars=buildSongBars(song);
-  onlineSongState={song,bars:allBars,page:0};
-  document.getElementById('h-lvname').textContent=(onlineVsMode==='speed'?'🏁速度':'⚔️血量 '+onlineMinutes+'分钟')+' · 🎵'+(song.title||'流行曲');
+  document.getElementById('h-lvname').textContent=(onlineVsMode==='speed'?'🏁速度':'⚔️血量 '+onlineMinutes+'分钟')+' · '+songTitle;
   gs={lv:{id:'song',sharps:true,flats:true},sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
       notesOK:0,notesWrong:0,wrongStreak:0,maxWrongStreak:0,timeLeft:onlineMinutes*60,active:true,paused:false,hp:100,maxCombo:0};
   loadOnlineSongPage();
