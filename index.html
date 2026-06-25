@@ -3353,6 +3353,10 @@ function refreshLobby(){
     document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loadFail')}</div>`;
     return;
   }
+  if(!window.myId){
+    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">请登录后查看公开房间列表</div>`;
+    return;
+  }
   const {db,ref,get}=window.FB;
   document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loading')}</div>`;
   get(ref(db,'rooms')).then(snap=>{
@@ -3751,24 +3755,26 @@ function finishOnline(won, oppData){
 
   // opponent stats
   const opp=oppData||{score:0,bars:0,hp:100};
+  const oppDisconnected=!oppData||((opp.bars||0)===0&&(opp.score||0)===0&&(opp.notesOK||0)===0&&(opp.notesWrong||0)===0);
   const oppTot=(opp.notesOK||0)+(opp.notesWrong||0);
-  const oppAcc=oppTot?Math.round((opp.notesOK||0)/oppTot*100):100;
+  const oppAcc=oppTot?Math.round((opp.notesOK||0)/oppTot*100):0;
   const oppName=opp.name||t('game.opp');
   document.getElementById('ro-opp-name').textContent=oppName;
-  document.getElementById('ro-opp-score').textContent=opp.score||0;
-  document.getElementById('ro-opp-stats').innerHTML=
-    `✅ ${opp.notesOK||0} ${t('result.correct')}<br>❌ ${opp.notesWrong||0} ${t('result.wrong')}<br>🎯 ${oppAcc}% ${t('result.accuracy')}`;
+  document.getElementById('ro-opp-score').textContent=oppDisconnected?'—':opp.score||0;
+  document.getElementById('ro-opp-stats').innerHTML=oppDisconnected
+    ?`<span style="color:#b0a890;font-size:12px;">⚠️ 对手已断线</span>`
+    :`✅ ${opp.notesOK||0} ${t('result.correct')}<br>❌ ${opp.notesWrong||0} ${t('result.wrong')}<br>🎯 ${oppAcc}% ${t('result.accuracy')}`;
 
   // bottom stats
-  const myGrade=gradeFromAcc(acc),oppGrade=gradeFromAcc(oppAcc);
+  const myGrade=gradeFromAcc(acc),oppGrade=oppDisconnected?'—':gradeFromAcc(oppAcc);
   const gc=g=>g==='S'?'#c8900a':g==='A'?'#1d9e75':g==='B'?'#3a7bd5':g==='C'?'#8a7a60':'#b03a2e';
   document.getElementById('r-grid-online').innerHTML=`
    <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">${t('result.myBars')}</div></div>
-   <div class="rs"><div class="rsv">${opp.bars||0}</div><div class="rsl">${t('result.oppBars')}</div></div>
+   <div class="rs"><div class="rsv">${oppDisconnected?'—':opp.bars||0}</div><div class="rsl">${t('result.oppBars')}</div></div>
    <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+gs.hp:acc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?t('result.myHp'):t('result.myAcc')}</div></div>
-   <div class="rs"><div class="rsv">${onlineVsMode==='hp'?'❤'+(opp.hp||0):oppAcc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?t('result.oppHp'):t('result.oppAcc')}</div></div>
+   <div class="rs"><div class="rsv">${oppDisconnected?'—':onlineVsMode==='hp'?'❤'+(opp.hp||0):oppAcc+'%'}</div><div class="rsl">${onlineVsMode==='hp'?t('result.oppHp'):t('result.oppAcc')}</div></div>
    <div class="rs"><div class="rsv" style="color:${gc(myGrade)};font-weight:800;">${myGrade}</div><div class="rsl">${t('game.me')} ${t('result.grade')}</div></div>
-   <div class="rs"><div class="rsv" style="color:${gc(oppGrade)};font-weight:800;">${oppGrade}</div><div class="rsl">${t('game.opp')} ${t('result.grade')}</div></div>
+   <div class="rs"><div class="rsv" style="color:#b0a890;font-weight:800;">${oppGrade}</div><div class="rsl">${t('game.opp')} ${t('result.grade')}</div></div>
    <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`;
 
   pushOnlineProgress();
