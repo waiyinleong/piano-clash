@@ -1828,36 +1828,34 @@ function handleInput(note,isSolInput){
   if(gameKind==='practice'){ if(!isSolInput)playPiano(note); return; }
   const bar=gs.sheet.bars[gs.curBar];if(!bar)return;
   if(gs.curNote>=bar.notes.length)return;
-  // current chord-step = all notes at the same beat as the current note
-  const [gStart,gEnd]=groupRange(bar, gs.curNote);
-  // find a still-pending note in the group that matches
-  let matchIdx=-1;
+  // Solfège: strictly sequential one-note-at-a-time; Piano: chord-group matching
+  let matchIdx=-1, gStart=gs.curNote, gEnd=gs.curNote+1;
   if(isSolInput){
-    // Solfège mode: match by syllable name (Do/Re/Mi/Fa/Sol/La/Si), ignoring octave & accidentals
-    for(let i=gStart;i<gEnd;i++){
-      if(bar.notes[i].state!=='done' && bar.notes[i].nd?.sol===note){ matchIdx=i; break; }
-    }
-    // Always play the expected note for auditory feedback (educational)
-    const playTarget=matchIdx>=0 ? bar.notes[matchIdx] : bar.notes[gs.curNote];
-    playPiano(playTarget.nd?.name||'C4');
+    // Sequential: only look at the current note, match by sol syllable (ignores octave/accidentals)
+    playPiano(bar.notes[gs.curNote].nd?.name||'C4');
+    if(bar.notes[gs.curNote].nd?.sol===note) matchIdx=gs.curNote;
   } else {
+    // Piano: chord-aware — any unmatched note in the beat-group counts
+    [gStart,gEnd]=groupRange(bar, gs.curNote);
     playPiano(note);
     const pressedMidi=midiOf(note);
     for(let i=gStart;i<gEnd;i++){
       if(bar.notes[i].state!=='done' && effectiveMidi(bar,i)===pressedMidi){ matchIdx=i; break; }
     }
   }
-  const hlName=note; // sol mode uses sol name; piano mode uses note name — both work with hl()
+  const hlName=note;
   if(matchIdx>=0){
     bar.notes[matchIdx].state='done';gs.notesOK++;gs.wrongStreak=0;
     const mult=comboCount>=15?3:comboCount>=10?2.5:comboCount>=5?2:comboCount>=3?1.5:1;
     const pts=Math.round(10*mult);
     gs.score+=pts;hl(hlName,'ok');scorePopup(pts,true,mult);addCombo();
-    // group complete only when every note in it is done
-    let groupDone=true;
-    for(let i=gStart;i<gEnd;i++){ if(bar.notes[i].state!=='done'){groupDone=false;break;} }
-    if(!groupDone){ updChips();updHUD();draw();updHint(); return; } // wait for remaining chord notes
-    gs.curNote=gEnd;
+    // Piano only: wait until every note in the chord-group is answered
+    if(!isSolInput){
+      let groupDone=true;
+      for(let i=gStart;i<gEnd;i++){ if(bar.notes[i].state!=='done'){groupDone=false;break;} }
+      if(!groupDone){ updChips();updHUD();draw();updHint(); return; }
+    }
+    gs.curNote=gEnd; // solfège: +1 (sequential); piano: skip to end of chord-group
     if(gs.curNote>=bar.notes.length){
       gs.barsDone++;gs.score+=20;barClearSound();scorePopup(20,true);showFB(t('game.barClear').replace('{n}',gs.curBar+1),'ok');
       gs.curBar++;gs.curNote=0;
