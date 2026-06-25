@@ -241,8 +241,11 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .hl{font-size:7px;}
   .timer{font-size:20px;}
   .icon-btn{font-size:15px;padding:1px 3px;}
-  .chips{padding:2px 6px;gap:3px;}
-  .chip{padding:2px 7px;font-size:10px;}
+  /* chips: single scrollable row — no 2-row wrapping */
+  .chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+         justify-content:flex-start;scrollbar-width:none;padding:2px 6px;gap:4px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{padding:2px 8px;font-size:10px;white-space:nowrap;flex-shrink:0;}
   .vs-bar{padding:4px 8px;}
   .pal-tools{flex-wrap:wrap;left:4px;right:4px;bottom:4px;gap:4px;width:auto;}
   .ptool{padding:5px 8px;font-size:11px;}
@@ -271,12 +274,33 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .hv{font-size:14px;}
   .timer{font-size:17px;}
   .hl{font-size:6px;}
-  .chip{padding:1px 5px;font-size:9px;}
+  .chip{padding:1px 6px;font-size:9px;}
   .cttl{font-size:18px;}
   .rsv{font-size:20px;}
   .room-code{font-size:26px;letter-spacing:3px;padding:10px;}
   .preset-row{flex-wrap:wrap;}
   .preset-btn{min-width:calc(50% - 4px);flex:none;}
+}
+
+/* ─── Landscape phone: screen height ≤ 500px (rotated phone) ─── */
+@media(max-height:500px){
+  .hud{height:34px;padding:1px 8px;}
+  .hv{font-size:13px;}
+  .timer{font-size:16px;}
+  .hl{display:none;}
+  .icon-btn{font-size:14px;padding:1px 3px;}
+  .chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+         justify-content:flex-start;scrollbar-width:none;padding:1px 4px;gap:2px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{padding:1px 6px;font-size:9px;white-space:nowrap;flex-shrink:0;}
+  .vs-bar{padding:2px 8px;}
+  /* give the piano keyboard more height in landscape */
+  .staff-area{flex:4;}
+  .input-area{flex:6;}
+  .pwrap{min-height:60px;}
+  .sol-row{padding:2px 4px;gap:4px;}
+  .sol-btn .s-zh{display:none;}
+  .sol-btn .s-nm{font-size:clamp(12px,3.5vw,20px);}
 }
 </style>
 </head>
@@ -1165,7 +1189,18 @@ function resetCombo(){comboCount=0;clearTimeout(comboTimer);document.getElementB
 // CANVAS / STAFF RENDERING
 // ═══════════════════════════════════════════════════════════
 let cv,cx;
-function initCv(){cv=document.getElementById('cv');cx=cv.getContext('2d');window.addEventListener('resize',()=>rz());}
+function initCv(){
+  cv=document.getElementById('cv');cx=cv.getContext('2d');
+  let rzTimer;
+  window.addEventListener('resize',()=>{
+    clearTimeout(rzTimer);
+    rzTimer=setTimeout(()=>{
+      rz();
+      // Rebuild piano keys to fit new screen dimensions after rotate/resize
+      if(document.getElementById('scr-game').classList.contains('active')){buildInput();}
+    },80);
+  });
+}
 function rz(){
   const a=document.getElementById('staff-area');
   if(!a.clientWidth||!a.clientHeight)return;
