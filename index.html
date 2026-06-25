@@ -263,6 +263,10 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .strike-sub{font-size:15px;}
   .strike-icon{font-size:110px;}
   .preset-row{gap:6px;}
+  /* portrait phone: give piano equal space with staff, hide useless keyboard hints */
+  .staff-area{flex:5;}
+  .input-area{flex:5;padding:2px 0 4px;}
+  .wk .kbd{display:none;}
 }
 
 /* ─── Tiny phone (≤400px) ─── */
@@ -1242,9 +1246,10 @@ function calcSC(W,H){
   // Two rows, each a treble+bass grand staff. Lay out by SLOT BUDGET (each slot = hs px)
   // so high/low ledger notes have guaranteed headroom and never collide with neighbor staves.
   // Vertical budget (half-slots) per element, top→bottom:
-  //   topMargin 6, treble 8, inner 8, bass 8, interRow 12, treble 8, inner 8, bass 8, bottomMargin 6
-  const TOP=6, STAFF=8, INNER=8, INTERROW=12, BOT=6;
-  const totalSlots = TOP + STAFF + INNER + STAFF + INTERROW + STAFF + INNER + STAFF + BOT; // 72
+  //   topMargin 6, treble 8, inner 8, bass 8, interRow 12(6 mobile), treble 8, inner 8, bass 8, bottomMargin 6
+  const mobile = W <= 600;
+  const TOP=6, STAFF=8, INNER=8, INTERROW=mobile?6:12, BOT=6;
+  const totalSlots = TOP + STAFF + INNER + STAFF + INTERROW + STAFF + INNER + STAFF + BOT;
   const hs=Math.min(H/totalSlots, 11);
   const clefW=58, tsW=28;
   const palW = (gameKind==='practice')?62:0;
