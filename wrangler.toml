@@ -1,0 +1,5 @@
+name = "piano-clash"
+compatibility_date = "2025-06-25"
+
+[assets]
+directory = "."
