@@ -277,6 +277,9 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
 /* score-only view: hide piano keyboard, staff fills height */
 .score-only .input-area{display:none!important;}
 .score-only .staff-area{flex:1!important;}
+/* display toggle button: always visible with a subtle border */
+.score-view-btn{border:1px solid var(--ui-border)!important;border-radius:6px!important;background:var(--bg2)!important;}
+.score-only .score-view-btn{background:var(--ink)!important;color:#fff!important;border-color:var(--ink)!important;}
 
 /* ─── Landscape phone: screen height ≤ 500px (rotated phone) ─── */
 @media(max-height:500px){
@@ -355,10 +358,10 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
       <img id="user-avatar" style="width:28px;height:28px;border-radius:50%;display:none;">
       <div style="flex:1;min-width:0;">
         <div style="font-size:12px;font-weight:600;color:#3a2e1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="user-name"></div>
-        <div style="font-size:10px;color:#8a7a60;" id="ver-label"></div>
       </div>
       <button class="mbtn mb-ghost" style="margin:0;padding:4px 10px;font-size:11px;" id="signout-btn" onclick="handleSignOut()" data-i18n="menu.signout">登出</button>
     </div>
+    <div id="ver-label" style="font-size:9px;color:#b0a890;text-align:center;margin-top:4px;"></div>
     <div id="guest-login-bar" style="display:none;margin-top:8px;text-align:center;">
       <button class="mbtn mb-dark" style="margin:0;font-size:12px;" onclick="window.fbSignIn&&window.fbSignIn()" data-i18n="menu.loginToSave">🔑 登录以保存进度</button>
     </div>
@@ -625,7 +628,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   <div class="hud">
     <div style="display:flex;align-items:center;gap:6px;">
       <button class="icon-btn" onclick="togglePause()">⏸</button>
-      <button class="icon-btn" id="score-view-btn" onclick="toggleScoreView()" title="切换显示模式">🎼</button>
+      <button class="icon-btn score-view-btn" id="score-view-btn" onclick="toggleScoreView()" title="隐藏/显示钢琴">🎼</button>
       <div class="hblk"><div class="hv" id="h-score">0</div><div class="hl" data-i18n="result.score">分数</div></div>
     </div>
     <div class="hblk">
@@ -770,7 +773,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.9.1';
+const APP_VERSION = '1.9.2';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
