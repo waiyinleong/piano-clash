@@ -773,7 +773,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.9.2';
+const APP_VERSION = '1.9.3';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1258,32 +1258,24 @@ function rz(){
   draw();
 }
 function calcSC(W,H){
-  // Two rows, each a treble+bass grand staff. Lay out by SLOT BUDGET (each slot = hs px)
-  // so high/low ledger notes have guaranteed headroom and never collide with neighbor staves.
-  // Vertical budget (half-slots) per element, top→bottom:
-  //   topMargin 6, treble 8, inner 8, bass 8, interRow 12(6 mobile), treble 8, inner 8, bass 8, bottomMargin 6
   const mobile = W <= 600;
   const TOP=6, STAFF=8, INNER=8, INTERROW=mobile?6:12, BOT=6;
-  const totalSlots = TOP + STAFF + INNER + STAFF + INTERROW + STAFF + INNER + STAFF + BOT;
+  const numRows=Math.ceil(TOTAL_BARS/BARS_PER_ROW);
+  const totalSlots=TOP+(STAFF+INNER+STAFF)*numRows+INTERROW*(numRows-1)+BOT;
   const hs=Math.min(H/totalSlots, 11);
   const clefW=58, tsW=28;
-  const palW = (gameKind==='practice')?62:0;
+  const palW=(gameKind==='practice')?62:0;
   const tsX=clefW+18;
   const sheetL=tsX+tsW+22;
-  // bottom-line Y of each staff (slot 0). Build cumulative offsets from top.
-  const row0_trebleTop = TOP*hs;                          // y of treble top line (slot 8)
-  const row0_trebleBottom = row0_trebleTop + STAFF*hs;    // slot 0
-  const row0_bassTop = row0_trebleBottom + INNER*hs;
-  const row0_bassBottom = row0_bassTop + STAFF*hs;
-  const row1_trebleTop = row0_bassBottom + INTERROW*hs;
-  const row1_trebleBottom = row1_trebleTop + STAFF*hs;
-  const row1_bassTop = row1_trebleBottom + INNER*hs;
-  const row1_bassBottom = row1_bassTop + STAFF*hs;
-  SC={W,H,hs,clefW,tsW,tsX,palW,sheetL,sheetR:W-14-palW,
-      rows:[
-        {trebleBottom:row0_trebleBottom, bassBottom:row0_bassBottom},
-        {trebleBottom:row1_trebleBottom, bassBottom:row1_bassBottom}
-      ]};
+  const rows=[];
+  let y=TOP*hs;
+  for(let r=0;r<numRows;r++){
+    const trebleBottom=y+STAFF*hs;
+    const bassBottom=trebleBottom+INNER*hs+STAFF*hs;
+    rows.push({trebleBottom,bassBottom});
+    y=bassBottom+(r<numRows-1?INTERROW*hs:0);
+  }
+  SC={W,H,hs,clefW,tsW,tsX,palW,sheetL,sheetR:W-14-palW,rows};
 }
 // slot→y given clef and row (default row 0)
 function s2y(slot,clef,row){
@@ -1291,7 +1283,7 @@ function s2y(slot,clef,row){
   const r=SC.rows&&SC.rows[row]?SC.rows[row]:{trebleBottom:SC.trebleBottom,bassBottom:SC.bassBottom};
   return (clef==='treble'?r.trebleBottom:r.bassBottom)-slot*SC.hs;
 }
-const BARS_PER_ROW=4, TOTAL_BARS=8;
+const BARS_PER_ROW=4; let TOTAL_BARS=8;
 
 // ═══════════════════════════════════════════════════════════
 // BRAVURA SMuFL GLYPHS — professional notation rendering
@@ -1319,7 +1311,7 @@ function smuflFont(px){ return `${px}px Bravura`; }
 function draw(){
   if(!cx||!SC.W)return;
   cx.clearRect(0,0,SC.W,SC.H);
-  for(let row=0;row<2;row++){
+  for(let row=0;row<SC.rows.length;row++){
     drawStaffLines('treble',row);drawStaffLines('bass',row);
     drawClefs(row);
     if(gs&&gs.sheet)drawTimeSig(row);
@@ -2104,9 +2096,16 @@ function endRandomGame(){
 let scoreOnlyMode=false;
 function toggleScoreView(){
   scoreOnlyMode=!scoreOnlyMode;
+  TOTAL_BARS=scoreOnlyMode?12:8;
   document.getElementById('scr-game').classList.toggle('score-only',scoreOnlyMode);
   document.getElementById('score-view-btn').textContent=scoreOnlyMode?'🎹':'🎼';
-  requestAnimationFrame(()=>rz());
+  if(gs&&gs.active&&gameKind!=='online'&&gameKind!=='song'&&gameKind!=='practice'){
+    gs.curBar=0;gs.curNote=0;
+    if(gameKind==='random')newRandomSheet();
+    else newSheet();
+  } else {
+    requestAnimationFrame(()=>rz());
+  }
 }
 
 function togglePause(){
