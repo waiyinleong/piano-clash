@@ -770,7 +770,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.9.1';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -3888,13 +3888,21 @@ function bindMIDIInputs(){
   });
   updateMIDIStatus();
 }
+const midiHeld=new Set();         // keys currently held (note-on received, note-off not yet)
+const midiLastOn={};               // debounce: timestamp of last processed note-on per key
 function onMIDIMessage(ev){
   if(!midiEnabled)return;
   if(!ev.data||ev.data.length<2)return;
   const [status,d1,d2=0]=ev.data;
   const cmd=status & 0xf0;
-  // note-on with velocity>0 only; ignore note-off and all other messages
-  if(cmd!==0x90||d2===0)return;
+  // note-off: cmd=0x80 OR note-on with vel=0
+  if(cmd===0x80||(cmd===0x90&&d2===0)){midiHeld.delete(d1);return;}
+  if(cmd!==0x90)return;
+  // some devices re-send note-on (with vel>0) on key release; debounce within 80ms
+  const now=Date.now();
+  if(midiHeld.has(d1)||(midiLastOn[d1]&&now-midiLastOn[d1]<80))return;
+  midiHeld.add(d1);
+  midiLastOn[d1]=now;
   // clamp to game range C2(36)–C6(84); ignore out-of-range keys entirely
   if(d1<36||d1>84)return;
   const name=midiToName(d1);
