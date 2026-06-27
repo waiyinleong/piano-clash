@@ -127,13 +127,6 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 
 /* overlays */
 .pov{display:none;position:absolute;inset:0;background:rgba(247,243,235,.93);align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:50;}
-.strike-ov{display:none;position:absolute;inset:0;background:rgba(26,18,9,.55);backdrop-filter:blur(3px);z-index:60;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#fff;animation:strikeIn .25s ease;}
-.strike-ov.show{display:flex;}
-.strike-icon{font-size:160px;line-height:1;opacity:.85;filter:drop-shadow(0 4px 16px rgba(0,0,0,.4));}
-.strike-title{font-family:Georgia,serif;font-size:38px;font-weight:700;letter-spacing:2px;}
-.strike-sub{font-size:18px;opacity:.9;}
-.strike-sub span{font-size:24px;font-weight:700;color:var(--gold);}
-@keyframes strikeIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
 .pov.show{display:flex;}
 .cdown{position:fixed;inset:0;background:rgba(247,243,235,.96);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;z-index:100;}
 .cnum{font-family:Georgia,serif;font-size:96px;font-weight:700;animation:cp .9s ease-out;}
@@ -220,8 +213,6 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .sol-btn .s-nm{font-size:clamp(14px,3vw,22px);}
   .sol-btn .s-zh{font-size:10px;}
   .cttl{font-size:26px;}
-  .strike-title{font-size:44px;}
-  .strike-icon{font-size:180px;}
 }
 
 /* ─── Phone (≤600px) ─── */
@@ -259,9 +250,6 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .mode-card .mc-ic{font-size:22px;}
   .mode-card .mc-tt{font-size:12px;}
   .cttl{font-size:20px;}
-  .strike-title{font-size:28px;}
-  .strike-sub{font-size:15px;}
-  .strike-icon{font-size:110px;}
   .preset-row{gap:6px;}
   /* portrait phone: give piano equal space with staff, hide useless keyboard hints */
   .staff-area{flex:5;}
@@ -695,11 +683,6 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <button class="mbtn mb-dark" style="width:180px" onclick="togglePause()" data-i18n="game.resume">继续</button>
     <button class="mbtn mb-ghost" style="width:180px" onclick="quitGame()" data-i18n="game.quit">退出</button>
   </div>
-  <div class="strike-ov" id="strike-ov">
-    <div class="strike-icon">⏸</div>
-    <div class="strike-title" data-i18n="game.strike">连续弹错 3 次</div>
-    <div class="strike-sub"><span data-i18n="game.strikeWait">冷静一下，</span><span id="strike-count">3</span><span data-i18n="game.strikeWaitSuffix"> 秒后继续</span></div>
-  </div>
 </div>
 
 <!-- ════ RESULT ════ -->
@@ -836,7 +819,6 @@ const I18N = {
     'result.myAcc':'我的正确率','result.oppAcc':'对手正确率',
     'result.correct':'答对','result.wrong':'弹错','result.maxCombo':'最高连击','result.grade':'等级','result.share':'📋 分享成绩','result.shared':'✓ 成绩已复制',
     'game.pause':'暂停','game.resume':'继续','game.quit':'退出',
-    'game.strike':'连续弹错 3 次','game.strikeWait':'冷静一下，','game.strikeWaitSuffix':' 秒后继续',
     'game.bars':'小节','game.accuracy':'正确率',
     'game.wrongCampaign':'✗ 弹错 -1命，本小节重来','game.wrongOnline':'✗ 弹错 -3血，本小节重来',
     'game.wrongRepeat':'✗ 重来本小节',
@@ -926,7 +908,6 @@ const I18N = {
     'result.myAcc':'My Accuracy','result.oppAcc':'Opp Accuracy',
     'result.correct':'Correct','result.wrong':'Wrong','result.maxCombo':'Best Combo','result.grade':'Grade','result.share':'📋 Share Result','result.shared':'✓ Copied to clipboard',
     'game.pause':'Pause','game.resume':'Resume','game.quit':'Quit',
-    'game.strike':'3 Mistakes in a Row','game.strikeWait':'Take a breath… ','game.strikeWaitSuffix':'s',
     'game.bars':'Bars','game.accuracy':'Accuracy',
     'game.wrongCampaign':'✗ Wrong — lost 1 life, bar restarted','game.wrongOnline':'✗ Wrong — -3 HP, bar restarted',
     'game.wrongRepeat':'✗ Bar restarted',
@@ -1801,7 +1782,7 @@ function startLevel(id){
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
   document.getElementById('chips').style.display='flex';
   gs={lv,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,
-      lives:CAMPAIGN_LIVES,goal:CAMPAIGN_GOAL,active:true,paused:false,wrongStreak:0,maxWrongStreak:0,maxCombo:0};
+      lives:CAMPAIGN_LIVES,goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0};
   document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+' · '+t('game.completeN')+CAMPAIGN_GOAL+t('game.barsN');
   // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals)
   if(lv.sharps||lv.flats){
@@ -1908,7 +1889,7 @@ function handleInput(note,isSolInput){
   }
   const hlName=note;
   if(matchIdx>=0){
-    bar.notes[matchIdx].state='done';gs.notesOK++;gs.wrongStreak=0;
+    bar.notes[matchIdx].state='done';gs.notesOK++;
     const mult=comboCount>=15?3:comboCount>=10?2.5:comboCount>=5?2:comboCount>=3?1.5:1;
     const pts=Math.round(10*mult);
     gs.score+=pts;hl(hlName,'ok');scorePopup(pts,true,mult);addCombo();
@@ -1922,7 +1903,6 @@ function handleInput(note,isSolInput){
     if(gs.curNote>=bar.notes.length){
       gs.barsDone++;gs.score+=20;barClearSound();scorePopup(20,true);showFB(t('game.barClear').replace('{n}',gs.curBar+1),'ok');
       gs.curBar++;gs.curNote=0;
-      gs.wrongStreak=0;
       if(gameKind==='online'&&onlineVsMode==='hp'){
         attackOpponent();                          // damage opponent
         gs.hp=Math.min(100,gs.hp+2);               // small regen for steady play
@@ -1977,9 +1957,6 @@ function handleInput(note,isSolInput){
       if(cn){setTimeout(()=>hl(cn,'hint'),350);setTimeout(()=>hl(cn,''),650);}
     }
     bar.notes.forEach(n=>n.state='pending');gs.curNote=0;
-    gs.wrongStreak=(gs.wrongStreak||0)+1;
-    if(gs.wrongStreak>gs.maxWrongStreak) gs.maxWrongStreak=gs.wrongStreak;
-    if(gs.wrongStreak>=3)triggerStrikePause();
     if(gameKind==='campaign'){
       gs.lives--; updLivesDisplay();
       showFB(t('game.wrongCampaign'),'bad');
@@ -1995,28 +1972,6 @@ function handleInput(note,isSolInput){
   }
   updChips();updHUD();draw();updHint();
   if(gameKind==='online')pushOnlineProgress();
-}
-// ── 3-strike penalty: freeze input for 3 seconds with a big translucent overlay ──
-let strikeTimer=null;
-function triggerStrikePause(){
-  if(!gs)return;
-  gs.wrongStreak=0;            // reset so it doesn't immediately retrigger
-  gs.paused=true;             // blocks handleInput (guard checks gs.paused)
-  const ov=document.getElementById('strike-ov');
-  let n=3;
-  document.getElementById('strike-count').textContent=n;
-  ov.classList.add('show');
-  clearInterval(strikeTimer);
-  strikeTimer=setInterval(()=>{
-    n--;
-    if(n<=0){
-      clearInterval(strikeTimer);
-      ov.classList.remove('show');
-      if(gs)gs.paused=false;
-    }else{
-      document.getElementById('strike-count').textContent=n;
-    }
-  },1000);
 }
 function updHint(){
   document.querySelectorAll('.wk.hint,.bk.hint,.sol-btn.hint').forEach(k=>k.classList.remove('hint'));
@@ -2103,8 +2058,7 @@ function startRandom(range,mins){
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
   document.getElementById('chips').style.display='flex';
   gs={lv:null,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
-      notesOK:0,notesWrong:0,active:true,paused:false,wrongStreak:0,maxWrongStreak:0,
-      maxCombo:0,timeLeft:mins*60};
+      notesOK:0,notesWrong:0,active:true,paused:false,      maxCombo:0,timeLeft:mins*60};
   document.getElementById('h-lvname').textContent='🎲 随机挑战 · '+RANGE_LABELS[range];
   buildInput();
   newRandomSheet();
@@ -2165,7 +2119,7 @@ function togglePause(){
   if(gs.paused&&gs){const tot=gs.notesOK+gs.notesWrong,acc=tot?Math.round(gs.notesOK/tot*100):100;const pd=document.getElementById('pov-stats');if(pd){pd.style.display='';pd.innerHTML=`🎯 ${acc}%　✅ ${gs.notesOK}　❌ ${gs.notesWrong}　🔥 ${t('result.maxCombo')} ${gs.maxCombo||0}x<br>⭐ ${t('result.score')} ${gs.score}`;}}
   else{const pd=document.getElementById('pov-stats');if(pd)pd.style.display='none';}
 }
-function quitGame(){gs.active=false;clearInterval(timerIv);clearInterval(strikeTimer);document.getElementById('pov').classList.remove('show');document.getElementById('strike-ov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
+function quitGame(){gs.active=false;clearInterval(timerIv);document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
 function endGame(){
   gs.active=false;clearInterval(timerIv);resetCombo();
   if(gameKind==='online'){return endOnlineGame();}
@@ -3754,7 +3708,7 @@ function beginOnlineGame(data){
   curLv=data.level;
   document.getElementById('h-lvname').textContent=(onlineVsMode==='speed'?'🏁速度':'⚔️血量 '+onlineMinutes+'分钟')+' · '+songTitle;
   gs={lv:{id:'song',sharps:true,flats:true},sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
-      notesOK:0,notesWrong:0,wrongStreak:0,maxWrongStreak:0,timeLeft:onlineMinutes*60,active:true,paused:false,hp:100,maxCombo:0};
+      notesOK:0,notesWrong:0,timeLeft:onlineMinutes*60,active:true,paused:false,hp:100,maxCombo:0};
   loadOnlineSongPage();
   buildInput();buildChips();updChips();
   // HUD: show hp-mode countdown in timer slot, or speed progress
@@ -3835,8 +3789,7 @@ function endOnlineGame(){ // time ran out OR my hp hit 0
   }).catch(()=>{onlineEnded=true;finishOnline(null,null);});
 }
 function finishOnline(won, oppData){
-  gs.active=false;clearInterval(timerIv);clearInterval(strikeTimer);
-  document.getElementById('strike-ov').classList.remove('show');
+  gs.active=false;clearInterval(timerIv);
   show('scr-result');
 
   // icons & title
