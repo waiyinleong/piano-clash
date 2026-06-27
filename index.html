@@ -286,6 +286,10 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .preset-btn{min-width:calc(50% - 4px);flex:none;}
 }
 
+/* score-only view: hide piano keyboard, staff fills height */
+.score-only .input-area{display:none!important;}
+.score-only .staff-area{flex:1!important;}
+
 /* ─── Landscape phone: screen height ≤ 500px (rotated phone) ─── */
 @media(max-height:500px){
   .hud{height:34px;padding:1px 8px;}
@@ -349,6 +353,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <button class="mbtn mb-dark" onclick="showLevels()" data-i18n="menu.levels">📚 关卡模式</button>
     <button class="mbtn mb-green" onclick="startPractice()" data-i18n="menu.practice">✏️ 练习模式（自由编谱）</button>
     <button class="mbtn mb-blue" onclick="showSongs()" data-i18n="menu.songs">🎵 流行曲模式</button>
+    <button class="mbtn" style="background:#e07820;color:#fff;" onclick="show('scr-random')">🎲 随机挑战</button>
     <button class="mbtn mb-red" onclick="show('scr-lobby')" data-i18n="menu.online">⚔️ 联机对战</button>
     <div class="mini-link" onclick="show('scr-keybind')" data-i18n="menu.keybind">⌨️ 键盘设定</div>
     <div class="mini-link" onclick="show('scr-midi')" data-i18n="menu.midi">🎹 连接电钢 / MIDI</div>
@@ -369,6 +374,31 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <div id="guest-login-bar" style="display:none;margin-top:8px;text-align:center;">
       <button class="mbtn mb-dark" style="margin:0;font-size:12px;" onclick="window.fbSignIn&&window.fbSignIn()" data-i18n="menu.loginToSave">🔑 登录以保存进度</button>
     </div>
+  </div>
+</div>
+
+<!-- ════ RANDOM CHALLENGE ════ -->
+<div id="scr-random" class="screen cscreen">
+  <div class="ccard" style="max-width:400px;">
+    <div class="cttl">🎲 随机挑战</div>
+    <div style="font-size:12px;color:#8a7a60;text-align:center;margin-bottom:20px;line-height:1.6;">
+      系统随机生成音符，限时挑战<br>看看你能完成几小节！
+    </div>
+    <div style="font-size:11px;color:#8a7a60;font-weight:600;letter-spacing:1px;margin-bottom:6px;">音域范围</div>
+    <div class="toggle" id="random-range-toggle">
+      <button class="on" onclick="setRandomRange('1oct',this)">🟢 C4–B4</button>
+      <button onclick="setRandomRange('2oct',this)">🟡 C3–B5</button>
+      <button onclick="setRandomRange('full',this)">🔴 C2–C6</button>
+    </div>
+    <div style="font-size:11px;color:#8a7a60;font-weight:600;letter-spacing:1px;margin-bottom:6px;">挑战时长</div>
+    <div class="toggle" id="random-time-toggle">
+      <button class="on" onclick="setRandomMins(1,this)">1 分钟</button>
+      <button onclick="setRandomMins(2,this)">2 分钟</button>
+      <button onclick="setRandomMins(3,this)">3 分钟</button>
+      <button onclick="setRandomMins(5,this)">5 分钟</button>
+    </div>
+    <button class="mbtn mb-dark" style="margin-top:6px;" onclick="startRandom(randomRange,randomMins)">🚀 开始挑战</button>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')">← 返回主菜单</button>
   </div>
 </div>
 
@@ -607,6 +637,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   <div class="hud">
     <div style="display:flex;align-items:center;gap:6px;">
       <button class="icon-btn" onclick="togglePause()">⏸</button>
+      <button class="icon-btn" id="score-view-btn" onclick="toggleScoreView()" title="切换显示模式">🎼</button>
       <div class="hblk"><div class="hv" id="h-score">0</div><div class="hl" data-i18n="result.score">分数</div></div>
     </div>
     <div class="hblk">
@@ -756,7 +787,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.8.1';
+const APP_VERSION = '1.9.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1932,7 +1963,7 @@ function handleInput(note,isSolInput){
       } else if(gs.curBar>=TOTAL_BARS){
         gs.score+=50;gs.sheetNum++;
         if(gameKind==='online'&&onlineVsMode==='hp'){gs.hp=Math.min(100,gs.hp+10);pushOnlineProgress();showFB(t('game.barBonus'),'ok');}
-        setTimeout(()=>{if(gs&&gs.active)newSheet();},450);
+        setTimeout(()=>{if(gs&&gs.active)(gameKind==='random'?newRandomSheet():newSheet());},450);
       }
     }
   }else{
@@ -1948,7 +1979,7 @@ function handleInput(note,isSolInput){
     bar.notes.forEach(n=>n.state='pending');gs.curNote=0;
     gs.wrongStreak=(gs.wrongStreak||0)+1;
     if(gs.wrongStreak>gs.maxWrongStreak) gs.maxWrongStreak=gs.wrongStreak;
-    if(gs.wrongStreak>=3&&gameKind!=='campaign'&&gameKind!=='online')triggerStrikePause();
+    if(gs.wrongStreak>=3)triggerStrikePause();
     if(gameKind==='campaign'){
       gs.lives--; updLivesDisplay();
       showFB(t('game.wrongCampaign'),'bad');
@@ -2046,6 +2077,81 @@ function endCustomGame(){
    <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`;
   document.getElementById('btn-next').style.display='none';
 }
+// ═══════════════════════════════════════════════════════════
+// RANDOM CHALLENGE MODE
+// ═══════════════════════════════════════════════════════════
+let randomRange='1oct', randomMins=1;
+function setRandomRange(r,btn){
+  randomRange=r;
+  document.querySelectorAll('#random-range-toggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setRandomMins(m,btn){
+  randomMins=m;
+  document.querySelectorAll('#random-time-toggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function startRandom(range,mins){
+  randomRange=range;randomMins=mins;
+  stopMetronome();metroOn=false;updateMetroBtn();
+  resetCombo();
+  gameKind='random';
+  show('scr-game');ea();
+  document.getElementById('vs-bar').classList.remove('show');
+  document.getElementById('palette').classList.remove('show');
+  document.getElementById('pal-tools').classList.remove('show');
+  var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
+  document.getElementById('chips').style.display='flex';
+  gs={lv:null,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
+      notesOK:0,notesWrong:0,active:true,paused:false,wrongStreak:0,maxWrongStreak:0,
+      maxCombo:0,timeLeft:mins*60};
+  document.getElementById('h-lvname').textContent='🎲 随机挑战 · '+RANGE_LABELS[range];
+  buildInput();
+  newRandomSheet();
+  updTimer();
+  requestAnimationFrame(()=>rz());
+  showCD(()=>{startTimer();rz();});
+}
+function newRandomSheet(){
+  const seed=Date.now()+Math.random()*1e6;
+  const bars=genRangeBars(randomRange,seed,TOTAL_BARS);
+  gs.sheet={bars,ts:4};
+  gs.curBar=0;gs.curNote=0;
+  buildChips();updChips();updHUD();draw();updHint();
+}
+function endRandomGame(){
+  gs.active=false;clearInterval(timerIv);resetCombo();
+  const tot=gs.notesOK+gs.notesWrong||1;
+  const acc=Math.round(gs.notesOK/tot*100);
+  const grade=gradeFromAcc(acc);
+  const gradeColor=grade==='S'?'#c8900a':grade==='A'?'#1d9e75':grade==='B'?'#3a7bd5':grade==='C'?'#8a7a60':'#b03a2e';
+  show('scr-result');
+  document.getElementById('r-ic').textContent='🎲';
+  document.getElementById('r-tt').textContent='随机挑战完成！';
+  document.getElementById('r-st').textContent=grade==='S'?'★★★':grade==='A'?'★★☆':'★☆☆';
+  document.getElementById('r-solo').style.display='';
+  document.getElementById('r-online').style.display='none';
+  document.getElementById('btn-rematch').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('r-grid').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">${t('result.bars')}</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>
+   <div class="rs"><div class="rsv" style="color:${gradeColor};font-weight:800;">${grade}</div><div class="rsl">${t('result.grade')}</div></div>
+   <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DISPLAY TOGGLE (score-only / full view)
+// ═══════════════════════════════════════════════════════════
+let scoreOnlyMode=false;
+function toggleScoreView(){
+  scoreOnlyMode=!scoreOnlyMode;
+  document.getElementById('scr-game').classList.toggle('score-only',scoreOnlyMode);
+  document.getElementById('score-view-btn').textContent=scoreOnlyMode?'🎹':'🎼';
+  requestAnimationFrame(()=>rz());
+}
+
 function togglePause(){
   if(!gs)return;
   if(gameKind==='online'){
@@ -2063,6 +2169,7 @@ function quitGame(){gs.active=false;clearInterval(timerIv);clearInterval(strikeT
 function endGame(){
   gs.active=false;clearInterval(timerIv);resetCombo();
   if(gameKind==='online'){return endOnlineGame();}
+  if(gameKind==='random'){return endRandomGame();}
   const cleared = gs.barsDone>=gs.goal;
   // stars: cleared with 3 lives = ★★★, 2 lives = ★★, 1 life = ★, failed = none
   const st = !cleared ? 0 : gs.lives>=3?3:gs.lives>=2?2:1;
@@ -2118,6 +2225,7 @@ function retryGame(){
   }
   if(gameKind==='custom'){ startCustomGame(); return; }
   if(gameKind==='song'&&songState){ startSongGame(songState.song); return; }
+  if(gameKind==='random'){ startRandom(randomRange,randomMins); return; }
   startLevel(curLv);
 }
 function nextLevel(){startLevel(curLv+1);}
