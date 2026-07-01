@@ -301,6 +301,15 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .sol-btn .s-zh{display:none;}
   .sol-btn .s-nm{font-size:clamp(12px,3.5vw,20px);}
 }
+/* rhythm judge popup */
+.rj{position:absolute;top:28%;left:50%;transform:translateX(-50%);
+  font-size:20px;font-weight:800;letter-spacing:2px;pointer-events:none;
+  animation:rj-out 0.7s ease-out forwards;z-index:30;}
+@keyframes rj-out{0%{opacity:1;transform:translateX(-50%) scale(1.1);}100%{opacity:0;transform:translateX(-50%) scale(0.9) translateY(-28px);}}
+.rj-perfect{color:#f0c040;text-shadow:0 0 8px rgba(240,192,64,0.6);}
+.rj-good{color:#5dba7d;}
+.rj-ok{color:#8a9a60;}
+.rj-miss{color:#e05050;}
 </style>
 </head>
 <body>
@@ -531,6 +540,9 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
       <div class="mode-card" data-vsmode="hp" onclick="pickVsMode('hp',this)">
         <div class="mc-ic">⚔️</div><div class="mc-tt" data-i18n="vsMode.hp">血量对战</div><div class="mc-ds" data-i18n="vsMode.hpDesc">完成小节<br>扣对手血</div>
       </div>
+      <div class="mode-card" data-vsmode="rhythm" onclick="pickVsMode('rhythm',this)">
+        <div class="mc-ic">🥁</div><div class="mc-tt" data-i18n="vsMode.rhythm">节奏对战</div><div class="mc-ds" data-i18n="vsMode.rhythmDesc">跟节拍弹奏<br>精准度决定胜负</div>
+      </div>
     </div>
 
     <!-- ── Input method for battle ── -->
@@ -574,6 +586,15 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
         <option value="16" selected>16 小节</option><option value="24">24 小节</option>
         <option value="32">32 小节</option><option value="40">40 小节</option>
       </select>
+    </div>
+    <div id="vs-bpm-row" style="display:none;">
+      <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">🥁 节拍速度（BPM）</div>
+      <div class="toggle" style="margin-bottom:14px;" id="vs-bpm-toggle">
+        <button onclick="setVsBPM(60,this)">60 慢</button>
+        <button class="on" onclick="setVsBPM(80,this)">80 中</button>
+        <button onclick="setVsBPM(100,this)">100 快</button>
+        <button onclick="setVsBPM(120,this)">120 超快</button>
+      </div>
     </div>
     <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="createRoom.visibility">房间类型</div>
     <div class="toggle" style="margin-bottom:14px;">
@@ -774,7 +795,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '1.9.5';
+const APP_VERSION = '2.0.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -810,6 +831,8 @@ const I18N = {
     'createRoom.passwordHint':'设置密码','createRoom.start':'🚀 创建并进入房间',
     'vsMode.speed':'速度对决','vsMode.speedDesc':'同一份谱<br>先完成获胜',
     'vsMode.hp':'血量对战','vsMode.hpDesc':'完成小节<br>扣对手血',
+    'vsMode.rhythm':'节奏对战','vsMode.rhythmDesc':'跟节拍弹奏<br>精准度决定胜负',
+    'room.modeRhythm':'🥁 节奏对战',
     'room.title':'房间','room.codeHint':'分享房间码给朋友加入',
     'room.ready':'准备','room.start':'开始对战','room.leave':'离开房间',
     'pwModal.title':'🔒 私密房间','pwModal.hint':'请输入密码加入','pwModal.join':'加入',
@@ -899,6 +922,8 @@ const I18N = {
     'createRoom.passwordHint':'Set password','createRoom.start':'🚀 Create & Enter Room',
     'vsMode.speed':'Speed Race','vsMode.speedDesc':'Same sheet<br>Finish first to win',
     'vsMode.hp':'HP Battle','vsMode.hpDesc':'Complete bars<br>to damage opponent',
+    'vsMode.rhythm':'Rhythm Battle','vsMode.rhythmDesc':'Play in rhythm<br>Accuracy wins',
+    'room.modeRhythm':'🥁 Rhythm Battle',
     'room.title':'Room','room.codeHint':'Share this code with friends',
     'room.ready':'Ready','room.start':'Start Battle','room.leave':'Leave Room',
     'pwModal.title':'🔒 Private Room','pwModal.hint':'Enter password to join','pwModal.join':'Join',
@@ -1328,6 +1353,7 @@ function draw(){
     if(gs&&gs.sheet)drawTimeSig(row);
   }
   if(gs&&gs.sheet)drawBars();
+  drawRhythmCursor();
 }
 function drawStaffLines(clef,row){
   cx.strokeStyle='#1a1209';cx.lineWidth=1.3;
@@ -1804,6 +1830,7 @@ function newSheet(){
   gs.sheet=genSheet(gs.lv);gs.curBar=0;gs.curNote=0;
   buildChips();updChips();updHUD();draw();updHint();
   // note: genSheet reads SC.displayBars internally
+  if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
 function buildChips(){
   const count=(SC&&SC.displayBars)||TOTAL_BARS;
@@ -1899,9 +1926,24 @@ function handleInput(note,isSolInput){
   const hlName=note;
   if(matchIdx>=0){
     bar.notes[matchIdx].state='done';gs.notesOK++;
-    const mult=comboCount>=15?3:comboCount>=10?2.5:comboCount>=5?2:comboCount>=3?1.5:1;
-    const pts=Math.round(10*mult);
-    gs.score+=pts;hl(hlName,'ok');scorePopup(pts,true,mult);addCombo();
+    let timeMult=1;
+    if(rhythmMode&&rhythmStartMs){
+      const now=performance.now()-rhythmStartMs;
+      const s=rhythmSchedule.find(s=>!s.judged&&s.barIdx===gs.curBar&&s.noteIdx===matchIdx);
+      if(s){
+        s.judged=true;
+        const err=Math.abs(now-s.hitMs);
+        if(err<=60){timeMult=3;showRhythmJudge('PERFECT');}
+        else if(err<=150){timeMult=2;showRhythmJudge('GOOD');}
+        else if(err<=300){timeMult=1;showRhythmJudge('OK');}
+        else{timeMult=0;showRhythmJudge('MISS');}
+        s.result=timeMult===3?'PERFECT':timeMult===2?'GOOD':timeMult===1?'OK':'MISS';
+      }
+    }
+    const combMult=comboCount>=15?3:comboCount>=10?2.5:comboCount>=5?2:comboCount>=3?1.5:1;
+    const pts=Math.round(10*combMult*Math.max(timeMult,rhythmMode?0:1));
+    if(pts>0){gs.score+=pts;hl(hlName,'ok');scorePopup(pts,true,combMult>1||timeMult>1);addCombo();}
+    else{hl(hlName,'bad');resetCombo();}
     // Piano only: wait until every note in the chord-group is answered
     if(!isSolInput){
       let groupDone=true;
@@ -2082,6 +2124,7 @@ function newRandomSheet(){
   gs.sheet={bars,ts:4};
   gs.curBar=0;gs.curNote=0;
   buildChips();updChips();updHUD();draw();updHint();
+  if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
 function endRandomGame(){
   gs.active=false;clearInterval(timerIv);resetCombo();
@@ -2123,6 +2166,87 @@ function toggleScoreView(){
   }
 }
 
+function buildRhythmSchedule(){
+  rhythmSchedule=[];
+  if(!gs||!gs.sheet)return;
+  gs.sheet.bars.forEach((bar,bi)=>{
+    const ts=bar.ts||4;
+    bar.notes.forEach((note,ni)=>{
+      rhythmSchedule.push({barIdx:bi,noteIdx:ni,hitMs:(bi*ts+note.beat)*(60000/rhythmBPM),judged:false,result:null});
+    });
+  });
+}
+function stopRhythmLoop(){
+  if(rhythmRafId){cancelAnimationFrame(rhythmRafId);rhythmRafId=null;}
+}
+function checkRhythmMisses(){
+  if(!rhythmStartMs||!gs||!gs.active||!gs.sheet)return;
+  const now=performance.now()-rhythmStartMs;
+  const MISS_MS=320;
+  let rebuilt=false;
+  for(const s of rhythmSchedule){
+    if(s.judged)continue;
+    if(now<s.hitMs+MISS_MS)break;
+    s.judged=true;s.result='miss';
+    gs.notesWrong++;resetCombo();showRhythmJudge('MISS');
+    if(s.barIdx===gs.curBar&&s.noteIdx===gs.curNote){
+      const bar=gs.sheet.bars[gs.curBar];
+      if(bar){
+        gs.curNote++;
+        if(gs.curNote>=bar.notes.length){
+          gs.barsDone++;gs.curBar++;gs.curNote=0;
+          if(gs.curBar>=gs.sheet.bars.length){
+            gs.score+=50;gs.sheetNum++;
+            if(gameKind==='online')newSheetOnline();
+            else if(gameKind==='random')newRandomSheet();
+            else newSheet();
+            rebuilt=true;break;
+          }
+        }
+      }
+      if(!rebuilt){updChips();updHUD();updHint();}
+    }
+  }
+}
+function rhythmLoop(){
+  if(!rhythmMode||!gs||!gs.active)return;
+  checkRhythmMisses();
+  draw();
+  rhythmRafId=requestAnimationFrame(rhythmLoop);
+}
+function drawRhythmCursor(){
+  if(!rhythmMode||!rhythmStartMs||!gs||!gs.active||!SC.rows)return;
+  const elapsed=(performance.now()-rhythmStartMs)/1000;
+  const beatPerSec=rhythmBPM/60;
+  const currentBeat=elapsed*beatPerSec;
+  const ts=gs.sheet?.bars[0]?.ts||4;
+  const currentBarF=currentBeat/ts;
+  const currentBarIdx=Math.floor(currentBarF);
+  const beatInBar=currentBeat%ts;
+  const row=Math.floor(currentBarIdx/BARS_PER_ROW);
+  if(row>=SC.rows.length)return;
+  const col=currentBarIdx%BARS_PER_ROW;
+  const bw=(SC.sheetR-SC.sheetL)/BARS_PER_ROW;
+  const x=SC.sheetL+col*bw+(beatInBar/ts)*bw;
+  const r=SC.rows[row];
+  const top=r.trebleBottom-SC.hs*8;
+  const bot=r.bassBottom+SC.hs;
+  cx.save();
+  cx.strokeStyle='rgba(255,130,0,0.7)';
+  cx.lineWidth=Math.max(1.5,SC.hs*0.35);
+  cx.setLineDash([4,3]);
+  cx.beginPath();cx.moveTo(x,top-SC.hs*2);cx.lineTo(x,bot);cx.stroke();
+  cx.setLineDash([]);
+  cx.restore();
+}
+function showRhythmJudge(grade){
+  const el=document.createElement('div');
+  el.className='rj rj-'+grade.toLowerCase();
+  el.textContent=grade;
+  const sa=document.getElementById('staff-area');
+  sa.appendChild(el);
+  setTimeout(()=>el.remove(),700);
+}
 function togglePause(){
   if(!gs)return;
   if(gameKind==='online'){
@@ -3294,8 +3418,9 @@ document.addEventListener('keydown',e=>{
 // ═══════════════════════════════════════════════════════════
 let myId = Math.random().toString(36).slice(2,9);
 function getPlayerName(){ return window.myDisplayName || (t('game.playerPrefix')+myId.slice(0,4)); }
-let roomCode=null, isHost=false, onlineVsMode='speed', roomRef=null, roomUnsub=null, editingRoom=false;
+let roomCode=null, isHost=false, onlineVsMode='speed', roomRef=null, roomUnsub=null, editingRoom=false, isSoloRoom=false;
 let onlineLevel=3, onlineSheetSeed=null, opponentId=null, onlineSongRef='builtin:ode', onlineSongState=null;
+let rhythmMode=false, rhythmBPM=80, rhythmStartMs=0, rhythmSchedule=[], rhythmRafId=null;
 
 window.addEventListener('fb-user', async e => {
   const user = e.detail;
@@ -3383,7 +3508,7 @@ async function updateRoomSettings(){
   try{
     await update(ref(db,'rooms/'+roomCode),{
       vsMode:onlineVsMode||'speed',inputMode:vsInputMode||'piano',
-      minutes:minsVal,goal:goalVal,song:songVal,seed:Date.now(),
+      minutes:minsVal,goal:goalVal,song:songVal,seed:Date.now(),bpm:rhythmBPM,
       ...(songData?{songData}:{})
     });
     toast('设置已更新');
@@ -3413,7 +3538,7 @@ async function createRoom(){
   const initData={
     host:myId,hostName:getPlayerName(),vsMode:onlineVsMode||'speed',level:3,
     inputMode:vsInputMode||'piano',
-    minutes:minsVal,goal:goalVal,song:songVal,state:'waiting',seed:Date.now(),
+    minutes:minsVal,goal:goalVal,song:songVal,state:'waiting',seed:Date.now(),bpm:rhythmBPM,
     ...(songData?{songData}:{}),
     isPublic:roomIsPublic,password,created:Date.now(),
     players:{[myId]:{name:getPlayerName(),ready:false,progress:0,bars:0,hp:100,score:0,alive:true,atk:0}}
@@ -3551,11 +3676,12 @@ function onRoomUpdate(data){
   onlineVsMode=data.vsMode;onlineLevel=data.level;onlineSheetSeed=data.seed;onlineSongRef=data.song||'builtin:ode';
   onlineMinutes=data.minutes||3;
   SPEED_GOAL=data.goal||16;
+  if(data.bpm)rhythmBPM=data.bpm;
   if(data.inputMode) applyRoomInputMode(data.inputMode);
   // update room badge
   const modeBadgeEl=document.getElementById('room-mode-badge');
   if(modeBadgeEl){
-    const modeLabel=onlineVsMode==='hp'?t('room.modeHP'):t('room.modeSpeed');
+    const modeLabel=onlineVsMode==='hp'?t('room.modeHP'):onlineVsMode==='rhythm'?t('room.modeRhythm'):t('room.modeSpeed');
     const song=data.song||'';
     const contentLabel=song.startsWith('range:')?
       ((RANGE_LABELS[song.slice(6)]||song.slice(6))+' 🎲 '+((data.inputMode||'piano')==='solfege'?'Do Re Mi':'🎹')):
@@ -3574,9 +3700,10 @@ function onRoomUpdate(data){
     slots.appendChild(d);
   });
   const allReady=ids.length===2&&ids.every(id=>players[id].ready);
+  const soloReady=ids.length===1&&isHost;
   if(isHost){
-    document.getElementById('start-btn').classList.toggle('hidden',!allReady);
-    document.getElementById('ready-btn').classList.toggle('hidden',allReady);
+    document.getElementById('start-btn').classList.toggle('hidden',!allReady&&!soloReady);
+    document.getElementById('ready-btn').classList.toggle('hidden',allReady||soloReady);
   }
   // transition to playing
   if(data.state==='playing'&&gameKind!=='online'&&!onlineEnded){
@@ -3617,6 +3744,8 @@ function onRoomUpdate(data){
       // opponent's hp reached 0 (from my attacks) → I win
       if((opp.hp!=null) && opp.hp<=0 && gs.hp>0){ onlineWin(); return; }
       updateVsBar({hp:gs.hp,bars:gs.barsDone},{hp:opp.hp,bars:opp.bars});
+    } else if(onlineVsMode==='rhythm'){
+      updateVsBar({score:gs.score},{score:opp.score});
     } else {
       updateVsBar({progress:me.progress,bars:gs.barsDone},{progress:opp.progress,bars:opp.bars});
       if((opp.bars||0)>=SPEED_GOAL){onlineLose();}
@@ -3628,7 +3757,13 @@ function pickVsMode(m,el){
   document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('on'));el.classList.add('on');
   document.getElementById('vs-time-row').style.display = m==='hp'?'block':'none';
   document.getElementById('vs-goal-row').style.display = m==='speed'?'block':'none';
+  document.getElementById('vs-bpm-row').style.display = m==='rhythm'?'block':'none';
   if(isHost&&roomCode&&window.FB){const {db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{vsMode:m});}
+}
+function setVsBPM(bpm,el){
+  rhythmBPM=bpm;
+  document.querySelectorAll('#vs-bpm-toggle button').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  if(isHost&&roomCode&&window.FB){const{db,ref,update}=window.FB;update(ref(db,'rooms/'+roomCode),{bpm});}
 }
 
 let vsInputMode='piano', vsBattleSrc='song';
@@ -3698,6 +3833,7 @@ function toggleReady(){
 }
 function hostStart(){
   if(!isHost)return;
+  isSoloRoom = !opponentId; // playing alone
   const {db,ref,update}=window.FB;
   // reset both players' battle state for a clean (re)match
   const upd={state:'playing',seed:Date.now(),startAt:Date.now()+3000};
@@ -3735,6 +3871,7 @@ function genSheetSeeded(lv,rng){
 function beginOnlineGame(data){
   gameKind='online';ea();show('scr-game');
   document.getElementById('vs-bar').classList.add('show');
+  if(isSoloRoom)document.getElementById('vs-bar').classList.remove('show');
   document.getElementById('chips').style.display='flex';
   document.getElementById('palette').classList.remove('show');
   document.getElementById('pal-tools').classList.remove('show');
@@ -3742,6 +3879,8 @@ function beginOnlineGame(data){
   onlineVsMode=data.vsMode; onlineMinutes=data.minutes||3; SPEED_GOAL=data.goal||16;
   onlineSongRef=data.song||'builtin:ode';
   onlineEnded=false; myAtkSeen=0; myAtkSent=0;
+  rhythmMode=onlineVsMode==='rhythm';
+  rhythmBPM=data.bpm||80;
   // Apply input mode (piano / solfege) set by the room host
   applyRoomInputMode(data.inputMode||'piano');
   let allBars, songTitle;
@@ -3758,7 +3897,7 @@ function beginOnlineGame(data){
     onlineSongState={song,bars:allBars,page:0};
   }
   curLv=data.level;
-  document.getElementById('h-lvname').textContent=(onlineVsMode==='speed'?'🏁速度':'⚔️血量 '+onlineMinutes+'分钟')+' · '+songTitle;
+  document.getElementById('h-lvname').textContent=(onlineVsMode==='speed'?'🏁速度':onlineVsMode==='rhythm'?('🥁节奏 '+rhythmBPM+'BPM'):'⚔️血量 '+onlineMinutes+'分钟')+' · '+songTitle;
   gs={lv:{id:'song',sharps:true,flats:true},sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
       notesOK:0,notesWrong:0,timeLeft:onlineMinutes*60,active:true,paused:false,hp:100,maxCombo:0};
   loadOnlineSongPage();
@@ -3771,7 +3910,11 @@ function beginOnlineGame(data){
   // reset my state on server
   pushOnlineProgress();
   requestAnimationFrame(()=>rz());
-  showCD(()=>{rz(); if(onlineVsMode==='hp'){updTimer();startTimer();} else {tEl.textContent='🏁';} });
+  showCD(()=>{rz();
+    if(onlineVsMode==='hp'||onlineVsMode==='rhythm'){updTimer();startTimer();}
+    else{tEl.textContent='🏁';}
+    if(rhythmMode){rhythmStartMs=performance.now();buildRhythmSchedule();rhythmRafId=requestAnimationFrame(rhythmLoop);}
+  });
 }
 // load the current page (8 bars) of the battle song into the active sheet
 function loadOnlineSongPage(){
@@ -3782,6 +3925,7 @@ function loadOnlineSongPage(){
   gs.sheet={ts:onlineSongState.song.ts||4,bars:slice};
   gs.curBar=0;gs.curNote=0;
   while(gs.curBar<slice.length && slice[gs.curBar].notes.length===0) gs.curBar++;
+  if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
 // advance to next page of the song; loop back to start when the song ends (keeps battle going)
 function newSheetOnline(){
@@ -3790,6 +3934,7 @@ function newSheetOnline(){
   if(onlineSongState.page>=totalPages){ onlineSongState.page=0; showFB(t('game.songDone'),'ok'); }
   loadOnlineSongPage();
   updChips();draw();updHint();
+  if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
 const _origNewSheet=newSheet;
 newSheet=function(){if(gameKind==='online'){newSheetOnline();}else{_origNewSheet();}};
@@ -3815,6 +3960,12 @@ function updateVsBar(me,opp){
     document.getElementById('vs-opp-fill').style.width=(opp.progress||0)+'%';
     document.getElementById('vs-me-hp').textContent=(me.bars||0)+'/'+SPEED_GOAL+' 小节';
     document.getElementById('vs-opp-hp').textContent=(opp.bars||0)+'/'+SPEED_GOAL+' 小节';
+  }else if(onlineVsMode==='rhythm'){
+    const myS=me.score||0,oppS=opp.score||0,tot=Math.max(myS,oppS,100);
+    document.getElementById('vs-me-fill').style.width=(myS/tot*100)+'%';
+    document.getElementById('vs-opp-fill').style.width=(oppS/tot*100)+'%';
+    document.getElementById('vs-me-hp').textContent='🎯'+myS;
+    document.getElementById('vs-opp-hp').textContent='🎯'+oppS;
   }else{
     document.getElementById('vs-me-fill').style.width=(me.hp||0)+'%';
     document.getElementById('vs-opp-fill').style.width=(opp.hp||0)+'%';
@@ -3846,12 +3997,37 @@ function endOnlineGame(){ // time ran out OR my hp hit 0
     const opp=s.exists()?s.val():{hp:100,bars:0,score:0,notesOK:0,notesWrong:0,name:'对手'};
     let win;
     if(onlineVsMode==='hp'){ win = gs.hp>(opp.hp||0) ? true : gs.hp<(opp.hp||0) ? false : null; }
+    else if(onlineVsMode==='rhythm'){ win = gs.score>(opp.score||0) ? true : gs.score<(opp.score||0) ? false : null; }
     else { win = gs.barsDone>(opp.bars||0) ? true : gs.barsDone<(opp.bars||0) ? false : null; }
     finishOnline(win, opp);
   }).catch(()=>{onlineEnded=true;finishOnline(null,null);});
 }
 function finishOnline(won, oppData){
   gs.active=false;clearInterval(timerIv);
+  stopRhythmLoop();
+  if(isSoloRoom){
+    show('scr-result');
+    launchConfetti();
+    const tot=gs.notesOK+gs.notesWrong||1;
+    const acc=Math.round(gs.notesOK/tot*100);
+    const grade=gradeFromAcc(acc);
+    const gc=g=>g==='S'?'#c8900a':g==='A'?'#1d9e75':g==='B'?'#3a7bd5':g==='C'?'#8a7a60':'#b03a2e';
+    document.getElementById('r-ic').textContent='🎮';
+    document.getElementById('r-tt').textContent='单打完成！';
+    document.getElementById('r-st').textContent=grade==='S'?'★★★':grade==='A'?'★★☆':'★☆☆';
+    document.getElementById('r-solo').style.display='';
+    document.getElementById('r-online').style.display='none';
+    document.getElementById('btn-rematch').style.display='block';
+    document.getElementById('btn-retry').style.display='none';
+    document.getElementById('btn-next').style.display='none';
+    document.getElementById('r-grid').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">分数</div></div>
+   <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">小节</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">正确率</div></div>
+   <div class="rs"><div class="rsv" style="color:${gc(grade)};font-weight:800;">${grade}</div><div class="rsl">等级</div></div>
+   <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">最高连击</div></div>`;
+    return;
+  }
   show('scr-result');
 
   // icons & title
@@ -3916,7 +4092,7 @@ function leaveRoomQuiet(){
     });
   }
   if(roomUnsub){roomUnsub();roomUnsub=null;}
-  roomCode=null;isHost=false;myReady=false;onlineEnded=false;
+  roomCode=null;isHost=false;myReady=false;onlineEnded=false;isSoloRoom=false;rhythmMode=false;stopRhythmLoop();
 }
 
 // ═══ keybind screen hook ═══
