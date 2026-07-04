@@ -4255,9 +4255,12 @@ function updateMIDIStatus(){
 let micStream=null, micContext=null, micAnalyser=null, micTimeBuf=null;
 let micEnabled=false, micRafId=null;
 let micLastHit=0, micSlowRms=0;
-const MIC_COOLDOWN=250;   // ms minimum between note triggers
-const MIC_MIN_RMS=0.003;  // absolute noise floor
-const MIC_ONSET_RATIO=1.8;// current rms must be this × slow background to count as onset
+let micSampling=0;          // frames left to collect after onset
+const micSamples=[];        // collected midiNum candidates
+const MIC_COLLECT=4;        // collect this many frames then vote (~67ms at 60fps)
+const MIC_COOLDOWN=250;     // ms minimum between note triggers
+const MIC_MIN_RMS=0.003;    // absolute noise floor
+const MIC_ONSET_RATIO=1.8;  // current rms must be this × slow background to count as onset
 
 function micSupported(){ return !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia); }
 
@@ -4380,7 +4383,6 @@ function micLoop(){
   for(let i=0;i<N;i++) rms+=micTimeBuf[i]*micTimeBuf[i];
   rms=Math.sqrt(rms/N);
 
-  // Slow envelope tracks ambient noise level (~0.5 s time constant at 60 fps)
   micSlowRms=micSlowRms*0.97+rms*0.03;
 
   const lf=document.getElementById('mic-level-fill');
@@ -4389,21 +4391,33 @@ function micLoop(){
   const now=performance.now();
   const isOnset=rms>MIC_MIN_RMS && rms>micSlowRms*MIC_ONSET_RATIO && now-micLastHit>MIC_COOLDOWN;
 
-  if(isOnset){
-    // Use last 2048 samples (most recent, contains the attack)
+  // Start a new collection on onset (if not already collecting)
+  if(isOnset && micSampling===0){
+    micSampling=MIC_COLLECT;
+    micSamples.length=0;
+    micLastHit=now; // block re-onset during collection
+  }
+
+  // Collect pitch estimate every frame while sampling
+  if(micSampling>0){
     const slice=micTimeBuf.slice(N-2048);
     const freq=micNSDF(slice, micContext.sampleRate);
     if(freq>58 && freq<1200){
-      const midiNum=Math.round(69+12*Math.log2(freq/440));
-      if(midiNum>=36&&midiNum<=84){
-        const name=midiToName(midiNum);
+      const m=Math.round(69+12*Math.log2(freq/440));
+      if(m>=36&&m<=84) micSamples.push(m);
+    }
+    if(--micSampling===0 && micSamples.length>0){
+      // Majority vote: fire the most frequent midiNum across all collected frames
+      const cnt={};let bestM=-1,bestC=0;
+      micSamples.forEach(m=>{cnt[m]=(cnt[m]||0)+1;if(cnt[m]>bestC){bestC=cnt[m];bestM=m;}});
+      if(bestM>=36){
+        const name=midiToName(bestM);
         if(document.getElementById('pk-'+name)){
           ea();
           handleInput(name);
           flashScreenKeyMic(name);
           const ind=document.getElementById('mic-ind');
           if(ind){ind.style.opacity='1';setTimeout(()=>{if(ind)ind.style.opacity='0.3';},180);}
-          micLastHit=now;
         }
       }
     }
