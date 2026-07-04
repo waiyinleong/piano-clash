@@ -310,6 +310,10 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
 .rj-good{color:#5dba7d;}
 .rj-ok{color:#8a9a60;}
 .rj-miss{color:#e05050;}
+/* mic indicator */
+.mic-ind{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e05050;margin-left:3px;vertical-align:middle;opacity:0.3;transition:opacity 0.1s;}
+.wk.mic-hit{background:linear-gradient(180deg,#ffe0c0,#ffb870 60%)!important;}
+.bk.mic-hit{background:#c07020!important;}
 </style>
 </head>
 <body>
@@ -357,6 +361,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <button class="mbtn mb-red" onclick="show('scr-lobby')" data-i18n="menu.online">⚔️ 联机对战</button>
     <div class="mini-link" onclick="show('scr-keybind')" data-i18n="menu.keybind">⌨️ 键盘设定</div>
     <div class="mini-link" onclick="show('scr-midi')" data-i18n="menu.midi">🎹 连接电钢 / MIDI</div>
+    <div class="mini-link" onclick="show('scr-mic')" data-i18n="menu.mic">🎙 麦克风收音</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:0 4px;">
       <span style="font-size:12px;color:#8a7a60;" data-i18n="menu.volume">🔊</span>
       <input type="range" min="0" max="1" step="0.05" value="0.8" id="vol-slider"
@@ -493,6 +498,33 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
       3. 确认设备已开机，点上面「连接」并授权<br>
       4. 连上后弹真琴键，屏幕琴键会亮、游戏照常判定<br><br>
       <b>注意：</b>Web MIDI 仅支持 <b>Chrome / Edge</b>（Safari 不支持）；中央 C（C4）对应 MIDI 60，标准对齐。
+    </div>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ MIC / MICROPHONE ════ -->
+<div id="scr-mic" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl" data-i18n="menu.mic">🎙 麦克风收音</div>
+    <div style="font-size:13px;color:#5a4a30;line-height:1.7;margin-bottom:14px;" data-i18n="mic.desc">
+      让手机/电脑麦克风听真实钢琴的声音，自动识别音符判定——不需要 MIDI 连线。适合手机用户。
+    </div>
+    <div class="bind-status" id="mic-status" style="margin-bottom:14px;"></div>
+    <button class="mbtn mb-dark" id="mic-btn" onclick="toggleMic()">🎙 开启麦克风</button>
+    <div id="mic-level-wrap" style="display:none;margin:10px 0;">
+      <div style="font-size:11px;color:#8a7a60;margin-bottom:4px;" data-i18n="mic.level">音量</div>
+      <div style="height:8px;background:#e8e0d0;border-radius:4px;overflow:hidden;">
+        <div id="mic-level-fill" style="height:100%;width:0%;background:#e05050;border-radius:4px;transition:width 0.08s;"></div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#8a7a60;line-height:1.8;margin:14px 0;background:rgba(200,144,10,.08);border-radius:10px;padding:12px;" data-i18n="mic.howto">
+      <b>使用方法：</b><br>
+      1. 将手机/电脑放在钢琴旁（1 米内效果最佳）<br>
+      2. 点「开启麦克风」并授权<br>
+      3. 弹下钢琴键，屏幕对应键位会亮起并自动判定<br>
+      4. 建议在安静环境使用，减少背景噪音<br><br>
+      <b>注意：</b>需要 HTTPS；识别精度受噪音影响；建议与 MIDI 二选一使用。
     </div>
     <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
   </div>
@@ -651,6 +683,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <div style="display:flex;align-items:center;gap:6px;">
       <button class="icon-btn" onclick="togglePause()">⏸</button>
       <button class="icon-btn score-view-btn" id="score-view-btn" onclick="toggleScoreView()" title="隐藏/显示钢琴">🎼</button>
+      <button class="icon-btn" id="mic-hud-btn" style="display:none;font-size:11px;padding:2px 5px;" title="麦克风收音中" onclick="show('scr-mic')">🎙<span class="mic-ind" id="mic-ind"></span></button>
       <div class="hblk"><div class="hv" id="h-score">0</div><div class="hl" data-i18n="result.score">分数</div></div>
     </div>
     <div class="hblk">
@@ -795,7 +828,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -888,6 +921,17 @@ const I18N = {
     'toast.midiNoSupport':'此浏览器不支持 Web MIDI，请用 Chrome / Edge',
     'toast.midiNoAccess':'无法访问 MIDI 设备（需授权 / HTTPS）',
     'toast.midiDisconnected':'已断开 MIDI',
+    'menu.mic':'🎙 麦克风收音',
+    'mic.desc':'让手机/电脑麦克风听真实钢琴的声音，自动识别音符判定——不需要 MIDI 连线。适合手机用户。',
+    'mic.level':'音量',
+    'mic.howto':'<b>使用方法</b>',
+    'mic.notConnected':'未开启。点下方按钮并授权麦克风',
+    'mic.active':'🎙 麦克风收音中…',
+    'mic.noSupport':'✗ 此浏览器不支持麦克风（需 HTTPS）',
+    'mic.connectBtn':'🎙 开启麦克风',
+    'mic.disconnect':'关闭麦克风',
+    'toast.micNoAccess':'无法使用麦克风（需授权 / HTTPS）',
+    'toast.micDisconnected':'已关闭麦克风收音',
     'toast.templateDownloaded':'模板已下载。推荐用 MuseScore 导出 MusicXML 导入',
     'toast.sheetSaved':'已保存（共','toast.sheetSavedUnit':'份）',
     'toast.accidentalForPiano':'升降号关卡需用钢琴键盘作答',
@@ -979,6 +1023,17 @@ const I18N = {
     'toast.midiNoSupport':'Web MIDI not supported (use Chrome / Edge)',
     'toast.midiNoAccess':'Cannot access MIDI device (need permission / HTTPS)',
     'toast.midiDisconnected':'MIDI disconnected',
+    'menu.mic':'🎙 Microphone Input',
+    'mic.desc':'Let your phone/computer microphone hear your real piano — notes are detected automatically. No MIDI cable needed.',
+    'mic.level':'Level',
+    'mic.howto':'<b>How to use</b>',
+    'mic.notConnected':'Not active. Tap the button below and allow microphone access.',
+    'mic.active':'🎙 Microphone active…',
+    'mic.noSupport':'✗ Not supported (requires HTTPS)',
+    'mic.connectBtn':'🎙 Enable Microphone',
+    'mic.disconnect':'Disable Microphone',
+    'toast.micNoAccess':'Cannot access microphone (need permission / HTTPS)',
+    'toast.micDisconnected':'Microphone disabled',
     'toast.templateDownloaded':'Template downloaded. Export MusicXML from MuseScore to import',
     'toast.sheetSaved':'Saved (','toast.sheetSavedUnit':' sheets)',
     'toast.accidentalForPiano':'Accidental levels require piano keyboard input',
@@ -4158,6 +4213,10 @@ function flashScreenKey(name){
   const k=document.getElementById('pk-'+name);
   if(k){ k.classList.add('midi-hit'); setTimeout(()=>k.classList.remove('midi-hit'),160); }
 }
+function flashScreenKeyMic(name){
+  const k=document.getElementById('pk-'+name);
+  if(k){ k.classList.add('mic-hit'); setTimeout(()=>k.classList.remove('mic-hit'),180); }
+}
 function disconnectMIDI(){
   midiEnabled=false;
   if(midiAccess){ midiAccess.inputs.forEach(inp=>{inp.onmidimessage=null;}); midiAccess.onstatechange=null; }
@@ -4187,6 +4246,170 @@ function updateMIDIStatus(){
     el.innerHTML=`<span style="color:#8a7a60;">${t('midi.notConnected')}</span>`;
     if(btn)btn.textContent=t('midi.connectBtn');
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MICROPHONE PITCH DETECTION — real piano via mic, no MIDI required
+// ═══════════════════════════════════════════════════════════
+let micStream=null, micContext=null, micAnalyser=null, micTimeBuf=null;
+let micEnabled=false, micRafId=null;
+let micLastHit=0, micFastRms=0, micSlowRms=0;
+const MIC_COOLDOWN=220;      // ms between successive note triggers
+const MIC_MIN_RMS=0.008;     // absolute noise floor (ignore silence)
+const MIC_ONSET_RATIO=3.2;   // fast envelope must exceed slow by this factor
+
+function micSupported(){ return !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia); }
+
+async function connectMic(){
+  if(!micSupported()){
+    toast(t('toast.micNoAccess'));
+    updateMicStatus();
+    return;
+  }
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}
+    });
+    // iOS requires AudioContext created from a user-gesture — connectMic() is called from onclick, so this is fine
+    micContext=new(window.AudioContext||window.webkitAudioContext)();
+    if(micContext.state==='suspended') await micContext.resume();
+    const src=micContext.createMediaStreamSource(micStream);
+    micAnalyser=micContext.createAnalyser();
+    micAnalyser.fftSize=4096;
+    micAnalyser.smoothingTimeConstant=0;
+    micTimeBuf=new Float32Array(micAnalyser.fftSize);
+    src.connect(micAnalyser);
+    micEnabled=true;
+    micFastRms=0; micSlowRms=0; micLastHit=0;
+    updateMicStatus();
+    micLoop();
+  }catch(e){
+    console.error('Mic failed',e);
+    toast(t('toast.micNoAccess'));
+    if(micStream){micStream.getTracks().forEach(tr=>tr.stop());micStream=null;}
+  }
+}
+
+function disconnectMic(){
+  micEnabled=false;
+  if(micRafId){cancelAnimationFrame(micRafId);micRafId=null;}
+  if(micStream){micStream.getTracks().forEach(tr=>tr.stop());micStream=null;}
+  if(micContext){micContext.close().catch(()=>{});micContext=null;}
+  micAnalyser=null; micTimeBuf=null;
+  updateMicStatus();
+}
+
+function toggleMic(){
+  if(micEnabled){disconnectMic();toast(t('toast.micDisconnected'));}
+  else{connectMic();}
+}
+
+function updateMicStatus(){
+  const el=document.getElementById('mic-status');
+  const btn=document.getElementById('mic-btn');
+  const lw=document.getElementById('mic-level-wrap');
+  const hb=document.getElementById('mic-hud-btn');
+  if(!el)return;
+  if(!micSupported()){
+    el.innerHTML=`<span style="color:#c0392b;">${t('mic.noSupport')}</span>`;
+    if(btn)btn.style.display='none';
+    return;
+  }
+  if(micEnabled){
+    el.innerHTML=`<span style="color:#1d9e75;">${t('mic.active')}</span>`;
+    if(btn)btn.textContent=t('mic.disconnect');
+    if(lw)lw.style.display='block';
+    if(hb)hb.style.display='';
+  }else{
+    el.innerHTML=`<span style="color:#8a7a60;">${t('mic.notConnected')}</span>`;
+    if(btn)btn.textContent=t('mic.connectBtn');
+    if(lw)lw.style.display='none';
+    if(hb)hb.style.display='none';
+  }
+}
+
+// Autocorrelation pitch detection — optimized for piano range (C2–C6: 65–1047 Hz)
+function micAutocorrelate(buf, sampleRate){
+  const N=buf.length;
+  // Only check lags in the piano range
+  const minLag=Math.floor(sampleRate/1100); // ~C6
+  const maxLag=Math.ceil(sampleRate/55);    // ~A1 (buffer below C2)
+  const lim=Math.min(maxLag, Math.floor(N/2));
+
+  // Precompute zero-lag energy
+  let e0=0;
+  for(let i=0;i<N;i++) e0+=buf[i]*buf[i];
+  if(e0<1e-6) return -1;
+
+  let bestCorr=-1, bestLag=-1;
+  for(let lag=minLag; lag<=lim; lag++){
+    let c=0;
+    for(let j=0;j<N-lag;j++) c+=buf[j]*buf[j+lag];
+    if(c>bestCorr){bestCorr=c;bestLag=lag;}
+  }
+  if(bestLag===-1) return -1;
+  // Require correlation to be at least 50% of zero-lag (confidence threshold)
+  if(bestCorr < e0*0.45) return -1;
+
+  // Sub-sample refinement via parabolic interpolation
+  if(bestLag>minLag && bestLag<lim){
+    const y1=bestLag>0?getCorrAt(buf,N,bestLag-1):bestCorr;
+    const y2=bestCorr;
+    const y3=getCorrAt(buf,N,bestLag+1);
+    const a=(y1+y3-2*y2)/2, b=(y3-y1)/2;
+    if(a<0) bestLag-=b/(2*a);
+  }
+  return sampleRate/bestLag;
+}
+function getCorrAt(buf,N,lag){
+  let c=0;
+  for(let j=0;j<N-lag;j++) c+=buf[j]*buf[j+lag];
+  return c;
+}
+
+function micLoop(){
+  if(!micEnabled||!micAnalyser){return;}
+  micAnalyser.getFloatTimeDomainData(micTimeBuf);
+
+  // Compute RMS
+  let rms=0;
+  const N=micTimeBuf.length;
+  for(let i=0;i<N;i++) rms+=micTimeBuf[i]*micTimeBuf[i];
+  rms=Math.sqrt(rms/N);
+
+  // Two-speed envelope: fast tracks note attack, slow tracks background
+  micFastRms=micFastRms*0.4+rms*0.6;
+  micSlowRms=micSlowRms*0.96+rms*0.04;
+
+  // Update level bar in mic settings screen
+  const lf=document.getElementById('mic-level-fill');
+  if(lf) lf.style.width=Math.min(100,rms*600)+'%';
+
+  const now=performance.now();
+  const isOnset = micFastRms>MIC_MIN_RMS && micFastRms>micSlowRms*MIC_ONSET_RATIO && now-micLastHit>MIC_COOLDOWN;
+
+  if(isOnset){
+    // Use the most recent 2048 samples for pitch detection
+    const slice=micTimeBuf.slice(N-2048);
+    const freq=micAutocorrelate(slice, micContext.sampleRate);
+    if(freq>60 && freq<1200){
+      const midiNum=Math.round(69+12*Math.log2(freq/440));
+      if(midiNum>=36&&midiNum<=84){
+        const name=midiToName(midiNum);
+        if(document.getElementById('pk-'+name)){
+          ea();
+          handleInput(name);
+          flashScreenKeyMic(name);
+          // flash mic indicator in HUD
+          const ind=document.getElementById('mic-ind');
+          if(ind){ind.style.opacity='1';setTimeout(()=>{if(ind)ind.style.opacity='0.3';},180);}
+          micLastHit=now;
+        }
+      }
+    }
+  }
+
+  micRafId=requestAnimationFrame(micLoop);
 }
 
 // ═══ TUTORIAL ═══
@@ -4427,7 +4650,7 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
