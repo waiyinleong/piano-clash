@@ -4250,27 +4250,23 @@ function updateMIDIStatus(){
 
 // ═══════════════════════════════════════════════════════════
 // MICROPHONE PITCH DETECTION — real piano via mic, no MIDI required
+// Uses NSDF (McLeod pitch method) for accurate fundamental detection
 // ═══════════════════════════════════════════════════════════
 let micStream=null, micContext=null, micAnalyser=null, micTimeBuf=null;
 let micEnabled=false, micRafId=null;
-let micLastHit=0, micFastRms=0, micSlowRms=0;
-const MIC_COOLDOWN=220;      // ms between successive note triggers
-const MIC_MIN_RMS=0.008;     // absolute noise floor (ignore silence)
-const MIC_ONSET_RATIO=3.2;   // fast envelope must exceed slow by this factor
+let micLastHit=0, micSlowRms=0;
+const MIC_COOLDOWN=250;   // ms minimum between note triggers
+const MIC_MIN_RMS=0.003;  // absolute noise floor
+const MIC_ONSET_RATIO=1.8;// current rms must be this × slow background to count as onset
 
 function micSupported(){ return !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia); }
 
 async function connectMic(){
-  if(!micSupported()){
-    toast(t('toast.micNoAccess'));
-    updateMicStatus();
-    return;
-  }
+  if(!micSupported()){ toast(t('toast.micNoAccess')); updateMicStatus(); return; }
   try{
     micStream=await navigator.mediaDevices.getUserMedia({
       audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}
     });
-    // iOS requires AudioContext created from a user-gesture — connectMic() is called from onclick, so this is fine
     micContext=new(window.AudioContext||window.webkitAudioContext)();
     if(micContext.state==='suspended') await micContext.resume();
     const src=micContext.createMediaStreamSource(micStream);
@@ -4280,7 +4276,7 @@ async function connectMic(){
     micTimeBuf=new Float32Array(micAnalyser.fftSize);
     src.connect(micAnalyser);
     micEnabled=true;
-    micFastRms=0; micSlowRms=0; micLastHit=0;
+    micSlowRms=0; micLastHit=0;
     updateMicStatus();
     micLoop();
   }catch(e){
@@ -4328,71 +4324,76 @@ function updateMicStatus(){
   }
 }
 
-// Autocorrelation pitch detection — optimized for piano range (C2–C6: 65–1047 Hz)
-function micAutocorrelate(buf, sampleRate){
+// NSDF pitch detection (McLeod method) — finds FIRST significant peak, avoiding octave errors
+// buf: Float32Array of audio samples; returns Hz or -1 if no confident pitch found
+function micNSDF(buf, sampleRate){
   const N=buf.length;
-  // Only check lags in the piano range
-  const minLag=Math.floor(sampleRate/1100); // ~C6
-  const maxLag=Math.ceil(sampleRate/55);    // ~A1 (buffer below C2)
-  const lim=Math.min(maxLag, Math.floor(N/2));
+  const minLag=Math.max(2, Math.floor(sampleRate/1100)); // C6 upper bound
+  const maxLag=Math.ceil(sampleRate/58);                  // B1 lower bound
+  const lim=Math.min(maxLag, Math.floor(N/2)-1);
+  if(lim<=minLag) return -1;
 
-  // Precompute zero-lag energy
-  let e0=0;
-  for(let i=0;i<N;i++) e0+=buf[i]*buf[i];
-  if(e0<1e-6) return -1;
+  // Cumulative sum of squares — makes denominator O(1) per lag
+  const csq=new Float32Array(N+1);
+  for(let i=0;i<N;i++) csq[i+1]=csq[i]+buf[i]*buf[i];
+  if(csq[N]<1e-8) return -1;
 
-  let bestCorr=-1, bestLag=-1;
+  // NSDF[lag] = 2*r(lag) / (m(0) + m(lag))   (values in range [-1, 1])
+  const nsdf=new Float32Array(lim+1);
   for(let lag=minLag; lag<=lim; lag++){
-    let c=0;
-    for(let j=0;j<N-lag;j++) c+=buf[j]*buf[j+lag];
-    if(c>bestCorr){bestCorr=c;bestLag=lag;}
+    let r=0;
+    for(let j=0;j<N-lag;j++) r+=buf[j]*buf[j+lag];
+    const den=csq[N-lag]+(csq[N]-csq[lag]);
+    nsdf[lag]=den>0 ? 2*r/den : 0;
   }
-  if(bestLag===-1) return -1;
-  // Require correlation to be at least 50% of zero-lag (confidence threshold)
-  if(bestCorr < e0*0.45) return -1;
 
-  // Sub-sample refinement via parabolic interpolation
+  // Find the FIRST local peak above threshold=0.5
+  // (first peak = fundamental; later peaks = sub-harmonics / octave errors)
+  const thresh=0.5;
+  let bestLag=-1, bestVal=-1;
+  let inPeak=false;
+  for(let lag=minLag+1; lag<lim; lag++){
+    if(nsdf[lag]>thresh){
+      inPeak=true;
+      if(nsdf[lag]>bestVal){bestVal=nsdf[lag]; bestLag=lag;}
+    } else if(inPeak){
+      break; // past the first peak
+    }
+  }
+  if(bestLag===-1 || bestVal<thresh) return -1;
+
+  // Parabolic interpolation for sub-sample frequency accuracy
   if(bestLag>minLag && bestLag<lim){
-    const y1=bestLag>0?getCorrAt(buf,N,bestLag-1):bestCorr;
-    const y2=bestCorr;
-    const y3=getCorrAt(buf,N,bestLag+1);
+    const y1=nsdf[bestLag-1], y2=nsdf[bestLag], y3=nsdf[bestLag+1];
     const a=(y1+y3-2*y2)/2, b=(y3-y1)/2;
-    if(a<0) bestLag-=b/(2*a);
+    if(a<0){ const refined=bestLag-b/(2*a); if(refined>0) bestLag=refined; }
   }
   return sampleRate/bestLag;
 }
-function getCorrAt(buf,N,lag){
-  let c=0;
-  for(let j=0;j<N-lag;j++) c+=buf[j]*buf[j+lag];
-  return c;
-}
 
 function micLoop(){
-  if(!micEnabled||!micAnalyser){return;}
+  if(!micEnabled||!micAnalyser) return;
   micAnalyser.getFloatTimeDomainData(micTimeBuf);
-
-  // Compute RMS
-  let rms=0;
   const N=micTimeBuf.length;
+
+  let rms=0;
   for(let i=0;i<N;i++) rms+=micTimeBuf[i]*micTimeBuf[i];
   rms=Math.sqrt(rms/N);
 
-  // Two-speed envelope: fast tracks note attack, slow tracks background
-  micFastRms=micFastRms*0.4+rms*0.6;
-  micSlowRms=micSlowRms*0.96+rms*0.04;
+  // Slow envelope tracks ambient noise level (~0.5 s time constant at 60 fps)
+  micSlowRms=micSlowRms*0.97+rms*0.03;
 
-  // Update level bar in mic settings screen
   const lf=document.getElementById('mic-level-fill');
-  if(lf) lf.style.width=Math.min(100,rms*600)+'%';
+  if(lf) lf.style.width=Math.min(100,rms*1000)+'%';
 
   const now=performance.now();
-  const isOnset = micFastRms>MIC_MIN_RMS && micFastRms>micSlowRms*MIC_ONSET_RATIO && now-micLastHit>MIC_COOLDOWN;
+  const isOnset=rms>MIC_MIN_RMS && rms>micSlowRms*MIC_ONSET_RATIO && now-micLastHit>MIC_COOLDOWN;
 
   if(isOnset){
-    // Use the most recent 2048 samples for pitch detection
+    // Use last 2048 samples (most recent, contains the attack)
     const slice=micTimeBuf.slice(N-2048);
-    const freq=micAutocorrelate(slice, micContext.sampleRate);
-    if(freq>60 && freq<1200){
+    const freq=micNSDF(slice, micContext.sampleRate);
+    if(freq>58 && freq<1200){
       const midiNum=Math.round(69+12*Math.log2(freq/440));
       if(midiNum>=36&&midiNum<=84){
         const name=midiToName(midiNum);
@@ -4400,7 +4401,6 @@ function micLoop(){
           ea();
           handleInput(name);
           flashScreenKeyMic(name);
-          // flash mic indicator in HUD
           const ind=document.getElementById('mic-ind');
           if(ind){ind.style.opacity='1';setTimeout(()=>{if(ind)ind.style.opacity='0.3';},180);}
           micLastHit=now;
