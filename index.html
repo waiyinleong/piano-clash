@@ -1870,7 +1870,7 @@ function startLevel(id){
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
   document.getElementById('chips').style.display='flex';
   gs={lv,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,
-      lives:CAMPAIGN_LIVES,goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0};
+      goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0};
   document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+' · '+t('game.completeN')+CAMPAIGN_GOAL+t('game.barsN');
   // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals)
   if(lv.sharps||lv.flats){
@@ -2064,9 +2064,7 @@ function handleInput(note,isSolInput){
     }
     bar.notes.forEach(n=>n.state='pending');gs.curNote=0;
     if(gameKind==='campaign'){
-      gs.lives--; updLivesDisplay();
-      showFB(t('game.wrongCampaign'),'bad');
-      if(gs.lives<=0){updChips();updHUD();draw();endGame();return;}
+      showFB(t('game.wrongRepeat'),'bad');
     }else if(gameKind==='online'&&onlineVsMode==='hp'){
       gs.hp=Math.max(0,gs.hp-3); pushOnlineProgress();   // self-error: light penalty (-3)
       showFB(t('game.wrongOnline'),'bad');
@@ -2101,7 +2099,10 @@ function updHUD(){
   const acc=tot?Math.round(gs.notesOK/tot*100):100;
   document.getElementById('h-sheet').textContent=acc+'%';
   if(gameKind==='campaign'){
-    updLivesDisplay();
+    const _t=gs.notesOK+gs.notesWrong,_a=_t?Math.round(gs.notesOK/_t*100):100;
+    const _el=document.getElementById('h-timer');
+    _el.classList.remove('low');_el.style.fontSize='15px';
+    _el.textContent=_a>=95?'★★★':_a>=80?'★★☆':'★☆☆';
     document.getElementById('h-bars').textContent=gs.barsDone+'/'+gs.goal;
   }else if(gameKind==='custom'){
     document.getElementById('h-timer').textContent='🔁';
@@ -2321,8 +2322,9 @@ function endGame(){
   if(gameKind==='online'){return endOnlineGame();}
   if(gameKind==='random'){return endRandomGame();}
   const cleared = gs.barsDone>=gs.goal;
-  // stars: cleared with 3 lives = ★★★, 2 lives = ★★, 1 life = ★, failed = none
-  const st = !cleared ? 0 : gs.lives>=3?3:gs.lives>=2?2:1;
+  const tot=gs.notesOK+gs.notesWrong;const acc=tot?Math.round(gs.notesOK/tot*100):100;
+  // stars based on accuracy (no lives system): 95%+ = ★★★, 80%+ = ★★, else ★
+  const st = !cleared ? 0 : acc>=95?3:acc>=80?2:1;
   let newRecord=false;
   if(cleared){const p=lp();if(!p[curLv]||gs.score>(p[curLv].score||0)||st>p[curLv].stars){newRecord=!p[curLv]||gs.score>(p[curLv].score||0);p[curLv]={stars:st,score:gs.score};sp(p);}}
   show('scr-result');
@@ -2335,13 +2337,11 @@ function endGame(){
   if(newRecord){ea();const tm=AC.currentTime;[523,659,784,1047,1319].forEach((fr,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=fr;o.connect(g);g.connect(masterGain||AC.destination);g.gain.setValueAtTime(.15,tm+i*.08);g.gain.exponentialRampToValueAtTime(.001,tm+i*.08+.4);o.start(tm+i*.08);o.stop(tm+i*.08+.42);});}
   document.getElementById('r-tt').textContent=(newRecord?'🏅 NEW RECORD! ':'')+( cleared?(st===3?t('result.perfect'):t('result.clear')):t('result.fail'));
   document.getElementById('r-st').textContent='★'.repeat(st)+'☆'.repeat(3-st);
-  const tot=gs.notesOK+gs.notesWrong;const acc=tot?Math.round(gs.notesOK/tot*100):100;
   const grade=gradeFromAcc(acc);
   const gradeColor=grade==='S'?'#c8900a':grade==='A'?'#1d9e75':grade==='B'?'#3a7bd5':grade==='C'?'#8a7a60':'#b03a2e';
   document.getElementById('r-grid').innerHTML=`
    <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
    <div class="rs"><div class="rsv">${gs.barsDone}/${gs.goal}</div><div class="rsl">${t('result.bars')}</div></div>
-   <div class="rs"><div class="rsv">${gs.lives}</div><div class="rsl">${t('result.lives')}</div></div>
    <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>
    <div class="rs"><div class="rsv" style="color:${gradeColor};font-weight:800;">${grade}</div><div class="rsl">${t('result.grade')}</div></div>
    <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">${t('result.notesOK')}</div></div>
