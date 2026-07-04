@@ -358,6 +358,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <button class="mbtn mb-green" onclick="startPractice()" data-i18n="menu.practice">✏️ 练习模式（自由编谱）</button>
     <button class="mbtn mb-blue" onclick="showSongs()" data-i18n="menu.songs">🎵 流行曲模式</button>
     <button class="mbtn" style="background:#e07820;color:#fff;" onclick="show('scr-random')">🎲 随机挑战</button>
+    <button class="mbtn" style="background:#c8552c;color:#fff;" id="daily-btn" onclick="startDaily()">📅 每日挑战</button>
     <button class="mbtn mb-red" onclick="show('scr-lobby')" data-i18n="menu.online">⚔️ 联机对战</button>
     <div class="mini-link" onclick="show('scr-keybind')" data-i18n="menu.keybind">⌨️ 键盘设定</div>
     <div class="mini-link" onclick="show('scr-midi')" data-i18n="menu.midi">🎹 连接电钢 / MIDI</div>
@@ -432,6 +433,20 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   <div class="ccard">
     <div class="cttl" data-i18n="levels.title">选择关卡</div>
     <div id="levels-stats" style="text-align:center;font-size:11px;color:#8a7a60;margin-bottom:10px;"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(200,144,10,.08);border-radius:10px;">
+      <div style="flex:1;min-width:0;font-size:12px;color:#5a4a30;"><b>🥁 节奏模式</b><br><span style="font-size:10px;color:#8a7a60;">跟节拍弹，时机评分</span></div>
+      <div class="toggle" id="camp-rhythm-toggle" style="margin:0;">
+        <button class="on" data-bpm="0" onclick="setCampRhythm(0,this)">关</button>
+        <button data-bpm="60" onclick="setCampRhythm(60,this)">60</button>
+        <button data-bpm="80" onclick="setCampRhythm(80,this)">80</button>
+        <button data-bpm="100" onclick="setCampRhythm(100,this)">100</button>
+      </div>
+    </div>
+    <div id="weak-row" style="display:none;margin-bottom:10px;padding:8px 10px;background:rgba(224,80,80,.07);border-radius:10px;">
+      <div style="font-size:11px;color:#8a7a60;margin-bottom:4px;">🎯 薄弱音（错误率最高）</div>
+      <div id="weak-notes" style="font-size:13px;font-weight:700;color:#b03a2e;margin-bottom:6px;letter-spacing:1px;"></div>
+      <button class="mbtn mb-red" style="margin:0;padding:8px;font-size:13px;width:100%;" onclick="startWeakTraining()">🎯 弱点特训（2 分钟）</button>
+    </div>
     <div class="lvgrid" id="lvgrid"></div>
     <div style="display:flex;gap:8px;margin-top:4px;">
       <button class="mbtn mb-ghost" style="flex:1;margin:0;" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
@@ -556,7 +571,36 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
       <button class="mbtn mb-blue" style="margin:0;padding:8px 16px;width:auto;" onclick="joinByCodeInput()" data-i18n="lobby.join">加入</button>
     </div>
     <div style="font-size:10px;color:#8a7a60;text-align:center;margin-bottom:10px;" id="fb-status">连接中…</div>
+    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-bot')">🤖 人机练习赛（无需对手）</button>
     <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ BOT MATCH ════ -->
+<div id="scr-bot" class="screen cscreen">
+  <div class="ccard" style="max-width:420px;">
+    <div class="cttl">🤖 人机练习赛</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:12px;text-align:center;">与机器人比速度：先完成 8 小节者获胜。<br>没有真人对手时随时开打！</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">难度</div>
+    <div class="mode-pick" style="margin-bottom:14px;">
+      <div class="mode-card" data-bd="easy" onclick="pickBotDiff('easy',this)">
+        <div class="mc-ic">🐰</div><div class="mc-tt">新手兔</div><div class="mc-ds">约 9 秒/小节<br>适合初学</div>
+      </div>
+      <div class="mode-card on" data-bd="normal" onclick="pickBotDiff('normal',this)">
+        <div class="mc-ic">🐱</div><div class="mc-tt">进阶猫</div><div class="mc-ds">约 6 秒/小节<br>有点压力</div>
+      </div>
+      <div class="mode-card" data-bd="hard" onclick="pickBotDiff('hard',this)">
+        <div class="mc-ic">🐲</div><div class="mc-tt">大师龙</div><div class="mc-ds">约 4 秒/小节<br>高手挑战</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">音域</div>
+    <div class="toggle" style="margin-bottom:14px;" id="bot-range-toggle">
+      <button class="on" onclick="setBotRange('1oct',this)">🟢 C4–B4</button>
+      <button onclick="setBotRange('2oct',this)">🟡 C3–B5</button>
+      <button onclick="setBotRange('full',this)">🔴 C2–C6</button>
+    </div>
+    <button class="mbtn mb-dark" onclick="startBotMatch()">🚀 开始对战</button>
+    <button class="mbtn mb-ghost" onclick="show('scr-lobby')" data-i18n="common.back">← 返回</button>
   </div>
 </div>
 
@@ -828,7 +872,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '2.1.1';
+const APP_VERSION = '2.2.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1341,7 +1385,7 @@ function rz(){
   if(gs&&gs.active&&curBars&&SC.displayBars!==curBars&&
      gameKind!=='online'&&gameKind!=='song'&&gameKind!=='practice'){
     gs.curBar=0;gs.curNote=0;
-    if(gameKind==='random')newRandomSheet();else newSheet();
+    if(gameKind==='random'||gameKind==='bot')newRandomSheet();else newSheet();
   }else{draw();}
 }
 function calcSC(W,H){
@@ -1854,6 +1898,8 @@ function showLevels(){
     b.innerHTML=`<span>${lv.id}</span><span class="lvst">${c?'★'.repeat(c.stars)+'☆'.repeat(3-c.stars):'☆☆☆'}${bestScore}</span>`;
     b.title=lv.name;if(!locked)b.onclick=()=>startLevel(lv.id);g.appendChild(b);
   });
+  syncCampRhythmUI();
+  renderWeakRow();
   show('scr-levels');
 }
 const CAMPAIGN_LIVES=3;
@@ -1861,6 +1907,8 @@ const CAMPAIGN_GOAL=8; // bars to complete to clear the level
 function startLevel(id){
   stopMetronome(); metroOn=false; updateMetroBtn();
   resetCombo();
+  clearRhythm();
+  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;}
   gameKind='campaign';curLv=id;
   const lv=LEVELS.find(l=>l.id===id);
   show('scr-game');ea();
@@ -1871,7 +1919,7 @@ function startLevel(id){
   document.getElementById('chips').style.display='flex';
   gs={lv,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,
       goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0};
-  document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+' · '+t('game.completeN')+CAMPAIGN_GOAL+t('game.barsN');
+  document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+(rhythmMode?' 🥁'+rhythmBPM:'')+' · '+t('game.completeN')+CAMPAIGN_GOAL+t('game.barsN');
   // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals)
   if(lv.sharps||lv.flats){
     if(inputMode!=='piano'){ inputMode='piano'; toast(t('toast.accidentalForPiano')); }
@@ -1879,7 +1927,9 @@ function startLevel(id){
   buildInput();
   newSheet();
   requestAnimationFrame(()=>rz());
-  showCD(()=>{rz();});  // no timer in campaign
+  showCD(()=>{rz();
+    if(rhythmMode){rhythmStartMs=performance.now();rhythmStats={perfect:0,good:0,ok:0,miss:0};buildRhythmSchedule();rhythmRafId=requestAnimationFrame(rhythmLoop);}
+  });
 }
 function newSheet(){
   gs.sheet=genSheet(gs.lv);gs.curBar=0;gs.curNote=0;
@@ -1981,6 +2031,7 @@ function handleInput(note,isSolInput){
   const hlName=note;
   if(matchIdx>=0){
     bar.notes[matchIdx].state='done';gs.notesOK++;
+    weakTrack(bar.notes[matchIdx].nd?.name,true);
     let timeMult=1;
     if(rhythmMode&&rhythmStartMs){
       const now=performance.now()-rhythmStartMs;
@@ -1988,10 +2039,10 @@ function handleInput(note,isSolInput){
       if(s){
         s.judged=true;
         const err=Math.abs(now-s.hitMs);
-        if(err<=60){timeMult=3;showRhythmJudge('PERFECT');}
-        else if(err<=150){timeMult=2;showRhythmJudge('GOOD');}
-        else if(err<=300){timeMult=1;showRhythmJudge('OK');}
-        else{timeMult=0;showRhythmJudge('MISS');}
+        if(err<=60){timeMult=3;showRhythmJudge('PERFECT');rhythmStats.perfect++;}
+        else if(err<=150){timeMult=2;showRhythmJudge('GOOD');rhythmStats.good++;}
+        else if(err<=300){timeMult=1;showRhythmJudge('OK');rhythmStats.ok++;}
+        else{timeMult=0;showRhythmJudge('MISS');rhythmStats.miss++;}
         s.result=timeMult===3?'PERFECT':timeMult===2?'GOOD':timeMult===1?'OK':'MISS';
       }
     }
@@ -2020,6 +2071,8 @@ function handleInput(note,isSolInput){
       }
       // campaign: reached the goal → win
       if(gameKind==='campaign'&&gs.barsDone>=gs.goal){updChips();updHUD();draw();endGame();return;}
+      // bot match: reached the goal before the bot → win
+      if(gameKind==='bot'){updateBotVs();if(gs.barsDone>=botGoal){updChips();updHUD();draw();endBotGame(true);return;}}
       // custom navigation practice: skip empty bars; at end, loop back to start
       if(gameKind==='custom'){
         while(gs.curBar<gs.sheet.bars.length && gs.sheet.bars[gs.curBar].notes.length===0) gs.curBar++;
@@ -2049,12 +2102,13 @@ function handleInput(note,isSolInput){
       } else if(gs.curBar>=TOTAL_BARS){
         gs.score+=50;gs.sheetNum++;
         if(gameKind==='online'&&onlineVsMode==='hp'){gs.hp=Math.min(100,gs.hp+10);pushOnlineProgress();showFB(t('game.barBonus'),'ok');}
-        setTimeout(()=>{if(gs&&gs.active)(gameKind==='random'?newRandomSheet():newSheet());},450);
+        setTimeout(()=>{if(gs&&gs.active)((gameKind==='random'||gameKind==='bot')?newRandomSheet():newSheet());},450);
       }
     }
   }else{
     // WRONG answer
     gs.notesWrong++;buzz();hl(note,'bad');resetCombo();
+    weakTrack(bar.notes[gs.curNote]?.nd?.name,false);
     // briefly flash the correct button/key as hint
     if(bar.notes[gs.curNote]){
       const cn=isSolInput
@@ -2153,10 +2207,12 @@ function setRandomMins(m,btn){
   document.querySelectorAll('#random-time-toggle button').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
-function startRandom(range,mins){
+function startRandom(range,mins,daily){
+  dailyMode=!!daily;
   randomRange=range;randomMins=mins;
   stopMetronome();metroOn=false;updateMetroBtn();
   resetCombo();
+  clearRhythm();
   gameKind='random';
   show('scr-game');ea();
   document.getElementById('vs-bar').classList.remove('show');
@@ -2166,7 +2222,7 @@ function startRandom(range,mins){
   document.getElementById('chips').style.display='flex';
   gs={lv:null,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
       notesOK:0,notesWrong:0,active:true,paused:false,      maxCombo:0,timeLeft:mins*60};
-  document.getElementById('h-lvname').textContent='🎲 随机挑战 · '+RANGE_LABELS[range];
+  document.getElementById('h-lvname').textContent=dailyMode?('📅 每日挑战 '+(new Date().getMonth()+1)+'/'+new Date().getDate()):Array.isArray(range)?'🎯 弱点特训':('🎲 随机挑战 · '+RANGE_LABELS[range]);
   buildInput();
   newRandomSheet();
   updTimer();
@@ -2175,7 +2231,8 @@ function startRandom(range,mins){
 }
 function newRandomSheet(){
   const numBars=(SC&&SC.displayBars)||TOTAL_BARS;
-  const seed=Date.now()+Math.random()*1e6;
+  // daily mode: deterministic seed per sheet so everyone worldwide gets the same notes
+  const seed=dailyMode?(dailySeed*7919+gs.sheetNum*104729):(Date.now()+Math.random()*1e6);
   const bars=genRangeBars(randomRange,seed,numBars);
   gs.sheet={bars,ts:4};
   gs.curBar=0;gs.curNote=0;
@@ -2183,14 +2240,30 @@ function newRandomSheet(){
   if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
 function endRandomGame(){
-  gs.active=false;clearInterval(timerIv);resetCombo();
+  gs.active=false;clearInterval(timerIv);resetCombo();saveWeak();
   const tot=gs.notesOK+gs.notesWrong||1;
   const acc=Math.round(gs.notesOK/tot*100);
   const grade=gradeFromAcc(acc);
   const gradeColor=grade==='S'?'#c8900a':grade==='A'?'#1d9e75':grade==='B'?'#3a7bd5':grade==='C'?'#8a7a60':'#b03a2e';
+  // daily challenge: record streak on first completion of the day
+  let dailyTitle=null;
+  if(dailyMode){
+    const d=loadDaily(),key=dailyKey();
+    if(d.last!==key){
+      const yd=new Date();yd.setDate(yd.getDate()-1);
+      const ykey=yd.getFullYear()*10000+(yd.getMonth()+1)*100+yd.getDate();
+      d.streak=(d.last===ykey)?(d.streak||0)+1:1;
+      d.last=key;d.best=Math.max(d.best||0,d.streak);
+    }
+    d.scores=d.scores||{};
+    if(!d.scores[key]||gs.score>d.scores[key])d.scores[key]=gs.score;
+    saveDaily(d);updateDailyBtn();
+    dailyTitle='📅 每日挑战完成！🔥 连续 '+d.streak+' 天';
+    if(d.streak>=3)launchConfetti();
+  }
   show('scr-result');
-  document.getElementById('r-ic').textContent='🎲';
-  document.getElementById('r-tt').textContent='随机挑战完成！';
+  document.getElementById('r-ic').textContent=dailyMode?'📅':'🎲';
+  document.getElementById('r-tt').textContent=dailyTitle||(Array.isArray(randomRange)?'弱点特训完成！':'随机挑战完成！');
   document.getElementById('r-st').textContent=grade==='S'?'★★★':grade==='A'?'★★☆':'★☆☆';
   document.getElementById('r-solo').style.display='';
   document.getElementById('r-online').style.display='none';
@@ -2199,6 +2272,148 @@ function endRandomGame(){
   document.getElementById('r-grid').innerHTML=`
    <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
    <div class="rs"><div class="rsv">${gs.barsDone}</div><div class="rsl">${t('result.bars')}</div></div>
+   <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>
+   <div class="rs"><div class="rsv" style="color:${gradeColor};font-weight:800;">${grade}</div><div class="rsl">${t('result.grade')}</div></div>
+   <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DAILY CHALLENGE — same seeded sheet worldwide, streak tracking
+// ═══════════════════════════════════════════════════════════
+let dailyMode=false, dailySeed=0;
+function dailyKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();}
+function loadDaily(){try{return JSON.parse(localStorage.getItem('psr_daily')||'{}')}catch{return{}}}
+function saveDaily(d){try{localStorage.setItem('psr_daily',JSON.stringify(d))}catch{}}
+function startDaily(){
+  dailySeed=dailyKey();
+  startRandom('2oct',2,true);
+}
+function updateDailyBtn(){
+  const btn=document.getElementById('daily-btn');
+  if(!btn)return;
+  const d=loadDaily(),key=dailyKey();
+  const done=d.last===key;
+  btn.textContent='📅 每日挑战'+(done?' ✅':'')+((d.streak||0)>0?' 🔥'+d.streak:'');
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEAK NOTE TRACKING — per-note accuracy, targeted training
+// ═══════════════════════════════════════════════════════════
+let weakStats=null, weakDirty=0;
+function loadWeak(){
+  if(!weakStats){try{weakStats=JSON.parse(localStorage.getItem('psr_weak')||'{}')}catch{weakStats={}}}
+  return weakStats;
+}
+function saveWeak(){try{localStorage.setItem('psr_weak',JSON.stringify(loadWeak()))}catch{}}
+function weakTrack(name,ok){
+  if(!name)return;
+  const w=loadWeak();
+  const e=w[name]||(w[name]=[0,0]);
+  e[ok?0:1]++;
+  if(++weakDirty>=15){weakDirty=0;saveWeak();}
+}
+// notes with enough data and a high error rate, worst first
+function weakList(){
+  const w=loadWeak();
+  return Object.entries(w)
+    .map(([n,v])=>({n,ok:v[0],bad:v[1],rate:v[1]/(v[0]+v[1])}))
+    .filter(e=>(e.ok+e.bad)>=4&&e.bad>=2&&e.rate>=0.2)
+    .sort((a,b)=>b.rate-a.rate||b.bad-a.bad)
+    .slice(0,8);
+}
+function renderWeakRow(){
+  const row=document.getElementById('weak-row');
+  const list=weakList();
+  if(!row)return;
+  if(list.length<3){row.style.display='none';return;}
+  row.style.display='block';
+  document.getElementById('weak-notes').textContent=
+    list.map(e=>e.n+' '+Math.round(e.rate*100)+'%').join('　');
+}
+function startWeakTraining(){
+  const list=weakList();
+  if(list.length<3){toast('弱点数据还不够，先多玩几关吧');return;}
+  startRandom(list.map(e=>e.n),2);
+}
+
+// ═══════════════════════════════════════════════════════════
+// BOT MATCH — local practice battle vs simulated opponent
+// ═══════════════════════════════════════════════════════════
+let botDiff='normal', botRange='1oct', botTimer=null, botBars=0, botGoal=8;
+const BOT_SPEED={easy:[7500,10500],normal:[5000,7000],hard:[3400,4800]}; // ms per bar [min,max]
+const BOT_NAMES={easy:'🐰 新手兔',normal:'🐱 进阶猫',hard:'🐲 大师龙'};
+function pickBotDiff(d,el){
+  botDiff=d;
+  document.querySelectorAll('#scr-bot .mode-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setBotRange(r,btn){
+  botRange=r;
+  document.querySelectorAll('#bot-range-toggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function startBotMatch(){
+  stopMetronome();metroOn=false;updateMetroBtn();
+  resetCombo();clearRhythm();
+  dailyMode=false;
+  gameKind='bot';botBars=0;botGoal=8;
+  randomRange=botRange; // bot mode reuses random sheet generation
+  show('scr-game');ea();
+  document.getElementById('vs-bar').classList.add('show');
+  document.getElementById('palette').classList.remove('show');
+  document.getElementById('pal-tools').classList.remove('show');
+  var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
+  document.getElementById('chips').style.display='flex';
+  gs={lv:null,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
+      notesOK:0,notesWrong:0,goal:botGoal,active:true,paused:false,maxCombo:0};
+  document.getElementById('h-lvname').textContent='🤖 '+BOT_NAMES[botDiff]+' · 先到 '+botGoal+' 小节';
+  const tEl=document.getElementById('h-timer');tEl.style.fontSize='22px';tEl.classList.remove('low');tEl.textContent='🏁';
+  document.getElementById('vs-me-name').textContent=(document.getElementById('player-name')?.value.trim()||t('game.me'));
+  document.getElementById('vs-opp-name').textContent=BOT_NAMES[botDiff];
+  buildInput();
+  newRandomSheet();
+  updateBotVs();
+  requestAnimationFrame(()=>rz());
+  showCD(()=>{rz();scheduleBotBar();});
+}
+function scheduleBotBar(){
+  clearTimeout(botTimer);
+  const [lo,hi]=BOT_SPEED[botDiff];
+  botTimer=setTimeout(()=>{
+    if(!gs||!gs.active||gameKind!=='bot')return;
+    if(!gs.paused){ // bot politely waits while you pause
+      botBars++;updateBotVs();
+      if(botBars>=botGoal){endBotGame(false);return;}
+    }
+    scheduleBotBar();
+  },lo+Math.random()*(hi-lo));
+}
+function updateBotVs(){
+  document.getElementById('vs-me-fill').style.width=Math.min(100,gs.barsDone/botGoal*100)+'%';
+  document.getElementById('vs-opp-fill').style.width=Math.min(100,botBars/botGoal*100)+'%';
+  document.getElementById('vs-me-hp').textContent=gs.barsDone+'/'+botGoal;
+  document.getElementById('vs-opp-hp').textContent=botBars+'/'+botGoal;
+}
+function endBotGame(win){
+  gs.active=false;clearTimeout(botTimer);resetCombo();saveWeak();
+  const tot=gs.notesOK+gs.notesWrong||1;
+  const acc=Math.round(gs.notesOK/tot*100);
+  const grade=gradeFromAcc(acc);
+  const gradeColor=grade==='S'?'#c8900a':grade==='A'?'#1d9e75':grade==='B'?'#3a7bd5':grade==='C'?'#8a7a60':'#b03a2e';
+  show('scr-result');
+  if(win)launchConfetti();
+  document.getElementById('r-ic').textContent=win?'🏆':'🤖';
+  document.getElementById('r-tt').textContent=win?('你赢了 '+BOT_NAMES[botDiff]+'！'):(BOT_NAMES[botDiff]+' 赢了…再来一局！');
+  document.getElementById('r-st').textContent=win?(acc>=95?'★★★':acc>=80?'★★☆':'★☆☆'):'☆☆☆';
+  document.getElementById('r-solo').style.display='';
+  document.getElementById('r-online').style.display='none';
+  document.getElementById('btn-rematch').style.display='none';
+  document.getElementById('btn-retry').style.display='';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('r-grid').innerHTML=`
+   <div class="rs"><div class="rsv">${gs.barsDone}/${botGoal}</div><div class="rsl">${t('result.bars')}</div></div>
+   <div class="rs"><div class="rsv">${botBars}/${botGoal}</div><div class="rsl">${BOT_NAMES[botDiff]}</div></div>
+   <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
    <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>
    <div class="rs"><div class="rsv" style="color:${gradeColor};font-weight:800;">${grade}</div><div class="rsl">${t('result.grade')}</div></div>
    <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`;
@@ -2215,7 +2430,7 @@ function toggleScoreView(){
   document.getElementById('score-view-btn').textContent=scoreOnlyMode?'🎹':'🎼';
   if(gs&&gs.active&&gameKind!=='online'&&gameKind!=='song'&&gameKind!=='practice'){
     gs.curBar=0;gs.curNote=0;
-    if(gameKind==='random')newRandomSheet();
+    if(gameKind==='random'||gameKind==='bot')newRandomSheet();
     else newSheet();
   } else {
     requestAnimationFrame(()=>rz());
@@ -2236,7 +2451,7 @@ function stopRhythmLoop(){
   if(rhythmRafId){cancelAnimationFrame(rhythmRafId);rhythmRafId=null;}
 }
 function checkRhythmMisses(){
-  if(!rhythmStartMs||!gs||!gs.active||!gs.sheet)return;
+  if(!rhythmStartMs||!gs||!gs.active||gs.paused||!gs.sheet)return;
   const now=performance.now()-rhythmStartMs;
   const MISS_MS=320;
   let rebuilt=false;
@@ -2244,6 +2459,7 @@ function checkRhythmMisses(){
     if(s.judged)continue;
     if(now<s.hitMs+MISS_MS)break;
     s.judged=true;s.result='miss';
+    rhythmStats.miss++;
     gs.notesWrong++;resetCombo();showRhythmJudge('MISS');
     if(s.barIdx===gs.curBar&&s.noteIdx===gs.curNote){
       const bar=gs.sheet.bars[gs.curBar];
@@ -2303,6 +2519,25 @@ function showRhythmJudge(grade){
   sa.appendChild(el);
   setTimeout(()=>el.remove(),700);
 }
+// running per-game rhythm judgement counters (accumulate across sheet pages)
+let rhythmStats={perfect:0,good:0,ok:0,miss:0};
+function clearRhythm(){
+  rhythmMode=false;rhythmStartMs=0;rhythmSchedule=[];stopRhythmLoop();
+  rhythmStats={perfect:0,good:0,ok:0,miss:0};
+}
+// campaign rhythm setting: 0 = off, else BPM
+let campRhythmBPM=+(localStorage.getItem('psr_campBpm')||0);
+function setCampRhythm(bpm,btn){
+  campRhythmBPM=bpm;
+  try{localStorage.setItem('psr_campBpm',String(bpm));}catch{}
+  document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function syncCampRhythmUI(){
+  document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>{
+    b.classList.toggle('on',+b.dataset.bpm===campRhythmBPM);
+  });
+}
 function togglePause(){
   if(!gs)return;
   if(gameKind==='online'){
@@ -2313,13 +2548,19 @@ function togglePause(){
     return;
   }
   gs.paused=!gs.paused;document.getElementById('pov').classList.toggle('show',gs.paused);
+  // rhythm mode: shift the clock so the cursor doesn't run away during pause
+  if(rhythmMode&&rhythmStartMs){
+    if(gs.paused){gs._pauseT=performance.now();}
+    else if(gs._pauseT){rhythmStartMs+=performance.now()-gs._pauseT;gs._pauseT=0;}
+  }
   if(gs.paused&&gs){const tot=gs.notesOK+gs.notesWrong,acc=tot?Math.round(gs.notesOK/tot*100):100;const pd=document.getElementById('pov-stats');if(pd){pd.style.display='';pd.innerHTML=`🎯 ${acc}%　✅ ${gs.notesOK}　❌ ${gs.notesWrong}　🔥 ${t('result.maxCombo')} ${gs.maxCombo||0}x<br>⭐ ${t('result.score')} ${gs.score}`;}}
   else{const pd=document.getElementById('pov-stats');if(pd)pd.style.display='none';}
 }
-function quitGame(){gs.active=false;clearInterval(timerIv);document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
+function quitGame(){gs.active=false;clearInterval(timerIv);clearTimeout(botTimer);stopRhythmLoop();saveWeak();document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
 function endGame(){
-  gs.active=false;clearInterval(timerIv);resetCombo();
+  gs.active=false;clearInterval(timerIv);resetCombo();stopRhythmLoop();saveWeak();
   if(gameKind==='online'){return endOnlineGame();}
+  if(gameKind==='bot'){return endBotGame(gs.barsDone>=(gs.goal||8));}
   if(gameKind==='random'){return endRandomGame();}
   const cleared = gs.barsDone>=gs.goal;
   const tot=gs.notesOK+gs.notesWrong;const acc=tot?Math.round(gs.notesOK/tot*100):100;
@@ -2346,7 +2587,12 @@ function endGame(){
    <div class="rs"><div class="rsv" style="color:${gradeColor};font-weight:800;">${grade}</div><div class="rsl">${t('result.grade')}</div></div>
    <div class="rs"><div class="rsv">${gs.notesOK}</div><div class="rsl">${t('result.notesOK')}</div></div>
    <div class="rs"><div class="rsv">${gs.notesWrong}</div><div class="rsl">${t('result.notesWrong')}</div></div>
-   <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`;
+   <div class="rs"><div class="rsv" style="color:var(--orange);">${gs.maxCombo||0}x</div><div class="rsl">${t('result.maxCombo')}</div></div>`
+   +(rhythmMode?`
+   <div class="rs"><div class="rsv" style="color:#c8900a;">${rhythmStats.perfect}</div><div class="rsl">PERFECT</div></div>
+   <div class="rs"><div class="rsv" style="color:#1d9e75;">${rhythmStats.good}</div><div class="rsl">GOOD</div></div>
+   <div class="rs"><div class="rsv" style="color:#8a9a60;">${rhythmStats.ok}</div><div class="rsl">OK</div></div>
+   <div class="rs"><div class="rsv" style="color:#e05050;">${rhythmStats.miss}</div><div class="rsl">MISS</div></div>`:'');
   document.getElementById('btn-next').style.display=(cleared&&curLv<LEVELS.length)?'block':'none';
   document.getElementById('btn-next').onclick=()=>nextLevel();
 }
@@ -2375,7 +2621,8 @@ function retryGame(){
   }
   if(gameKind==='custom'){ startCustomGame(); return; }
   if(gameKind==='song'&&songState){ startSongGame(songState.song); return; }
-  if(gameKind==='random'){ startRandom(randomRange,randomMins); return; }
+  if(gameKind==='random'){ if(dailyMode)startDaily();else startRandom(randomRange,randomMins); return; }
+  if(gameKind==='bot'){ startBotMatch(); return; }
   startLevel(curLv);
 }
 function nextLevel(){startLevel(curLv+1);}
@@ -2394,6 +2641,7 @@ function showCD(cb){const o=document.createElement('div');o.className='cdown';do
 // ═══════════════════════════════════════════════════════════
 let practiceSheet=null;
 function startPractice(){
+  clearRhythm();
   gameKind='practice';ea();show('scr-game');
   document.getElementById('vs-bar').classList.remove('show');
   document.getElementById('chips').style.display='none';
@@ -2638,6 +2886,7 @@ function startCustomGame(){
   stopMetronome(); metroOn=false; updateMetroBtn();
   const total=practiceSheet.bars.reduce((s,b)=>s+b.notes.length,0);
   if(total===0){toast(t('toast.needNotes'));return;}
+  clearRhythm();
   gameKind='custom';ea();
   document.getElementById('palette').classList.remove('show');
   document.getElementById('pal-tools').classList.remove('show');
@@ -3004,6 +3253,7 @@ function buildSongBars(song){
 }
 function startSongGame(song){
   stopMetronome(); metroOn=false; updateMetroBtn();
+  clearRhythm();
   gameKind='song';ea();
   show('scr-game');
   document.getElementById('vs-bar').classList.remove('show');
@@ -3845,7 +4095,7 @@ const FREE_PATS44=[['q','q','q','q'],['h','h'],['h','q','q'],['q','q','h']];
 const FREE_PATS34=[['q','q','q'],['hd'],['h','q']];
 function genRangeBars(range, seed, numBars){
   const rng=seededRandom(seed);
-  const pool=RANGE_POOLS[range]||RANGE_POOLS['1oct'];
+  const pool=Array.isArray(range)?range:(RANGE_POOLS[range]||RANGE_POOLS['1oct']);
   const bars=[];
   for(let b=0;b<numBars;b++){
     const ts=rng()<0.7?4:3;
@@ -3968,7 +4218,7 @@ function beginOnlineGame(data){
   showCD(()=>{rz();
     if(onlineVsMode==='hp'||onlineVsMode==='rhythm'){updTimer();startTimer();}
     else{tEl.textContent='🏁';}
-    if(rhythmMode){rhythmStartMs=performance.now();buildRhythmSchedule();rhythmRafId=requestAnimationFrame(rhythmLoop);}
+    if(rhythmMode){rhythmStartMs=performance.now();rhythmStats={perfect:0,good:0,ok:0,miss:0};buildRhythmSchedule();rhythmRafId=requestAnimationFrame(rhythmLoop);}
   });
 }
 // load the current page (8 bars) of the battle song into the active sheet
@@ -4664,11 +4914,12 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-menu'){updateDailyBtn();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
   applyLang();
+  updateDailyBtn();
   const vl=document.getElementById('ver-label');
   if(vl) vl.textContent='v'+APP_VERSION;
   // 昵称本地记忆
