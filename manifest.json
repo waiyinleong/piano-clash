@@ -1,0 +1,14 @@
+{
+  "name": "Piano Clash 钢琴对决",
+  "short_name": "Piano Clash",
+  "description": "钢琴视奏对战游戏 — 学琴也可以像打游戏一样上瘾",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f9f4ea",
+  "theme_color": "#f9f4ea",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
