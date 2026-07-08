@@ -363,6 +363,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <div class="mini-link" onclick="show('scr-keybind')" data-i18n="menu.keybind">⌨️ 键盘设定</div>
     <div class="mini-link" onclick="show('scr-midi')" data-i18n="menu.midi">🎹 连接电钢 / MIDI</div>
     <div class="mini-link" onclick="show('scr-mic')" data-i18n="menu.mic">🎙 麦克风收音</div>
+    <div class="mini-link" onclick="show('scr-stats')" data-i18n="menu.stats">📊 我的数据 / 成就</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:0 4px;">
       <span style="font-size:12px;color:#8a7a60;" data-i18n="menu.volume">🔊</span>
       <input type="range" min="0" max="1" step="0.05" value="0.8" id="vol-slider"
@@ -434,18 +435,25 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <div class="cttl" data-i18n="levels.title">选择关卡</div>
     <div id="levels-stats" style="text-align:center;font-size:11px;color:#8a7a60;margin-bottom:10px;"></div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(200,144,10,.08);border-radius:10px;">
-      <div style="flex:1;min-width:0;font-size:12px;color:#5a4a30;"><b>🥁 节奏模式</b><br><span style="font-size:10px;color:#8a7a60;">跟节拍弹，时机评分</span></div>
+      <div style="flex:1;min-width:0;font-size:12px;color:#5a4a30;"><b data-i18n="levels.rhythm">🥁 节奏模式</b><br><span style="font-size:10px;color:#8a7a60;" data-i18n="levels.rhythmHint">跟节拍弹，时机评分</span></div>
       <div class="toggle" id="camp-rhythm-toggle" style="margin:0;">
-        <button class="on" data-bpm="0" onclick="setCampRhythm(0,this)">关</button>
+        <button class="on" data-bpm="0" onclick="setCampRhythm(0,this)" data-i18n="levels.off">关</button>
         <button data-bpm="60" onclick="setCampRhythm(60,this)">60</button>
         <button data-bpm="80" onclick="setCampRhythm(80,this)">80</button>
         <button data-bpm="100" onclick="setCampRhythm(100,this)">100</button>
       </div>
     </div>
+    <div id="camp-flow-row" style="display:none;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(200,144,10,.08);border-radius:10px;">
+      <div style="flex:1;min-width:0;font-size:12px;color:#5a4a30;"><b data-i18n="createRoom.sheetDisplay">谱面显示</b></div>
+      <div class="toggle" id="camp-flow-toggle" style="margin:0;">
+        <button class="on" data-f="0" onclick="setCampFlow(0,this)" data-i18n="createRoom.fixedSheet">📄 固定</button>
+        <button data-f="1" onclick="setCampFlow(1,this)" data-i18n="createRoom.flowSheet">🌊 流动</button>
+      </div>
+    </div>
     <div id="weak-row" style="display:none;margin-bottom:10px;padding:8px 10px;background:rgba(224,80,80,.07);border-radius:10px;">
-      <div style="font-size:11px;color:#8a7a60;margin-bottom:4px;">🎯 薄弱音（错误率最高）</div>
+      <div style="font-size:11px;color:#8a7a60;margin-bottom:4px;" data-i18n="levels.weakTitle">🎯 薄弱音（错误率最高）</div>
       <div id="weak-notes" style="font-size:13px;font-weight:700;color:#b03a2e;margin-bottom:6px;letter-spacing:1px;"></div>
-      <button class="mbtn mb-red" style="margin:0;padding:8px;font-size:13px;width:100%;" onclick="startWeakTraining()">🎯 弱点特训（2 分钟）</button>
+      <button class="mbtn mb-red" style="margin:0;padding:8px;font-size:13px;width:100%;" onclick="startWeakTraining()" data-i18n="levels.weakBtn">🎯 弱点特训（2 分钟）</button>
     </div>
     <div class="lvgrid" id="lvgrid"></div>
     <div style="display:flex;gap:8px;margin-top:4px;">
@@ -545,6 +553,17 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   </div>
 </div>
 
+<!-- ════ STATS & ACHIEVEMENTS ════ -->
+<div id="scr-stats" class="screen cscreen">
+  <div class="ccard" style="max-width:460px;">
+    <div class="cttl" data-i18n="menu.stats">📊 我的数据 / 成就</div>
+    <div class="rgrid" id="stats-grid" style="grid-template-columns:repeat(4,1fr);"></div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:8px;font-weight:600;" data-i18n="stats.achievements">🏅 成就</div>
+    <div id="ach-grid" style="max-height:300px;overflow-y:auto;margin-bottom:12px;"></div>
+    <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
+  </div>
+</div>
+
 <!-- ════ LOBBY ════ -->
 <div id="scr-lobby" class="screen cscreen">
   <div class="ccard" style="max-width:500px;">
@@ -571,7 +590,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
       <button class="mbtn mb-blue" style="margin:0;padding:8px 16px;width:auto;" onclick="joinByCodeInput()" data-i18n="lobby.join">加入</button>
     </div>
     <div style="font-size:10px;color:#8a7a60;text-align:center;margin-bottom:10px;" id="fb-status">连接中…</div>
-    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-bot')">🤖 人机练习赛（无需对手）</button>
+    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-bot')" data-i18n="lobby.botBtn">🤖 人机练习赛（无需对手）</button>
     <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
   </div>
 </div>
@@ -579,27 +598,27 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
 <!-- ════ BOT MATCH ════ -->
 <div id="scr-bot" class="screen cscreen">
   <div class="ccard" style="max-width:420px;">
-    <div class="cttl">🤖 人机练习赛</div>
-    <div style="font-size:12px;color:#8a7a60;margin-bottom:12px;text-align:center;">与机器人比速度：先完成 8 小节者获胜。<br>没有真人对手时随时开打！</div>
-    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">难度</div>
+    <div class="cttl" data-i18n="bot.title">🤖 人机练习赛</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:12px;text-align:center;" data-i18n="bot.desc">与机器人比速度：先完成 8 小节者获胜。<br>没有真人对手时随时开打！</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="bot.diff">难度</div>
     <div class="mode-pick" style="margin-bottom:14px;">
       <div class="mode-card" data-bd="easy" onclick="pickBotDiff('easy',this)">
-        <div class="mc-ic">🐰</div><div class="mc-tt">新手兔</div><div class="mc-ds">约 9 秒/小节<br>适合初学</div>
+        <div class="mc-ic">🐰</div><div class="mc-tt" data-i18n="bot.easy">🐰 新手兔</div><div class="mc-ds" data-i18n="bot.easyDesc">约 9 秒/小节<br>适合初学</div>
       </div>
       <div class="mode-card on" data-bd="normal" onclick="pickBotDiff('normal',this)">
-        <div class="mc-ic">🐱</div><div class="mc-tt">进阶猫</div><div class="mc-ds">约 6 秒/小节<br>有点压力</div>
+        <div class="mc-ic">🐱</div><div class="mc-tt" data-i18n="bot.normal">🐱 进阶猫</div><div class="mc-ds" data-i18n="bot.normalDesc">约 6 秒/小节<br>有点压力</div>
       </div>
       <div class="mode-card" data-bd="hard" onclick="pickBotDiff('hard',this)">
-        <div class="mc-ic">🐲</div><div class="mc-tt">大师龙</div><div class="mc-ds">约 4 秒/小节<br>高手挑战</div>
+        <div class="mc-ic">🐲</div><div class="mc-tt" data-i18n="bot.hard">🐲 大师龙</div><div class="mc-ds" data-i18n="bot.hardDesc">约 4 秒/小节<br>高手挑战</div>
       </div>
     </div>
-    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;">音域</div>
+    <div style="font-size:12px;color:#8a7a60;margin-bottom:6px;" data-i18n="bot.rangeLbl">音域</div>
     <div class="toggle" style="margin-bottom:14px;" id="bot-range-toggle">
       <button class="on" onclick="setBotRange('1oct',this)">🟢 C4–B4</button>
       <button onclick="setBotRange('2oct',this)">🟡 C3–B5</button>
       <button onclick="setBotRange('full',this)">🔴 C2–C6</button>
     </div>
-    <button class="mbtn mb-dark" onclick="startBotMatch()">🚀 开始对战</button>
+    <button class="mbtn mb-dark" onclick="startBotMatch()" data-i18n="bot.start">🚀 开始对战</button>
     <button class="mbtn mb-ghost" onclick="show('scr-lobby')" data-i18n="common.back">← 返回</button>
   </div>
 </div>
@@ -732,6 +751,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <div style="display:flex;align-items:center;gap:6px;">
       <button class="icon-btn" onclick="togglePause()">⏸</button>
       <button class="icon-btn score-view-btn" id="score-view-btn" onclick="toggleScoreView()" title="隐藏/显示钢琴">🎼</button>
+      <button class="icon-btn" id="demo-btn" style="display:none;" onclick="toggleDemo()" title="听示范">▶</button>
       <button class="icon-btn" id="mic-hud-btn" style="display:none;font-size:11px;padding:2px 5px;" title="麦克风收音中" onclick="show('scr-mic')">🎙<span class="mic-ind" id="mic-ind"></span></button>
       <div class="hblk"><div class="hv" id="h-score">0</div><div class="hl" data-i18n="result.score">分数</div></div>
     </div>
@@ -877,7 +897,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '2.4.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -985,6 +1005,23 @@ const I18N = {
     'toast.sheetSaved':'已保存（共','toast.sheetSavedUnit':'份）',
     'toast.accidentalForPiano':'升降号关卡需用钢琴键盘作答',
     'toast.parseError':'未能识别谱面，请检查文件',
+    'menu.daily':'📅 每日挑战',
+    'menu.stats':'📊 我的数据 / 成就',
+    'stats.achievements':'🏅 成就',
+    'levels.rhythm':'🥁 节奏模式','levels.rhythmHint':'跟节拍弹，时机评分','levels.off':'关',
+    'levels.weakTitle':'🎯 薄弱音（错误率最高）','levels.weakBtn':'🎯 弱点特训（2 分钟）',
+    'createRoom.sheetDisplay':'谱面显示','createRoom.fixedSheet':'📄 固定谱面','createRoom.flowSheet':'🌊 流动谱面',
+    'lobby.botBtn':'🤖 人机练习赛（无需对手）',
+    'bot.title':'🤖 人机练习赛','bot.desc':'与机器人比速度：先完成 8 小节者获胜。<br>没有真人对手时随时开打！',
+    'bot.diff':'难度','bot.rangeLbl':'音域','bot.start':'🚀 开始对战',
+    'bot.easy':'🐰 新手兔','bot.easyDesc':'约 9 秒/小节<br>适合初学',
+    'bot.normal':'🐱 进阶猫','bot.normalDesc':'约 6 秒/小节<br>有点压力',
+    'bot.hard':'🐲 大师龙','bot.hardDesc':'约 4 秒/小节<br>高手挑战',
+    'bot.win':'你赢了 {b}！','bot.lose':'{b} 赢了…再来一局！','bot.goal':'先到 {n} 小节',
+    'daily.doneTitle':'📅 每日挑战完成！🔥 连续 {n} 天',
+    'result.weakDone':'弱点特训完成！','result.randomDone':'随机挑战完成！',
+    'game.dailyLabel':'📅 每日挑战','game.weakLabel':'🎯 弱点特训','game.randomLabel':'🎲 随机挑战',
+    'toast.weakNotEnough':'弱点数据还不够，先多玩几关吧',
   },
   en: {
     'login.google':'Sign in with Google','login.hint':'Login to save progress & settings across devices',
@@ -1087,6 +1124,23 @@ const I18N = {
     'toast.sheetSaved':'Saved (','toast.sheetSavedUnit':' sheets)',
     'toast.accidentalForPiano':'Accidental levels require piano keyboard input',
     'toast.parseError':'Could not parse sheet, please check the file',
+    'menu.daily':'📅 Daily Challenge',
+    'menu.stats':'📊 My Stats / Achievements',
+    'stats.achievements':'🏅 Achievements',
+    'levels.rhythm':'🥁 Rhythm Mode','levels.rhythmHint':'Play in time, timing is scored','levels.off':'Off',
+    'levels.weakTitle':'🎯 Weak Notes (highest error rate)','levels.weakBtn':'🎯 Weak-Note Training (2 min)',
+    'createRoom.sheetDisplay':'Sheet Display','createRoom.fixedSheet':'📄 Fixed Sheet','createRoom.flowSheet':'🌊 Flowing Sheet',
+    'lobby.botBtn':'🤖 Bot Match (no opponent needed)',
+    'bot.title':'🤖 Bot Match','bot.desc':'Race the bot: first to finish 8 bars wins.<br>Play anytime — no human opponent needed!',
+    'bot.diff':'Difficulty','bot.rangeLbl':'Note Range','bot.start':'🚀 Start Match',
+    'bot.easy':'🐰 Bunny','bot.easyDesc':'~9 s/bar<br>For beginners',
+    'bot.normal':'🐱 Cat','bot.normalDesc':'~6 s/bar<br>Some pressure',
+    'bot.hard':'🐲 Dragon','bot.hardDesc':'~4 s/bar<br>Expert challenge',
+    'bot.win':'You beat {b}!','bot.lose':'{b} won… try again!','bot.goal':'First to {n} bars',
+    'daily.doneTitle':'📅 Daily Challenge done! 🔥 {n}-day streak',
+    'result.weakDone':'Weak-note training done!','result.randomDone':'Random challenge done!',
+    'game.dailyLabel':'📅 Daily','game.weakLabel':'🎯 Weak Training','game.randomLabel':'🎲 Random',
+    'toast.weakNotEnough':'Not enough data yet — play a few more levels first',
   }
 };
 function t(key){ return (I18N[curLang]||I18N.zh)[key] || (I18N.zh[key]) || key; }
@@ -1954,8 +2008,9 @@ function startLevel(id){
   stopMetronome(); metroOn=false; updateMetroBtn();
   resetCombo();
   clearRhythm();
-  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;}
+  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;flowMode=campFlow===1;}
   gameKind='campaign';curLv=id;
+  setDemoBtn(true);
   const lv=LEVELS.find(l=>l.id===id);
   show('scr-game');ea();
   document.getElementById('vs-bar').classList.remove('show');
@@ -2054,7 +2109,7 @@ function groupRange(bar, idx){
   return [start,end];
 }
 
-function handleInput(note,isSolInput){
+function handleInput(note,isSolInput,srcMic){
   if(!gs||!gs.active||gs.paused){ if(gameKind==='practice'&&!isSolInput){playPiano(note);} return; }
   if(gameKind==='practice'){ if(!isSolInput)playPiano(note); return; }
   const bar=gs.sheet.bars[gs.curBar];if(!bar)return;
@@ -2080,7 +2135,8 @@ function handleInput(note,isSolInput){
     weakTrack(bar.notes[matchIdx].nd?.name,true);
     let timeMult=1;
     if(rhythmMode&&rhythmStartMs){
-      const now=performance.now()-rhythmStartMs;
+      // mic input arrives late (onset detection + multi-frame voting ≈150ms); credit it back
+      const now=performance.now()-rhythmStartMs-(srcMic?150:0);
       const s=rhythmSchedule.find(s=>!s.judged&&s.barIdx===gs.curBar&&s.noteIdx===matchIdx);
       if(s){
         s.judged=true;
@@ -2260,6 +2316,7 @@ function startRandom(range,mins,daily){
   resetCombo();
   clearRhythm();
   gameKind='random';
+  setDemoBtn(false);
   show('scr-game');ea();
   document.getElementById('vs-bar').classList.remove('show');
   document.getElementById('palette').classList.remove('show');
@@ -2268,7 +2325,7 @@ function startRandom(range,mins,daily){
   document.getElementById('chips').style.display='flex';
   gs={lv:null,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
       notesOK:0,notesWrong:0,active:true,paused:false,      maxCombo:0,timeLeft:mins*60};
-  document.getElementById('h-lvname').textContent=dailyMode?('📅 每日挑战 '+(new Date().getMonth()+1)+'/'+new Date().getDate()):Array.isArray(range)?'🎯 弱点特训':('🎲 随机挑战 · '+RANGE_LABELS[range]);
+  document.getElementById('h-lvname').textContent=dailyMode?(t('game.dailyLabel')+' '+(new Date().getMonth()+1)+'/'+new Date().getDate()):Array.isArray(range)?t('game.weakLabel'):(t('game.randomLabel')+' · '+RANGE_LABELS[range]);
   buildInput();
   newRandomSheet();
   updTimer();
@@ -2286,7 +2343,7 @@ function newRandomSheet(){
   if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
 function endRandomGame(){
-  gs.active=false;clearInterval(timerIv);resetCombo();saveWeak();
+  gs.active=false;clearInterval(timerIv);resetCombo();saveWeak();recordStats({win:null});
   const tot=gs.notesOK+gs.notesWrong||1;
   const acc=Math.round(gs.notesOK/tot*100);
   const grade=gradeFromAcc(acc);
@@ -2304,12 +2361,12 @@ function endRandomGame(){
     d.scores=d.scores||{};
     if(!d.scores[key]||gs.score>d.scores[key])d.scores[key]=gs.score;
     saveDaily(d);updateDailyBtn();
-    dailyTitle='📅 每日挑战完成！🔥 连续 '+d.streak+' 天';
+    dailyTitle=t('daily.doneTitle').replace('{n}',d.streak);
     if(d.streak>=3)launchConfetti();
   }
   show('scr-result');
   document.getElementById('r-ic').textContent=dailyMode?'📅':'🎲';
-  document.getElementById('r-tt').textContent=dailyTitle||(Array.isArray(randomRange)?'弱点特训完成！':'随机挑战完成！');
+  document.getElementById('r-tt').textContent=dailyTitle||(Array.isArray(randomRange)?t('result.weakDone'):t('result.randomDone'));
   document.getElementById('r-st').textContent=grade==='S'?'★★★':grade==='A'?'★★☆':'★☆☆';
   document.getElementById('r-solo').style.display='';
   document.getElementById('r-online').style.display='none';
@@ -2339,7 +2396,7 @@ function updateDailyBtn(){
   if(!btn)return;
   const d=loadDaily(),key=dailyKey();
   const done=d.last===key;
-  btn.textContent='📅 每日挑战'+(done?' ✅':'')+((d.streak||0)>0?' 🔥'+d.streak:'');
+  btn.textContent=t('menu.daily')+(done?' ✅':'')+((d.streak||0)>0?' 🔥'+d.streak:'');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2378,8 +2435,90 @@ function renderWeakRow(){
 }
 function startWeakTraining(){
   const list=weakList();
-  if(list.length<3){toast('弱点数据还不够，先多玩几关吧');return;}
+  if(list.length<3){toast(t('toast.weakNotEnough'));return;}
   startRandom(list.map(e=>e.n),2);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LIFETIME STATS + ACHIEVEMENTS
+// ═══════════════════════════════════════════════════════════
+function loadStats(){try{return JSON.parse(localStorage.getItem('psr_pstats')||'{}')}catch{return{}}}
+function saveStatsObj(s){try{localStorage.setItem('psr_pstats',JSON.stringify(s))}catch{}}
+// call at the end of every game (win: true/false/null for modes without win state)
+function recordStats(o){
+  if(!gs)return;
+  const s=loadStats();
+  const tot=gs.notesOK+gs.notesWrong;
+  s.notes=(s.notes||0)+tot;
+  s.ok=(s.ok||0)+gs.notesOK;
+  s.wrong=(s.wrong||0)+gs.notesWrong;
+  s.games=(s.games||0)+1;
+  if(o&&o.win)s.wins=(s.wins||0)+1;
+  if(window._gameT0){s.playMs=(s.playMs||0)+Math.min(Date.now()-window._gameT0,3600e3);window._gameT0=0;}
+  s.maxCombo=Math.max(s.maxCombo||0,gs.maxCombo||0);
+  if(tot>=30)s.bestAcc=Math.max(s.bestAcc||0,Math.round(gs.notesOK/tot*100));
+  s.days=s.days||{};s.days[dailyKey()]=1;
+  if(o&&o.botWin&&o.botDiff){s.botWins=s.botWins||{};s.botWins[o.botDiff]=(s.botWins[o.botDiff]||0)+1;}
+  saveStatsObj(s);
+  checkAchievements(s);
+}
+const ACHIEVEMENTS=[
+ {id:'first',  ic:'🎵',zh:'初次演奏',en:'First Notes',   dzh:'完成第一局游戏',den:'Finish your first game',test:s=>(s.games||0)>=1},
+ {id:'n500',   ic:'🎹',zh:'五百音符',en:'500 Notes',     dzh:'累计弹奏 500 个音符',den:'Play 500 notes total',test:s=>(s.notes||0)>=500},
+ {id:'n5000',  ic:'🎼',zh:'五千音符',en:'5000 Notes',    dzh:'累计弹奏 5000 个音符',den:'Play 5000 notes total',test:s=>(s.notes||0)>=5000},
+ {id:'combo20',ic:'🔥',zh:'二十连击',en:'20 Combo',      dzh:'单局达成 20 连击',den:'Hit a 20-note combo',test:s=>(s.maxCombo||0)>=20},
+ {id:'acc95',  ic:'🎯',zh:'精准演奏',en:'Sharpshooter',  dzh:'单局正确率 95%+（30 音符以上）',den:'95%+ accuracy in a game (30+ notes)',test:s=>(s.bestAcc||0)>=95},
+ {id:'days7',  ic:'📆',zh:'坚持一周',en:'Week of Practice',dzh:'累计练习 7 天',den:'Practice on 7 different days',test:s=>Object.keys(s.days||{}).length>=7},
+ {id:'streak3',ic:'⚡',zh:'三日连胜',en:'3-Day Streak',  dzh:'每日挑战连续 3 天',den:'3-day daily challenge streak',test:()=>((loadDaily().best||0)>=3)},
+ {id:'streak7',ic:'🌟',zh:'七日之火',en:'7-Day Streak',  dzh:'每日挑战连续 7 天',den:'7-day daily challenge streak',test:()=>((loadDaily().best||0)>=7)},
+ {id:'dragon', ic:'🐲',zh:'屠龙者',  en:'Dragon Slayer', dzh:'战胜大师龙机器人',den:'Beat the Dragon bot',test:s=>((s.botWins||{}).hard||0)>=1},
+ {id:'stars30',ic:'⭐',zh:'三十星',  en:'30 Stars',      dzh:'关卡模式累计 30 颗星',den:'Collect 30 level stars',test:()=>{const p=lp();return Object.values(p).reduce((a,r)=>a+(r.stars||0),0)>=30;}},
+ {id:'allclear',ic:'🏆',zh:'通关大师',en:'Campaign Master',dzh:'通关全部关卡',den:'Clear every level',test:()=>{const p=lp();return LEVELS.every(l=>p[l.id]&&p[l.id].stars>0);}},
+];
+function loadAch(){try{return JSON.parse(localStorage.getItem('psr_ach')||'{}')}catch{return{}}}
+function checkAchievements(s){
+  const ach=loadAch();
+  let changed=false;
+  ACHIEVEMENTS.forEach(a=>{
+    if(ach[a.id])return;
+    let ok=false;try{ok=a.test(s||loadStats());}catch{}
+    if(ok){ach[a.id]=Date.now();changed=true;toast('🏅 '+(curLang==='en'?a.en:a.zh)+'!');}
+  });
+  if(changed){try{localStorage.setItem('psr_ach',JSON.stringify(ach))}catch{}}
+}
+function renderStats(){
+  const s=loadStats();
+  const ach=loadAch();
+  const d=loadDaily();
+  const acc=(s.ok||0)+(s.wrong||0)?Math.round((s.ok||0)/((s.ok||0)+(s.wrong||0))*100):0;
+  const mins=Math.round((s.playMs||0)/60000);
+  const hrs=Math.floor(mins/60);
+  const timeStr=hrs>0?(hrs+'h'+(mins%60)+'m'):(mins+'m');
+  const en=curLang==='en';
+  const g=document.getElementById('stats-grid');
+  const cell=(v,l)=>`<div class="rs"><div class="rsv">${v}</div><div class="rsl">${l}</div></div>`;
+  g.innerHTML=
+    cell(s.notes||0,en?'Notes Played':'累计音符')+
+    cell(acc+'%',en?'Accuracy':'总正确率')+
+    cell(s.games||0,en?'Games':'游戏局数')+
+    cell(s.wins||0,en?'Wins':'胜场')+
+    cell(timeStr,en?'Play Time':'练习时长')+
+    cell(Object.keys(s.days||{}).length,en?'Days':'练习天数')+
+    cell((s.maxCombo||0)+'x',en?'Best Combo':'最高连击')+
+    cell('🔥'+(d.best||0),en?'Best Streak':'最佳连胜');
+  const ag=document.getElementById('ach-grid');
+  ag.innerHTML=ACHIEVEMENTS.map(a=>{
+    const got=!!ach[a.id];
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin-bottom:6px;
+      background:${got?'rgba(200,144,10,.12)':'rgba(0,0,0,.04)'};${got?'':'opacity:.45;filter:grayscale(1);'}">
+      <div style="font-size:22px;">${a.ic}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;">${en?a.en:a.zh}</div>
+        <div style="font-size:11px;color:#8a7a60;">${en?a.den:a.dzh}</div>
+      </div>
+      ${got?'<div style="font-size:14px;">✓</div>':''}
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2387,7 +2526,7 @@ function startWeakTraining(){
 // ═══════════════════════════════════════════════════════════
 let botDiff='normal', botRange='1oct', botTimer=null, botBars=0, botGoal=8;
 const BOT_SPEED={easy:[7500,10500],normal:[5000,7000],hard:[3400,4800]}; // ms per bar [min,max]
-const BOT_NAMES={easy:'🐰 新手兔',normal:'🐱 进阶猫',hard:'🐲 大师龙'};
+function botName(d){return t('bot.'+d);}
 function pickBotDiff(d,el){
   botDiff=d;
   document.querySelectorAll('#scr-bot .mode-card').forEach(c=>c.classList.remove('on'));
@@ -2403,6 +2542,7 @@ function startBotMatch(){
   resetCombo();clearRhythm();
   dailyMode=false;
   gameKind='bot';botBars=0;botGoal=8;
+  setDemoBtn(false);
   randomRange=botRange; // bot mode reuses random sheet generation
   show('scr-game');ea();
   document.getElementById('vs-bar').classList.add('show');
@@ -2412,10 +2552,10 @@ function startBotMatch(){
   document.getElementById('chips').style.display='flex';
   gs={lv:null,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,
       notesOK:0,notesWrong:0,goal:botGoal,active:true,paused:false,maxCombo:0};
-  document.getElementById('h-lvname').textContent='🤖 '+BOT_NAMES[botDiff]+' · 先到 '+botGoal+' 小节';
+  document.getElementById('h-lvname').textContent='🤖 '+botName(botDiff)+' · '+t('bot.goal').replace('{n}',botGoal);
   const tEl=document.getElementById('h-timer');tEl.style.fontSize='22px';tEl.classList.remove('low');tEl.textContent='🏁';
   document.getElementById('vs-me-name').textContent=(document.getElementById('player-name')?.value.trim()||t('game.me'));
-  document.getElementById('vs-opp-name').textContent=BOT_NAMES[botDiff];
+  document.getElementById('vs-opp-name').textContent=botName(botDiff);
   buildInput();
   newRandomSheet();
   updateBotVs();
@@ -2442,6 +2582,7 @@ function updateBotVs(){
 }
 function endBotGame(win){
   gs.active=false;clearTimeout(botTimer);resetCombo();saveWeak();
+  recordStats({win,botWin:win,botDiff});
   const tot=gs.notesOK+gs.notesWrong||1;
   const acc=Math.round(gs.notesOK/tot*100);
   const grade=gradeFromAcc(acc);
@@ -2449,7 +2590,7 @@ function endBotGame(win){
   show('scr-result');
   if(win)launchConfetti();
   document.getElementById('r-ic').textContent=win?'🏆':'🤖';
-  document.getElementById('r-tt').textContent=win?('你赢了 '+BOT_NAMES[botDiff]+'！'):(BOT_NAMES[botDiff]+' 赢了…再来一局！');
+  document.getElementById('r-tt').textContent=t(win?'bot.win':'bot.lose').replace('{b}',botName(botDiff));
   document.getElementById('r-st').textContent=win?(acc>=95?'★★★':acc>=80?'★★☆':'★☆☆'):'☆☆☆';
   document.getElementById('r-solo').style.display='';
   document.getElementById('r-online').style.display='none';
@@ -2458,7 +2599,7 @@ function endBotGame(win){
   document.getElementById('btn-next').style.display='none';
   document.getElementById('r-grid').innerHTML=`
    <div class="rs"><div class="rsv">${gs.barsDone}/${botGoal}</div><div class="rsl">${t('result.bars')}</div></div>
-   <div class="rs"><div class="rsv">${botBars}/${botGoal}</div><div class="rsl">${BOT_NAMES[botDiff]}</div></div>
+   <div class="rs"><div class="rsv">${botBars}/${botGoal}</div><div class="rsl">${botName(botDiff)}</div></div>
    <div class="rs"><div class="rsv">${gs.score}</div><div class="rsl">${t('result.score')}</div></div>
    <div class="rs"><div class="rsv">${acc}%</div><div class="rsl">${t('result.accuracy')}</div></div>
    <div class="rs"><div class="rsv" style="color:${gradeColor};font-weight:800;">${grade}</div><div class="rsl">${t('result.grade')}</div></div>
@@ -2576,18 +2717,69 @@ function clearRhythm(){
   rhythmMode=false;flowMode=false;rhythmStartMs=0;rhythmSchedule=[];stopRhythmLoop();
   rhythmStats={perfect:0,good:0,ok:0,miss:0};
 }
-// campaign rhythm setting: 0 = off, else BPM
+// campaign rhythm setting: 0 = off, else BPM; campFlow: 0 fixed sheet, 1 flowing sheet
 let campRhythmBPM=+(localStorage.getItem('psr_campBpm')||0);
+let campFlow=+(localStorage.getItem('psr_campFlow')||0);
 function setCampRhythm(bpm,btn){
   campRhythmBPM=bpm;
   try{localStorage.setItem('psr_campBpm',String(bpm));}catch{}
   document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const fr=document.getElementById('camp-flow-row');
+  if(fr)fr.style.display=bpm>0?'flex':'none';
+}
+function setCampFlow(f,btn){
+  campFlow=f;
+  try{localStorage.setItem('psr_campFlow',String(f));}catch{}
+  document.querySelectorAll('#camp-flow-toggle button').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
 function syncCampRhythmUI(){
   document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>{
     b.classList.toggle('on',+b.dataset.bpm===campRhythmBPM);
   });
+  document.querySelectorAll('#camp-flow-toggle button').forEach(b=>{
+    b.classList.toggle('on',+b.dataset.f===campFlow);
+  });
+  const fr=document.getElementById('camp-flow-row');
+  if(fr)fr.style.display=campRhythmBPM>0?'flex':'none';
+}
+
+// ── DEMO PLAYBACK: play the current sheet so the player can hear it first ──
+let demoTimer=null, demoPlaying=false;
+function setDemoBtn(on){
+  const b=document.getElementById('demo-btn');
+  if(b){b.style.display=on?'':'none';b.textContent='▶';}
+  stopDemo();
+}
+function stopDemo(){
+  demoPlaying=false;clearTimeout(demoTimer);
+  const b=document.getElementById('demo-btn');if(b)b.textContent='▶';
+}
+function toggleDemo(){
+  if(demoPlaying){stopDemo();return;}
+  if(!gs||!gs.sheet||!gs.active||gs.paused)return;
+  ea();
+  demoPlaying=true;
+  document.getElementById('demo-btn').textContent='⏹';
+  const bpm=rhythmMode?rhythmBPM:90;
+  const beatMs=60000/bpm;
+  const seq=[];
+  gs.sheet.bars.forEach((bar,bi)=>{
+    const ts=bar.ts||4;
+    bar.notes.forEach(nt=>{seq.push({t:(bi*ts+nt.beat)*beatMs,name:nt.nd.name});});
+  });
+  if(!seq.length){stopDemo();return;}
+  const t0=performance.now();
+  let i=0;
+  const step=()=>{
+    if(!demoPlaying||!gs||!gs.active)return stopDemo();
+    const el=performance.now()-t0;
+    while(i<seq.length&&seq[i].t<=el){playPiano(seq[i].name);flashScreenKey(seq[i].name);i++;}
+    if(i>=seq.length){stopDemo();return;}
+    demoTimer=setTimeout(step,30);
+  };
+  step();
 }
 function togglePause(){
   if(!gs)return;
@@ -2607,14 +2799,15 @@ function togglePause(){
   if(gs.paused&&gs){const tot=gs.notesOK+gs.notesWrong,acc=tot?Math.round(gs.notesOK/tot*100):100;const pd=document.getElementById('pov-stats');if(pd){pd.style.display='';pd.innerHTML=`🎯 ${acc}%　✅ ${gs.notesOK}　❌ ${gs.notesWrong}　🔥 ${t('result.maxCombo')} ${gs.maxCombo||0}x<br>⭐ ${t('result.score')} ${gs.score}`;}}
   else{const pd=document.getElementById('pov-stats');if(pd)pd.style.display='none';}
 }
-function quitGame(){gs.active=false;clearInterval(timerIv);clearTimeout(botTimer);stopRhythmLoop();saveWeak();document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
+function quitGame(){gs.active=false;clearInterval(timerIv);clearTimeout(botTimer);stopRhythmLoop();saveWeak();stopDemo();document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
 function endGame(){
-  gs.active=false;clearInterval(timerIv);resetCombo();stopRhythmLoop();saveWeak();
+  gs.active=false;clearInterval(timerIv);resetCombo();stopRhythmLoop();saveWeak();stopDemo();
   if(gameKind==='online'){return endOnlineGame();}
   if(gameKind==='bot'){return endBotGame(gs.barsDone>=(gs.goal||8));}
   if(gameKind==='random'){return endRandomGame();}
   const cleared = gs.barsDone>=gs.goal;
   const tot=gs.notesOK+gs.notesWrong;const acc=tot?Math.round(gs.notesOK/tot*100):100;
+  recordStats({win:cleared});
   // stars based on accuracy (no lives system): 95%+ = ★★★, 80%+ = ★★, else ★
   const st = !cleared ? 0 : acc>=95?3:acc>=80?2:1;
   let newRecord=false;
@@ -2685,7 +2878,7 @@ function startRandomLevel(){
   startLevel(pick.id);
 }
 function cdTick(isGo){ea();const tm=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=isGo?880:660;o.connect(g);g.connect(masterGain||AC.destination);g.gain.setValueAtTime(.18,tm);g.gain.exponentialRampToValueAtTime(.001,tm+(isGo?.4:.15));o.start(tm);o.stop(tm+(isGo?.42:.17));}
-function showCD(cb){const o=document.createElement('div');o.className='cdown';document.body.appendChild(o);let n=3;const r=()=>{o.innerHTML=`<div class="cnum">${n||t('game.countGo')}</div><div class="csub">${n?t('game.countReady'):''}</div>`;cdTick(!n);};r();const iv=setInterval(()=>{n--;if(n<0){clearInterval(iv);o.remove();cb();}else r();},1000);}
+function showCD(cb){const o=document.createElement('div');o.className='cdown';document.body.appendChild(o);let n=3;const r=()=>{o.innerHTML=`<div class="cnum">${n||t('game.countGo')}</div><div class="csub">${n?t('game.countReady'):''}</div>`;cdTick(!n);};r();const iv=setInterval(()=>{n--;if(n<0){clearInterval(iv);o.remove();window._gameT0=Date.now();cb();}else r();},1000);}
 
 // ═══════════════════════════════════════════════════════════
 // PRACTICE MODE (drag-drop editor)
@@ -2694,6 +2887,7 @@ let practiceSheet=null;
 function startPractice(){
   clearRhythm();
   gameKind='practice';ea();show('scr-game');
+  setDemoBtn(false);
   document.getElementById('vs-bar').classList.remove('show');
   document.getElementById('chips').style.display='none';
   document.getElementById('h-lvname').textContent=t('game.practiceMode');
@@ -2939,6 +3133,7 @@ function startCustomGame(){
   if(total===0){toast(t('toast.needNotes'));return;}
   clearRhythm();
   gameKind='custom';ea();
+  setDemoBtn(true);
   document.getElementById('palette').classList.remove('show');
   document.getElementById('pal-tools').classList.remove('show');
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
@@ -3306,6 +3501,7 @@ function startSongGame(song){
   stopMetronome(); metroOn=false; updateMetroBtn();
   clearRhythm();
   gameKind='song';ea();
+  setDemoBtn(true);
   show('scr-game');
   document.getElementById('vs-bar').classList.remove('show');
   document.getElementById('palette').classList.remove('show');
@@ -4244,6 +4440,7 @@ function beginOnlineGame(data){
   rhythmMode=onlineVsMode==='rhythm';
   rhythmBPM=data.bpm||80;
   flowMode=rhythmMode&&!!data.flow;
+  setDemoBtn(false);
   // Apply input mode (piano / solfege) set by the room host
   applyRoomInputMode(data.inputMode||'piano');
   let allBars, songTitle;
@@ -4367,7 +4564,7 @@ function endOnlineGame(){ // time ran out OR my hp hit 0
 }
 function finishOnline(won, oppData){
   gs.active=false;clearInterval(timerIv);
-  stopRhythmLoop();
+  stopRhythmLoop();saveWeak();recordStats({win:won});
   if(isSoloRoom){
     show('scr-result');
     launchConfetti();
@@ -4722,7 +4919,7 @@ function micLoop(){
         const name=midiToName(bestM);
         if(document.getElementById('pk-'+name)){
           ea();
-          handleInput(name);
+          handleInput(name,false,true);
           flashScreenKeyMic(name);
           const ind=document.getElementById('mic-ind');
           if(ind){ind.style.opacity='1';setTimeout(()=>{if(ind)ind.style.opacity='0.3';},180);}
@@ -4972,7 +5169,7 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-menu'){updateDailyBtn();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-menu'){updateDailyBtn();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
