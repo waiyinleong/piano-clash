@@ -903,7 +903,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '2.4.1';
+const APP_VERSION = '2.4.2';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4144,50 +4144,67 @@ async function submitRoomPassword(){
 }
 
 // Lobby list
-function refreshLobby(){
-  if(!window.FB){
-    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loadFail')}</div>`;
-    return;
-  }
-  if(!window.myId){
-    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">请登录后查看公开房间列表</div>`;
+let lobbyRetryT=null;
+function refreshLobby(retries){
+  retries=retries==null?4:retries;
+  clearTimeout(lobbyRetryT);
+  const list=document.getElementById('lobby-list');
+  const msg=h=>{if(list)list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${h}</div>`;};
+  // Firebase module may still be loading right after page open — retry instead of failing
+  if(!window.FB||!window.myId){
+    if(retries>0){
+      msg(t('lobby.loading'));
+      lobbyRetryT=setTimeout(()=>refreshLobby(retries-1),1200);
+      return;
+    }
+    msg(window.FB?'请登录后查看公开房间列表':t('lobby.serverFail'));
     return;
   }
   const {db,ref,get}=window.FB;
-  document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loading')}</div>`;
-  get(ref(db,'rooms')).then(snap=>{
-    const list=document.getElementById('lobby-list');
-    if(!snap.exists()||!snap.val()){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
+  msg(t('lobby.loading'));
+  const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),9000));
+  Promise.race([get(ref(db,'rooms')),timeout]).then(snap=>{
+    if(!snap.exists()||!snap.val()){msg(t('lobby.empty'));return;}
     const rooms=snap.val();
     const cutoff=Date.now()-2*60*60*1000;
     // auto-delete stale rooms (no created field, or older than 2h, or finished)
-    if(window.FB&&!isGuest){
-      const {db,ref,remove}=window.FB;
+    if(!isGuest){
+      const {remove}=window.FB;
       Object.entries(rooms).forEach(([code,r])=>{
-        if(!r.created||r.created<cutoff||r.state==='finished'){
-          remove(ref(db,'rooms/'+code)).catch(()=>{});
+        if(!r||!r.created||r.created<cutoff||r.state==='finished'){
+          try{remove(ref(db,'rooms/'+code)).catch(()=>{});}catch{}
         }
       });
     }
-    const open=Object.entries(rooms).filter(([,r])=>r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined)&&r.created&&r.created>cutoff);
-    if(!open.length){list.innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.empty')}</div>`;return;}
+    const open=Object.entries(rooms).filter(([,r])=>r&&r.state==='waiting'&&(r.isPublic!==false||r.password!==undefined)&&r.created&&r.created>cutoff);
+    if(!open.length){msg(t('lobby.empty'));return;}
     list.innerHTML='';
     open.slice(0,20).forEach(([code,r])=>{
-      const playerCount=r.players?Object.keys(r.players).length:1;
-      const isPrivate=!!r.password;
-      const song=resolveSong(r.song||'');
-      const el=document.createElement('div');
-      el.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--ui-border);border-radius:10px;margin-bottom:8px;background:#fff;';
-      el.innerHTML=`
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${r.hostName||t('guest.label')}</span>${t('lobby.roomSuffix')}</div>
-          <div style="font-size:11px;color:#8a7a60;margin-top:2px;">${r.vsMode==='hp'?'⚔️':'🏁'} ${song?.title||''} · ${playerCount}/2 ${t('lobby.players')}</div>
-        </div>
-        <button class="mbtn mb-blue" style="margin:0;padding:6px 14px;width:auto;font-size:12px;" onclick="joinRoomByCode('${code}',false)">${t('lobby.join')}</button>`;
-      list.appendChild(el);
+      try{
+        const playerCount=r.players?Object.keys(r.players).length:1;
+        const isPrivate=!!r.password;
+        // room label: random-range rooms show the range, song rooms show the song title
+        let songLabel='';
+        if((r.song||'').startsWith('range:')){songLabel=(RANGE_LABELS[r.song.slice(6)]||'')+' 🎲';}
+        else{try{songLabel=resolveSong(r.song||'')?.title||'';}catch{songLabel='';}}
+        const modeIc=r.vsMode==='hp'?'⚔️':r.vsMode==='rhythm'?'🥁':'🏁';
+        const el=document.createElement('div');
+        el.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--ui-border);border-radius:10px;margin-bottom:8px;background:#fff;';
+        el.innerHTML=`
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${r.hostName||t('guest.label')}</span>${t('lobby.roomSuffix')}</div>
+            <div style="font-size:11px;color:#8a7a60;margin-top:2px;">${modeIc} ${songLabel} · ${playerCount}/2 ${t('lobby.players')}</div>
+          </div>
+          <button class="mbtn mb-blue" style="margin:0;padding:6px 14px;width:auto;font-size:12px;" onclick="joinRoomByCode('${code}',false)">${t('lobby.join')}</button>`;
+        list.appendChild(el);
+      }catch(e){console.warn('skip bad room',code,e);}
     });
-  }).catch(()=>{
-    document.getElementById('lobby-list').innerHTML=`<div style="text-align:center;color:#b0a890;font-size:13px;padding:24px 0;">${t('lobby.loadFail')}</div>`;
+    if(!list.children.length)msg(t('lobby.empty'));
+  }).catch(e=>{
+    console.error('lobby load failed:',e);
+    const detail=(e&&(e.code||e.message))||'';
+    msg(t('lobby.loadFail')+(detail?`<br><span style="font-size:10px;opacity:.7;">${detail}</span>`:'')+
+        `<br><button class="mbtn mb-ghost" style="margin:10px auto 0;padding:6px 16px;width:auto;font-size:12px;" onclick="refreshLobby()">${t('lobby.refresh')}</button>`);
   });
 }
 
