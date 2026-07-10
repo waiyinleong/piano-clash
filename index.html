@@ -370,6 +370,7 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
     <div class="mini-link" onclick="show('scr-midi')" data-i18n="menu.midi">🎹 连接电钢 / MIDI</div>
     <div class="mini-link" onclick="show('scr-mic')" data-i18n="menu.mic">🎙 麦克风收音</div>
     <div class="mini-link" onclick="show('scr-stats')" data-i18n="menu.stats">📊 我的数据 / 成就</div>
+    <div class="mini-link" id="install-link" style="display:none;color:#c8552c;font-weight:700;" onclick="promptInstall()" data-i18n="menu.install">📲 安装 App 到主屏幕</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:0 4px;">
       <span style="font-size:12px;color:#8a7a60;" data-i18n="menu.volume">🔊</span>
       <input type="range" min="0" max="1" step="0.05" value="0.8" id="vol-slider"
@@ -903,7 +904,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '2.4.2';
+const APP_VERSION = '2.5.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1028,6 +1029,8 @@ const I18N = {
     'result.weakDone':'弱点特训完成！','result.randomDone':'随机挑战完成！',
     'game.dailyLabel':'📅 每日挑战','game.weakLabel':'🎯 弱点特训','game.randomLabel':'🎲 随机挑战',
     'toast.weakNotEnough':'弱点数据还不够，先多玩几关吧',
+    'toast.chordForPiano':'和弦关卡需用钢琴键盘作答',
+    'menu.install':'📲 安装 App 到主屏幕',
   },
   en: {
     'login.google':'Sign in with Google','login.hint':'Login to save progress & settings across devices',
@@ -1147,6 +1150,8 @@ const I18N = {
     'result.weakDone':'Weak-note training done!','result.randomDone':'Random challenge done!',
     'game.dailyLabel':'📅 Daily','game.weakLabel':'🎯 Weak Training','game.randomLabel':'🎲 Random',
     'toast.weakNotEnough':'Not enough data yet — play a few more levels first',
+    'toast.chordForPiano':'Chord levels require piano keyboard input',
+    'menu.install':'📲 Install App',
   }
 };
 function t(key){ return (I18N[curLang]||I18N.zh)[key] || (I18N.zh[key]) || key; }
@@ -1295,6 +1300,10 @@ const LEVELS=[
  {id:30,hand:'R',pool:['C4','C#4','D4','Eb4','E4','F4','F#4','G4','Ab4','A4','Bb4','B4'],name:'半音阶挑战 Chromatic',pats44:[['q','q','q','q'],['h','q','q'],['q','q','e','e','q']],pats34:[['q','q','q'],['hd']],sharps:true,flats:true},
  {id:31,hand:'M',pool:['C4','D4','E4','F4','G4','A4','B4','C5','C3','D3','E3','F3','G3','A3','B3'],name:'大师挑战 Master Challenge',pats44:[['e','e','e','e','h'],['q','e','e','q','q'],['h','q','q']],pats34:[['e','e','e','e','q'],['q','q','q']],sharps:true,flats:true},
  {id:32,hand:'M',pool:['C4','D4','E4','F4','G4','A4','B4','C5','G3','A3','B3','C4','D4','F#3','F#4','C#4','Bb4'],name:'终极大关 Final Boss',pats44:[['e','e','e','e','e','e','e','e'],['q','e','e','e','e','q'],['e','e','q','q','e','e']],pats34:[['e','e','e','e','e','e'],['q','e','e','q']],sharps:true,flats:true,keysig:'G'},
+ // ── 和弦 Chords ──
+ {id:33,hand:'R',pool:['C4','D4','E4','F4','G4','A4','B4','C5'],name:'和声三度 Harmonic 3rds',chords:true,chordProb:0.5,pats44:[['h','h'],['q','q','h'],['w']],pats34:[['hd'],['h','q']]},
+ {id:34,hand:'L',pool:['C3','D3','E3','F3','G3','A3','B3','C4'],name:'左手和弦 Left-Hand Chords',chords:true,chordProb:0.6,pats44:[['h','h'],['w'],['q','q','h']],pats34:[['hd'],['h','q']]},
+ {id:35,hand:'M',pool:['C4','E4','G4','A4','C5','C3','E3','G3','A3','B3'],name:'双手和声 Both-Hand Harmony',chords:true,chordProb:0.55,pats44:[['h','h'],['q','q','h'],['w']],pats34:[['hd'],['h','q']]},
 ];
 const GAME_DURATION=60;
 
@@ -1645,24 +1654,40 @@ function drawBars(){
     const bx=SC.sheetL+col*bw, total=bar.ts;
     ['treble','bass'].forEach(clef=>{
       const voiceNotes=bar.notes.filter(nt=>clefFor(nt.nd.name)===clef);
-      const n=voiceNotes.length;
-      // dynamic padding: more notes → smaller margins so the full bar width is used
+      // group same-beat notes (chords) — a chord shares ONE x position
+      const beatGroups=[];
+      voiceNotes.forEach(nt=>{
+        const g=beatGroups.find(g=>g.beat===nt.beat);
+        if(g)g.nts.push(nt);else beatGroups.push({beat:nt.beat,nts:[nt]});
+      });
+      const n=beatGroups.length;
+      // dynamic padding: more beat-positions → smaller margins so the full bar width is used
       const pad = n<=2 ? bw*0.18 : n<=4 ? bw*0.12 : bw*0.05;
       const usable=bw-pad*2;
-      // crowding scale: shrink noteheads when a voice is dense (fixes overlap in full arrangements)
-      const scale = 1; // note size stays constant (per user: don't shrink notes)
-      voiceNotes.forEach((nt,idx)=>{
+      beatGroups.forEach((g,idx)=>{
+        let gx;
         if(n===1){
-          nt._x = bx+bw*0.5;
+          gx = bx+bw*0.5;
         }else{
-          // even spacing by index guarantees no two notes collide horizontally;
+          // even spacing by group index guarantees no two beat-positions collide;
           // when sparse, blend toward true beat position to keep rhythmic feel
           const evenX = bx+pad+(idx/(n-1))*usable;
-          const beatX = bx+pad+(nt.beat/total)*usable;
+          const beatX = bx+pad+(g.beat/total)*usable;
           const w = n<=3 ? 0.4 : n<=4 ? 0.65 : 1; // dense → fully even spacing
-          nt._x = evenX*w + beatX*(1-w);
+          gx = evenX*w + beatX*(1-w);
         }
-        nt._clef=clef; nt._row=row; nt._scale=scale;
+        // chord stacking: sort low→high; an interval of a 2nd can't stack —
+        // push the upper notehead to the right side (standard notation practice)
+        const sorted=[...g.nts].sort((a,b)=>slotOf(a.nd.name,clef)-slotOf(b.nd.name,clef));
+        let prevSlot=null,prevOff=false;
+        sorted.forEach(nt=>{
+          const sl=slotOf(nt.nd.name,clef);
+          const isSecond=prevSlot!=null&&(sl-prevSlot)<=1&&!prevOff;
+          const headW=(bravuraReady?SC.hs*1.18:SC.hs*1.4);
+          nt._x=gx+(isSecond?headW*0.98:0);
+          prevOff=isSecond;prevSlot=sl;
+          nt._clef=clef; nt._row=row; nt._scale=1;
+        });
       });
       if((gameKind==='practice') && voiceNotes.length===0){
         drawRest('w', bx+bw*0.5, clef, row);
@@ -1975,11 +2000,26 @@ function genSheet(lv,numBars){
     const usePool=pool.length?pool:lv.pool;
     const pat=pats[Math.floor(Math.random()*pats.length)];
     let beat=0;
-    const notes=pat.map(d=>{
+    const notes=[];
+    pat.forEach(d=>{
       const nm=usePool[Math.floor(Math.random()*usePool.length)];
       const nd=noteData(nm);
-      const o={nd,dur:d,beat,state:'pending',acc:nd.acc};
-      beat+=DUR[d];return o;
+      notes.push({nd,dur:d,beat,state:'pending',acc:nd.acc});
+      // chord levels: sometimes add a harmonic partner (3rd–6th) at the same beat
+      if(lv.chords && Math.random()<(lv.chordProb||0.45)){
+        const baseMidi=midiOf(nm);
+        const partners=usePool.filter(c=>{
+          if(c===nm)return false;
+          const d2=Math.abs(midiOf(c)-baseMidi);
+          return d2>=3&&d2<=9; // minor 3rd … major 6th
+        });
+        if(partners.length){
+          const pm=partners[Math.floor(Math.random()*partners.length)];
+          const pd=noteData(pm);
+          notes.push({nd:pd,dur:d,beat,state:'pending',acc:pd.acc});
+        }
+      }
+      beat+=DUR[d];
     });
     bars.push({hand,notes,ts});
   }
@@ -2027,9 +2067,10 @@ function startLevel(id){
   gs={lv,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,
       goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0};
   document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+(rhythmMode?' 🥁'+rhythmBPM:'')+' · '+t('game.completeN')+CAMPAIGN_GOAL+t('game.barsN');
-  // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals)
-  if(lv.sharps||lv.flats){
-    if(inputMode!=='piano'){ inputMode='piano'; toast(t('toast.accidentalForPiano')); }
+  // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals);
+  // chord levels too (Do Re Mi is strictly one-note-at-a-time)
+  if(lv.sharps||lv.flats||lv.chords){
+    if(inputMode!=='piano'){ inputMode='piano'; toast(t(lv.chords?'toast.chordForPiano':'toast.accidentalForPiano')); }
   }
   buildInput();
   newSheet();
@@ -5198,6 +5239,19 @@ show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybind
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
 }
+// native install prompt (Android Chrome/Edge): stash the event, expose a menu link
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredInstall=e;
+  const el=document.getElementById('install-link');if(el)el.style.display='';
+});
+function promptInstall(){
+  const el=document.getElementById('install-link');
+  if(deferredInstall){deferredInstall.prompt();deferredInstall=null;if(el)el.style.display='none';}
+}
+window.addEventListener('appinstalled',()=>{
+  const el=document.getElementById('install-link');if(el)el.style.display='none';
+});
 window.addEventListener('DOMContentLoaded',()=>{
   initCv();
   applyLang();
