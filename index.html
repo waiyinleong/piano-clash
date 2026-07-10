@@ -560,6 +560,17 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   </div>
 </div>
 
+<!-- ════ SONG DIFFICULTY MODAL ════ -->
+<div id="song-diff-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;">
+  <div class="ccard" style="max-width:340px;width:88%;">
+    <div class="cttl" id="sdm-title" style="font-size:16px;">选择难度</div>
+    <button class="mbtn mb-green" onclick="startSongDiff('easy')" data-i18n="songs.diffEasy">🌱 简单 — 节奏简化 · 慢速</button>
+    <button class="mbtn mb-blue" onclick="startSongDiff('normal')" data-i18n="songs.diffNormal">🎵 标准 — 原版旋律</button>
+    <button class="mbtn mb-red" onclick="startSongDiff('hard')" data-i18n="songs.diffHard">🔥 困难 — 加左手伴奏</button>
+    <button class="mbtn mb-ghost" onclick="closeSongDiff()" data-i18n="common.cancel">取消</button>
+  </div>
+</div>
+
 <!-- ════ STATS & ACHIEVEMENTS ════ -->
 <div id="scr-stats" class="screen cscreen">
   <div class="ccard" style="max-width:460px;">
@@ -904,7 +915,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '2.5.0';
+const APP_VERSION = '2.6.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1031,6 +1042,10 @@ const I18N = {
     'toast.weakNotEnough':'弱点数据还不够，先多玩几关吧',
     'toast.chordForPiano':'和弦关卡需用钢琴键盘作答',
     'menu.install':'📲 安装 App 到主屏幕',
+    'songs.diffEasy':'🌱 简单 — 节奏简化 · 慢速',
+    'songs.diffNormal':'🎵 标准 — 原版旋律',
+    'songs.diffHard':'🔥 困难 — 加左手伴奏',
+    'songs.easySuffix':'（简单）','songs.hardSuffix':'（困难）',
   },
   en: {
     'login.google':'Sign in with Google','login.hint':'Login to save progress & settings across devices',
@@ -1152,6 +1167,10 @@ const I18N = {
     'toast.weakNotEnough':'Not enough data yet — play a few more levels first',
     'toast.chordForPiano':'Chord levels require piano keyboard input',
     'menu.install':'📲 Install App',
+    'songs.diffEasy':'🌱 Easy — simplified rhythm · slower',
+    'songs.diffNormal':'🎵 Normal — original melody',
+    'songs.diffHard':'🔥 Hard — with left-hand bass',
+    'songs.easySuffix':' (Easy)','songs.hardSuffix':' (Hard)',
   }
 };
 function t(key){ return (I18N[curLang]||I18N.zh)[key] || (I18N.zh[key]) || key; }
@@ -3414,38 +3433,153 @@ const BUILTIN_SONGS=[
    ]
  },
  {
-   id:'always-with-me', title:'Always With Me いつも何度でも', author:'久石让 Joe Hisaishi', ts:4, bpm:72,
+   id:'greensleeves', title:'绿袖子 Greensleeves', author:'英国传统民谣 16世纪 (公共版权)', ts:3, bpm:92,
    bars:[
-     // A verse
-     {ts:4,notes:[{n:'B4',d:'q'},{n:'C#5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'}]},
-     {ts:4,notes:[{n:'D#5',d:'hd'},{n:'C#5',d:'q'}]},
-     {ts:4,notes:[{n:'B4',d:'q'},{n:'C#5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'}]},
-     {ts:4,notes:[{n:'D#5',d:'w'}]},
-     {ts:4,notes:[{n:'G#4',d:'q'},{n:'A#4',d:'q'},{n:'B4',d:'q'},{n:'C#5',d:'q'}]},
-     {ts:4,notes:[{n:'D#5',d:'h'},{n:'C#5',d:'h'}]},
-     {ts:4,notes:[{n:'B4',d:'q'},{n:'C#5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'}]},
-     {ts:4,notes:[{n:'F#5',d:'w'}]},
-     // B bridge
-     {ts:4,notes:[{n:'E5',d:'q'},{n:'D#5',d:'q'},{n:'C#5',d:'q'},{n:'D#5',d:'q'}]},
-     {ts:4,notes:[{n:'E5',d:'h'},{n:'F#5',d:'h'}]},
-     {ts:4,notes:[{n:'G#5',d:'q'},{n:'F#5',d:'q'},{n:'E5',d:'q'},{n:'F#5',d:'q'}]},
-     {ts:4,notes:[{n:'G#5',d:'w'}]},
-     {ts:4,notes:[{n:'F#5',d:'q'},{n:'E5',d:'q'},{n:'D#5',d:'q'},{n:'C#5',d:'q'}]},
-     {ts:4,notes:[{n:'D#5',d:'h'},{n:'C#5',d:'h'}]},
-     {ts:4,notes:[{n:'B4',d:'q'},{n:'C#5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'}]},
-     {ts:4,notes:[{n:'F#5',d:'w'}]},
-     // A repeat
-     {ts:4,notes:[{n:'B4',d:'q'},{n:'C#5',d:'q'},{n:'D#5',d:'q'},{n:'E5',d:'q'}]},
-     {ts:4,notes:[{n:'D#5',d:'hd'},{n:'C#5',d:'q'}]},
-     {ts:4,notes:[{n:'G#5',d:'q'},{n:'F#5',d:'q'},{n:'E5',d:'q'},{n:'D#5',d:'q'}]},
-     {ts:4,notes:[{n:'C#5',d:'h'},{n:'B4',d:'h'}]},
-     {ts:4,notes:[{n:'D#5',d:'q'},{n:'E5',d:'q'},{n:'F#5',d:'q'},{n:'G#5',d:'q'}]},
-     {ts:4,notes:[{n:'B5',d:'w'}]},
+     {ts:3,notes:[{n:'C5',d:'h'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'E5',d:'q'},{n:'F5',d:'q'},{n:'E5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'h'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'h'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'A4',d:'q'},{n:'G#4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'B4',d:'h'},{n:'G#4',d:'q'}]},
+     {ts:3,notes:[{n:'E4',d:'hd'}]},
+     {ts:3,notes:[{n:'C5',d:'h'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'E5',d:'q'},{n:'F5',d:'q'},{n:'E5',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'h'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'q'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'B4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'G#4',d:'q'},{n:'F#4',d:'q'},{n:'G#4',d:'q'}]},
+     {ts:3,notes:[{n:'A4',d:'hd'}]},
+     {ts:3,notes:[{n:'A4',d:'hd'}]},
+   ]
+ },
+ {
+   id:'amazing', title:'奇异恩典 Amazing Grace', author:'John Newton 1779 (公共版权)', ts:3, bpm:84,
+   bars:[
+     {ts:3,notes:[{n:'D4',d:'q'},{n:'G4',d:'h'}]},
+     {ts:3,notes:[{n:'B4',d:'e'},{n:'G4',d:'e'},{n:'B4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'h'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'D4',d:'h'},{n:'D4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'h'},{n:'B4',d:'e'},{n:'G4',d:'e'}]},
+     {ts:3,notes:[{n:'B4',d:'h'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'D5',d:'hd'}]},
+     {ts:3,notes:[{n:'D5',d:'h'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'h'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'D4',d:'h'},{n:'D4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'h'},{n:'B4',d:'e'},{n:'G4',d:'e'}]},
+     {ts:3,notes:[{n:'B4',d:'h'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'hd'}]},
+   ]
+ },
+ {
+   id:'silent', title:'平安夜 Silent Night', author:'Franz Gruber 1818 (公共版权)', ts:3, bpm:80,
+   bars:[
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'e'},{n:'G4',d:'e'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'E4',d:'hd'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'e'},{n:'G4',d:'e'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'E4',d:'hd'}]},
+     {ts:3,notes:[{n:'D5',d:'h'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'B4',d:'hd'}]},
+     {ts:3,notes:[{n:'C5',d:'h'},{n:'C5',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'hd'}]},
+     {ts:3,notes:[{n:'A4',d:'h'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'B4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'e'},{n:'G4',d:'e'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'E4',d:'hd'}]},
+     {ts:3,notes:[{n:'A4',d:'h'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'B4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'A4',d:'e'},{n:'G4',d:'e'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'E4',d:'hd'}]},
+     {ts:3,notes:[{n:'D5',d:'h'},{n:'D5',d:'q'}]},
+     {ts:3,notes:[{n:'F5',d:'q'},{n:'D5',d:'q'},{n:'B4',d:'q'}]},
+     {ts:3,notes:[{n:'C5',d:'hd'}]},
+     {ts:3,notes:[{n:'E5',d:'hd'}]},
+     {ts:3,notes:[{n:'C5',d:'q'},{n:'G4',d:'q'},{n:'E4',d:'q'}]},
+     {ts:3,notes:[{n:'G4',d:'q'},{n:'F4',d:'e'},{n:'D4',d:'e'},{n:'C4',d:'q'}]},
+     {ts:3,notes:[{n:'C4',d:'hd'}]},
+   ]
+ },
+ {
+   id:'auld', title:'友谊地久天长 Auld Lang Syne', author:'苏格兰民谣 (公共版权)', ts:4, bpm:90,
+   bars:[
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'E4',d:'e'},{n:'F4',d:'e'},{n:'A4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'F4',d:'e'},{n:'G4',d:'e'},{n:'A4',d:'h'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'F4',d:'q'},{n:'A4',d:'q'},{n:'C5',d:'q'}]},
+     {ts:4,notes:[{n:'D5',d:'w'}]},
+     {ts:4,notes:[{n:'D5',d:'q'},{n:'C5',d:'q'},{n:'A4',d:'q'},{n:'A4',d:'q'}]},
+     {ts:4,notes:[{n:'G4',d:'q'},{n:'F4',d:'e'},{n:'G4',d:'e'},{n:'A4',d:'h'}]},
+     {ts:4,notes:[{n:'F4',d:'q'},{n:'D4',d:'q'},{n:'D4',d:'q'},{n:'C4',d:'q'}]},
+     {ts:4,notes:[{n:'F4',d:'w'}]},
+   ]
+ },
+ {
+   id:'turkish', title:'土耳其进行曲 Turkish March（主题）', author:'莫扎特 1783 (公共版权)', ts:4, bpm:110,
+   bars:[
+     {ts:4,notes:[{n:'B4',d:'e'},{n:'A4',d:'e'},{n:'G#4',d:'e'},{n:'A4',d:'e'},{n:'C5',d:'h'}]},
+     {ts:4,notes:[{n:'D5',d:'e'},{n:'C5',d:'e'},{n:'B4',d:'e'},{n:'C5',d:'e'},{n:'E5',d:'h'}]},
+     {ts:4,notes:[{n:'F5',d:'e'},{n:'E5',d:'e'},{n:'D#5',d:'e'},{n:'E5',d:'e'},{n:'B5',d:'e'},{n:'A5',d:'e'},{n:'G#5',d:'e'},{n:'A5',d:'e'}]},
+     {ts:4,notes:[{n:'B5',d:'e'},{n:'A5',d:'e'},{n:'G#5',d:'e'},{n:'A5',d:'e'},{n:'C6',d:'h'}]},
+     {ts:4,notes:[{n:'B4',d:'e'},{n:'A4',d:'e'},{n:'G#4',d:'e'},{n:'A4',d:'e'},{n:'C5',d:'h'}]},
+     {ts:4,notes:[{n:'D5',d:'e'},{n:'C5',d:'e'},{n:'B4',d:'e'},{n:'C5',d:'e'},{n:'E5',d:'h'}]},
+     {ts:4,notes:[{n:'F5',d:'e'},{n:'E5',d:'e'},{n:'D#5',d:'e'},{n:'E5',d:'e'},{n:'C5',d:'q'},{n:'A4',d:'q'}]},
+     {ts:4,notes:[{n:'A4',d:'w'}]},
    ]
  },
 ];
 
 function showSongs(){ renderSongList(); renderMySongs(); show('scr-songs'); }
+
+// ── SONG DIFFICULTY: easy = simplified rhythm & slower; hard = + left-hand bass ──
+function transformSong(s,diff){
+  if(!diff||diff==='normal')return s;
+  const bars=(s.bars||[]).map(bar=>({ts:bar.ts,notes:bar.notes.map(n=>({...n}))}));
+  let title=s.title,bpm=s.bpm||90;
+  if(diff==='easy'){
+    // merge eighth-note pairs into one quarter (keep the first pitch), drop 16ths, slow down
+    bars.forEach(bar=>{
+      const out=[];const ns=bar.notes;
+      for(let i=0;i<ns.length;i++){
+        const n=ns[i];
+        if(n.d==='e'&&i+1<ns.length&&ns[i+1].d==='e'){out.push({n:n.n,d:'q'});i++;}
+        else if(n.d==='e'){out.push({n:n.n,d:'q'});} // lone eighth → quarter (keeps bar simple)
+        else if(n.d==='s'){continue;}
+        else out.push({...n});
+      }
+      // re-fit: if merged notes overflow the bar, trim from the end
+      let total=0;const fit=[];
+      for(const n of out){ if(total+DUR[n.d]<=(bar.ts||4)+1e-6){fit.push(n);total+=DUR[n.d];} }
+      bar.notes=fit;
+    });
+    bpm=Math.round(bpm*0.75);
+    title+=t('songs.easySuffix');
+  }else if(diff==='hard'){
+    // alternating left-hand bass: bar's first melody note dropped into the bass register
+    bars.forEach(bar=>{
+      if(!bar.notes.length)return;
+      let m=midiOf(bar.notes[0].n);
+      while(m>=60)m-=12;
+      while(m<36)m+=12;
+      const root=midiToName(m);
+      const fifthM=m+7<60?m+7:m-5;
+      const fifth=midiToName(fifthM);
+      if((bar.ts||4)===3){ bar.notes.push({n:root,d:'hd'}); }
+      else{ bar.notes.push({n:root,d:'h'},{n:fifth,d:'h'}); }
+    });
+    title+=t('songs.hardSuffix');
+  }
+  return {...s,id:s.id+'-'+diff,title,bpm,bars};
+}
+let pendingDiffSong=null;
+function openSongDiff(s){
+  pendingDiffSong=s;
+  document.getElementById('sdm-title').textContent=s.title;
+  document.getElementById('song-diff-modal').style.display='flex';
+}
+function closeSongDiff(){document.getElementById('song-diff-modal').style.display='none';}
+function startSongDiff(diff){
+  const s=pendingDiffSong;closeSongDiff();
+  if(s)startSongGame(transformSong(s,diff));
+}
 
 function renderSongList(){
   const box=document.getElementById('song-list');box.innerHTML='';
@@ -3455,7 +3589,7 @@ function renderSongList(){
     b.className='mbtn mb-dark';b.style.cssText='flex:1;margin:0;text-align:left;display:flex;justify-content:space-between;align-items:center;';
     const barCount=s.bars?s.bars.length:0;
     b.innerHTML=`<span>🎼 ${s.title}</span><span style="font-size:10px;opacity:.7;display:flex;gap:6px;">${s.author?`<span>${s.author}</span>`:''}<span style="color:var(--orange);">${s.bpm||90}BPM</span><span>${barCount}${t('toast.importBars')}</span></span>`;
-    b.onclick=()=>startSongGame(s);
+    b.onclick=()=>openSongDiff(s);
     const listen=document.createElement('button');
     listen.className='mbtn mb-ghost';listen.style.cssText='margin:0;width:44px;';listen.textContent='🔊';
     listen.title=t('songs.preview');
@@ -3473,7 +3607,7 @@ function renderMySongs(){
     b.className='mbtn mb-green';b.style.cssText='flex:1;margin:0;text-align:left;display:flex;justify-content:space-between;align-items:center;';
     const barCount=s.bars?s.bars.length:0;
     b.innerHTML=`<span>🎵 ${s.title||(t('songs.imported')+(i+1))}</span><span style="font-size:10px;opacity:.7;display:flex;gap:6px;"><span style="color:var(--orange);">${s.bpm||90}BPM</span><span>${barCount}${t('toast.importBars')}</span></span>`;
-    b.onclick=()=>startSongGame(s);
+    b.onclick=()=>openSongDiff(s);
     const listen=document.createElement('button');
     listen.className='mbtn mb-ghost';listen.style.cssText='margin:0;width:40px;';listen.textContent='🔊';
     listen.title=t('songs.preview');
