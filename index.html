@@ -686,6 +686,7 @@ input::placeholder{color:var(--muted);}
     <hr class="dv" style="margin:14px 0;">
     <div style="font-size:12px;color:#94A3B8;margin-bottom:8px;" data-i18n="songs.myImported">我的导入曲目</div>
     <div id="my-song-list"></div>
+    <button class="mbtn" style="background:#7c5cbf;color:#fff;" onclick="show('scr-photo')">📷 拍照识别乐谱（AI）</button>
     <div style="display:flex;gap:8px;">
       <button class="mbtn mb-green" style="flex:1;margin:0 0 9px;" onclick="document.getElementById('song-import-file').click()" data-i18n="songs.importBtn">📥 导入 MusicXML</button>
       <button class="mbtn mb-blue" style="flex:1;margin:0 0 9px;" onclick="showImportHelp()" data-i18n="songs.helpBtn">❓ 怎么导入</button>
@@ -693,6 +694,31 @@ input::placeholder{color:var(--muted);}
     <input type="file" id="song-import-file" accept=".musicxml,.xml,.json,.txt" style="display:none" onchange="importSong(event)">
     <div class="mini-link" onclick="downloadSongTemplate()" style="margin-bottom:6px;">📄 下载简易文本模板（手动输入用）</div>
     <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
+  </div>
+</div>
+
+<!-- ════ PHOTO → SHEET (Gemini OMR) ════ -->
+<div id="scr-photo" class="screen cscreen">
+  <div class="ccard">
+    <div class="cttl">📷 拍照识别乐谱</div>
+    <div style="font-size:12px;color:#94A3B8;line-height:1.7;margin-bottom:12px;">
+      拍一张或上传一张乐谱照片，AI 自动识别成可弹的音符。<b>简单单声部谱最准</b>，复杂谱可能有误，识别后可试弹。
+    </div>
+    <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;">🔑 Gemini API Key（Google AI Studio 免费获取，仅存本地）</div>
+    <input id="gemini-key" type="password" placeholder="粘贴你的 Gemini API Key"
+      style="width:100%;padding:9px 11px;border-radius:9px;font-size:13px;margin-bottom:6px;box-sizing:border-box;">
+    <div class="mini-link" style="margin-bottom:12px;" onclick="window.open('https://aistudio.google.com/apikey','_blank')">→ 去 AI Studio 领取免费 Key</div>
+    <input type="file" id="photo-file" accept="image/*" capture="environment" style="display:none" onchange="photoToSheet(event)">
+    <button class="mbtn mb-dark" onclick="document.getElementById('gemini-key').value.trim()?document.getElementById('photo-file').click():toast('请先填入 Gemini API Key')">📸 选择 / 拍摄乐谱照片</button>
+    <div id="photo-status" style="font-size:12px;color:#94A3B8;text-align:center;min-height:20px;margin:8px 0;"></div>
+    <div id="photo-result" style="display:none;">
+      <div id="photo-preview" style="font-size:12px;color:#94A3B8;background:var(--panel);border:1px solid var(--ui-border);border-radius:10px;padding:10px;margin-bottom:10px;max-height:160px;overflow:auto;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="mbtn mb-green" style="flex:1;margin:0 0 9px;" onclick="playRecognizedSong()">🎮 试弹</button>
+        <button class="mbtn mb-blue" style="flex:1;margin:0 0 9px;" onclick="saveRecognizedSong()">💾 保存曲目</button>
+      </div>
+    </div>
+    <button class="mbtn mb-ghost" onclick="show('scr-songs')" data-i18n="common.back">← 返回</button>
   </div>
 </div>
 
@@ -1128,7 +1154,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.5.0';
+const APP_VERSION = '3.6.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4283,6 +4309,86 @@ function importSong(ev){
   reader.readAsText(file);
 }
 
+// ═══════════════════════════════════════════════════════════
+// PHOTO → SHEET via Gemini vision (OMR). Best on simple single-line scores.
+// ═══════════════════════════════════════════════════════════
+let recognizedSong=null;
+const GEMINI_MODEL='gemini-2.5-flash';
+const OMR_PROMPT=`You are an optical music recognition (OMR) engine. Read the sheet music in this image and transcribe it to JSON.
+Output ONLY valid JSON (no markdown, no commentary) with EXACTLY this schema:
+{"title": string, "bpm": number, "ts": number, "bars": [ {"ts": number, "notes": [ {"n": string, "d": string} ] } ] }
+Rules:
+- "n" = scientific pitch, middle C is "C4". Examples: "C4","F#4","Bb3","G5". Use # or b for accidentals.
+- Include BOTH hands if there is a grand staff; list every note of each bar left-to-right, then lower staff.
+- "d" = duration: "w"=whole,"hd"=dotted half,"h"=half,"q"=quarter,"e"=eighth,"s"=sixteenth.
+- Each bar's durations should roughly sum to the time signature (ts). Ignore rests or approximate.
+- If tempo isn't shown, use 90. If unsure about a note, make your best guess. Keep going even if imperfect.
+- Absolutely no text outside the JSON object.`;
+
+function fileToBase64(file){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+}
+async function photoToSheet(ev){
+  const file=ev.target.files[0]; if(!file)return; ev.target.value='';
+  const key=document.getElementById('gemini-key').value.trim();
+  if(!key){toast('请先填入 Gemini API Key');return;}
+  try{localStorage.setItem('psr_geminiKey',key);}catch{}
+  const st=document.getElementById('photo-status');
+  document.getElementById('photo-result').style.display='none';
+  st.textContent='📤 上传并识别中…（约 5–15 秒）';
+  try{
+    const b64=await fileToBase64(file);
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
+    const body={contents:[{parts:[{text:OMR_PROMPT},{inline_data:{mime_type:file.type||'image/jpeg',data:b64}}]}],
+                generationConfig:{temperature:0.1,responseMimeType:'application/json'}};
+    const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!resp.ok){const e=await resp.text();throw new Error('API '+resp.status+': '+e.slice(0,120));}
+    const data=await resp.json();
+    const txt=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!txt)throw new Error('模型没有返回内容');
+    const song=sanitizeRecognized(JSON.parse(txt));
+    if(!song.bars.length)throw new Error('没能识别出音符，换清晰一点的照片再试');
+    recognizedSong=song;
+    st.textContent='✅ 识别成功：'+song.bars.length+' 小节 · 约 '+countNotes(song)+' 个音符';
+    document.getElementById('photo-preview').textContent=previewText(song);
+    document.getElementById('photo-result').style.display='';
+  }catch(err){
+    console.error('OMR failed',err);
+    st.innerHTML='<span style="color:#e05050;">识别失败：'+String(err.message||err).slice(0,140)+'</span>';
+  }
+}
+function sanitizeRecognized(raw){
+  const ts=+(raw.ts)||4, bpm=+(raw.bpm)||90;
+  const title=(raw.title||'拍照乐谱').toString().slice(0,40);
+  const DURS={w:1,hd:1,h:1,q:1,e:1,s:1};
+  const bars=(Array.isArray(raw.bars)?raw.bars:[]).map(b=>{
+    const notes=(Array.isArray(b.notes)?b.notes:[]).map(n=>{
+      let name=(n.n||n.note||'').toString().trim().replace('♯','#').replace('♭','b');
+      const d=DURS[n.d]?n.d:'q';
+      if(!/^[A-Ga-g][#b]?-?\d$/.test(name))return null;
+      name=name[0].toUpperCase()+name.slice(1);
+      try{const m=midiOf(name);if(m<24||m>96)return null;}catch{return null;}
+      return {n:name,d};
+    }).filter(Boolean);
+    return {ts:+(b.ts)||ts,notes};
+  }).filter(b=>b.notes.length);
+  return {title,author:'📷 拍照识别',ts,bpm,bars};
+}
+function countNotes(s){return s.bars.reduce((a,b)=>a+b.notes.length,0);}
+function previewText(s){
+  return s.bars.slice(0,8).map((b,i)=>'小节'+(i+1)+': '+b.notes.map(n=>n.n).join(' ')).join('\n')+(s.bars.length>8?'\n…共 '+s.bars.length+' 小节':'');
+}
+function playRecognizedSong(){ if(recognizedSong)startSongGame(recognizedSong); }
+function saveRecognizedSong(){
+  if(!recognizedSong)return;
+  const mine=JSON.parse(localStorage.getItem('psr_songs')||'[]');
+  const idx=mine.findIndex(s=>s.title===recognizedSong.title);
+  if(idx>=0)mine[idx]=recognizedSong;else mine.push(recognizedSong);
+  localStorage.setItem('psr_songs',JSON.stringify(mine));
+  toast('已保存：'+recognizedSong.title);
+  show('scr-songs');renderMySongs();
+}
+
 function parseMusicXML(xmlText,fallbackTitle){
   const doc=new DOMParser().parseFromString(xmlText,'application/xml');
   if(doc.querySelector('parsererror')) throw new Error('XML解析失败');
@@ -5754,7 +5860,7 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-menu'){updateDailyBtn();renderDashboard();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-photo'){const k=document.getElementById('gemini-key');if(k&&!k.value){k.value=localStorage.getItem('psr_geminiKey')||'';}}if(id==='scr-menu'){updateDailyBtn();renderDashboard();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 // PWA: register service worker (offline play + installable). No-op on file:// or unsupported.
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
