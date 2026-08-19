@@ -1129,7 +1129,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.2.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1832,39 +1832,34 @@ function stopScroll(){ if(scrollRaf){cancelAnimationFrame(scrollRaf);scrollRaf=n
 function drawFlowView(){
   drawStaffLines('treble',0);drawStaffLines('bass',0);drawClefs(0);
   const yTop=s2y(12,'treble',0), yBot=s2y(-4,'bass',0);
-  const hitX=SC.sheetL+Math.min(60,(SC.sheetR-SC.sheetL)*0.08);
-  // hit line (play when the note reaches this line)
-  cx.save();
-  cx.strokeStyle='rgba(255,130,0,0.85)';
-  cx.lineWidth=Math.max(2,SC.hs*0.4);
-  cx.setLineDash([5,4]);
-  cx.beginPath();cx.moveTo(hitX,yTop);cx.lineTo(hitX,yBot);cx.stroke();
-  cx.setLineDash([]);
-  cx.restore();
+  const hitX=SC.sheetL+(SC.sheetR-SC.sheetL)*0.26;
+  drawPlayBand(hitX,yTop,yBot);   // glowing cyan play-now band
   const now=rhythmStartMs?performance.now()-rhythmStartMs:-1e9;
   const travelMs=8*(60000/rhythmBPM);            // a note crosses the screen in 8 beats
   const pxPerMs=(SC.sheetR-hitX)/travelMs;
   const ts=gs.sheet.bars[0]?.ts||4;
   const barMs=ts*(60000/rhythmBPM);
-  // scrolling barlines (light)
-  cx.strokeStyle='rgba(26,18,9,0.22)';cx.lineWidth=1;
+  // scrolling barlines
+  cx.strokeStyle='rgba(203,213,225,0.18)';cx.lineWidth=1;
   for(let bi=0;bi<=gs.sheet.bars.length;bi++){
     const bx=hitX+(bi*barMs-now)*pxPerMs;
     if(bx<hitX-4||bx>SC.sheetR+4)continue;
     cx.beginPath();cx.moveTo(bx,yTop);cx.lineTo(bx,yBot);cx.stroke();
   }
-  // scrolling notes
+  // scrolling notes (already-played notes dim)
   const cutL=SC.clefW+SC.hs*2;
   for(const s of rhythmSchedule){
     const x=hitX+(s.hitMs-now)*pxPerMs;
     if(x<cutL-20||x>SC.sheetR+30)continue;
     const bar=gs.sheet.bars[s.barIdx];if(!bar)continue;
     const nt=bar.notes[s.noteIdx];if(!nt)continue;
-    // always show the note's intrinsic accidental while scrolling (no bar context on screen)
     let a=nt.acc;
     if(a==null&&/[#b]/.test(nt.nd.name))a=nt.nd.name.includes('#')?'sharp':'flat';
     nt._showAcc=a;
+    const past = x<hitX-SC.hs*0.6 && nt.state!=='done' && !nt._missed;
+    if(past)cx.globalAlpha=0.32;
     drawNote(nt,x,clefFor(nt.nd.name),s.barIdx,s.noteIdx,[],0);
+    cx.globalAlpha=1;
   }
 }
 const STAFF_INK='#CBD5E1';   /* staff lines, clefs, noteheads (dark theme) */
