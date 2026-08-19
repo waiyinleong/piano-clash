@@ -354,7 +354,7 @@ hr.dv{border-top-color:var(--ui-border);}
 .vs-bar{background:var(--bg2);border:1px solid var(--ui-border);border-radius:14px;margin:6px 8px 0;}
 .vs-track{background:var(--panel);}
 .vs-hp{color:var(--ink2);}
-.staff-area{background:var(--panel);}
+.staff-area{background:linear-gradient(180deg,#1c95b7,#0e6180);}
 .feedback{color:var(--ink);}
 .input-area{background:var(--panel);border-top:1px solid var(--ui-border);}
 .wk{background:linear-gradient(180deg,#F8FAFC,#fff 45%,#E2E8F0);border:1px solid #94A3B8;}
@@ -1129,7 +1129,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.2.0';
+const APP_VERSION = '3.3.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1750,9 +1750,16 @@ if(document.fonts&&document.fonts.load){
 }
 function smuflFont(px){ return `${px}px Bravura`; }
 
+// Simply-Piano teal sheet background (painted on canvas so masks/clefs match)
+function sheetGrad(){
+  const g=cx.createLinearGradient(0,0,0,SC.H);
+  g.addColorStop(0,'#1c95b7');g.addColorStop(1,'#0e6180');
+  return g;
+}
 function draw(){
   if(!cx||!SC.W)return;
   cx.clearRect(0,0,SC.W,SC.H);
+  cx.fillStyle=sheetGrad();cx.fillRect(0,0,SC.W,SC.H);
   if(gs&&gs.sheet){
     if(flowMode&&rhythmMode){drawFlowView();return;}        // time-based rhythm scroll
     if(sheetDisplay==='scroll'){drawScrollFollow();return;}  // player-paced scroll (Simply-Piano)
@@ -1765,20 +1772,20 @@ function draw(){
   if(gs&&gs.sheet)drawBars();
   drawRhythmCursor();
 }
-// glowing cyan "play now" band (shared by both scrolling views)
+// bright white "play now" band (Simply-Piano style, pops on teal)
 function drawPlayBand(hitX,yTop,yBot){
   cx.save();
-  const bw=SC.hs*4.2, top=yTop-SC.hs*1.5, bot=yBot+SC.hs*1.5;
+  const bw=SC.hs*4.6, top=yTop-SC.hs*1.5, bot=yBot+SC.hs*1.5;
   const g=cx.createLinearGradient(hitX-bw/2,0,hitX+bw/2,0);
-  g.addColorStop(0,'rgba(56,189,248,0)');g.addColorStop(.5,'rgba(56,189,248,0.26)');g.addColorStop(1,'rgba(56,189,248,0)');
+  g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,'rgba(255,255,255,0.32)');g.addColorStop(1,'rgba(255,255,255,0)');
   cx.fillStyle=g;cx.fillRect(hitX-bw/2,top,bw,bot-top);
-  cx.strokeStyle='rgba(125,211,252,0.9)';cx.lineWidth=Math.max(2,SC.hs*0.35);
+  cx.strokeStyle='rgba(255,255,255,0.92)';cx.lineWidth=Math.max(2,SC.hs*0.35);
   cx.beginPath();cx.moveTo(hitX,top);cx.lineTo(hitX,bot);cx.stroke();
   cx.restore();
 }
 // ── PLAYER-PACED SCROLL: sheet scrolls so the current note sits under the band;
 //    play at your own pace (no timing pressure). Works without rhythm mode. ──
-let sheetScrollX=0, scrollRaf=null;
+let sheetScrollX=0, sheetScrollTarget=0, scrollRaf=null;
 function drawScrollFollow(){
   const bars=gs.sheet.bars; if(!bars||!bars.length)return;
   const PB=SC.hs*3.4;                          // px per beat
@@ -1792,13 +1799,17 @@ function drawScrollFollow(){
   const curX=barStart[cb]+((curNoteObj?curNoteObj.beat:0)*PB);
   const bandX=SC.sheetL+(SC.sheetR-SC.sheetL)*0.26;
   const target=bandX-curX;
-  if(!gs.paused) sheetScrollX+=(target-sheetScrollX)*0.2;   // smooth follow
+  sheetScrollTarget=target;
+  if(!gs.paused){
+    if(Math.abs(target-sheetScrollX)<0.6) sheetScrollX=target;  // snap when close (lets loop idle)
+    else sheetScrollX+=(target-sheetScrollX)*0.22;               // smooth follow
+  }
   const sx=sheetScrollX;
   const yTop=s2y(12,'treble',0), yBot=s2y(-4,'bass',0);
   drawStaffLines('treble',0);drawStaffLines('bass',0);
   drawPlayBand(bandX,yTop,yBot);
   // scrolling barlines
-  cx.strokeStyle='rgba(203,213,225,0.18)';cx.lineWidth=1;
+  cx.strokeStyle='rgba(255,255,255,0.22)';cx.lineWidth=1;
   for(let bi=0;bi<=bars.length;bi++){const bx=(bi<bars.length?barStart[bi]:endX)+sx;if(bx<leftPad-2||bx>SC.sheetR+4)continue;cx.beginPath();cx.moveTo(bx,yTop);cx.lineTo(bx,yBot);cx.stroke();}
   // scrolling notes (past notes dim)
   for(let bi=0;bi<bars.length;bi++){const bar=bars[bi];
@@ -1812,10 +1823,10 @@ function drawScrollFollow(){
       cx.globalAlpha=1;
     }
   }
-  // fixed clef area: mask sliding notes, redraw staff stubs + clef + time sig
-  cx.fillStyle='#0F172A';
-  cx.fillRect(0,yTop-SC.hs*2,leftPad-SC.hs*0.4,(yBot-yTop)+SC.hs*4);
-  cx.strokeStyle=STAFF_INK;cx.lineWidth=1.3;
+  // fixed clef area: re-paint teal bg over sliding notes, redraw staff stubs + clef
+  cx.fillStyle=sheetGrad();
+  cx.fillRect(0,0,leftPad-SC.hs*0.4,SC.H);
+  cx.strokeStyle=STAFF_LINE;cx.lineWidth=1.3;
   for(const cf of['treble','bass'])for(let i=0;i<5;i++){const y=s2y(i*2,cf,0);cx.beginPath();cx.moveTo(10,Math.round(y)+0.5);cx.lineTo(leftPad,Math.round(y)+0.5);cx.stroke();}
   drawClefs(0);drawTimeSig(0);
   ensureScroll();
@@ -1823,10 +1834,14 @@ function drawScrollFollow(){
 function scrollLoop(){
   scrollRaf=null;
   if(sheetDisplay!=='scroll'||rhythmMode||!gs||!gs.active)return;
-  draw();
-  scrollRaf=requestAnimationFrame(scrollLoop);
+  draw();               // drawScrollFollow → ensureScroll re-arms only while unsettled
 }
-function ensureScroll(){ if(scrollRaf==null&&sheetDisplay==='scroll'&&!rhythmMode&&gs&&gs.active&&!document.querySelector('.cdown'))scrollRaf=requestAnimationFrame(scrollLoop); }
+function ensureScroll(){
+  // only run the loop while the sheet still needs to move — idle when settled (perf)
+  if(scrollRaf==null&&sheetDisplay==='scroll'&&!rhythmMode&&gs&&gs.active&&!gs.paused
+     &&Math.abs(sheetScrollTarget-sheetScrollX)>0.6&&!document.querySelector('.cdown'))
+    scrollRaf=requestAnimationFrame(scrollLoop);
+}
 function stopScroll(){ if(scrollRaf){cancelAnimationFrame(scrollRaf);scrollRaf=null;} }
 // ── FLOW VIEW: notes scroll right→left on one grand staff; hit line at the left ──
 function drawFlowView(){
@@ -1840,7 +1855,7 @@ function drawFlowView(){
   const ts=gs.sheet.bars[0]?.ts||4;
   const barMs=ts*(60000/rhythmBPM);
   // scrolling barlines
-  cx.strokeStyle='rgba(203,213,225,0.18)';cx.lineWidth=1;
+  cx.strokeStyle='rgba(255,255,255,0.22)';cx.lineWidth=1;
   for(let bi=0;bi<=gs.sheet.bars.length;bi++){
     const bx=hitX+(bi*barMs-now)*pxPerMs;
     if(bx<hitX-4||bx>SC.sheetR+4)continue;
@@ -1862,10 +1877,12 @@ function drawFlowView(){
     cx.globalAlpha=1;
   }
 }
-const STAFF_INK='#CBD5E1';   /* staff lines, clefs, noteheads (dark theme) */
-const STAFF_MUTED='#64748B'; /* rests, bar numbers */
+/* Simply-Piano-style sheet: dark notation on a bright teal panel */
+const STAFF_LINE='rgba(255,255,255,0.55)';  /* staff lines (white on teal) */
+const STAFF_INK='#0d2230';                  /* clefs, noteheads, beams (near-black) */
+const STAFF_MUTED='rgba(13,34,48,0.5)';     /* rests, bar numbers */
 function drawStaffLines(clef,row){
-  cx.strokeStyle=STAFF_INK;cx.lineWidth=1.3;
+  cx.strokeStyle=STAFF_LINE;cx.lineWidth=1.3;
   const rightEdge = SC.sheetR;
   for(let i=0;i<5;i++){const y=s2y(i*2,clef,row);cx.beginPath();cx.moveTo(10,Math.round(y)+0.5);cx.lineTo(rightEdge,Math.round(y)+0.5);cx.stroke();}
 }
@@ -1911,7 +1928,7 @@ function drawBars(){
   if(gs.curBar<n && gameKind!=='practice' && gameKind!=='custom'){
     const row=barRow(gs.curBar), col=barCol(gs.curBar);
     const bx=SC.sheetL+col*bw;
-    cx.fillStyle='rgba(56,189,248,0.09)';
+    cx.fillStyle='rgba(255,255,255,0.10)';
     const top=s2y(14,'treble',row),bot=s2y(-6,'bass',row);
     cx.fillRect(bx,top,bw,bot-top);
   }
@@ -2067,14 +2084,14 @@ function findBeamGroups(bar){
 
 function noteColor(nt,bi){
   if(gameKind==='practice')return STAFF_INK;
-  if(nt.state==='done')return '#10B981';
-  if(nt._missed)return '#F43F5E';
+  if(nt.state==='done')return '#0a9d55';
+  if(nt._missed)return '#e23b2c';
   // gold = any pending note in the current chord-step (same beat as curNote)
   if(bi===gs.curBar){
     const b=gs.sheet.bars[bi];
     if(b && gs.curNote<b.notes.length){
       const curBeat=b.notes[gs.curNote].beat;
-      if(nt.beat===curBeat && nt.state!=='done') return '#38BDF8';
+      if(nt.beat===curBeat && nt.state!=='done') return '#ff9e1b';
     }
   }
   return STAFF_INK;
@@ -2194,7 +2211,7 @@ function drawBeam(g,bar,bi,row){
   let ext=up?Math.min(...notes.map(n=>s2y(slotOf(n.nd.name,clef),clef,row))):Math.max(...notes.map(n=>s2y(slotOf(n.nd.name,clef),clef,row)));
   const beamY=up?ext-STEM_SP*2*hs:ext+STEM_SP*2*hs;
   const allDone=gameKind!=='practice'&&notes.every(n=>n.state==='done');
-  const beamCol=allDone?'#10B981':STAFF_INK;
+  const beamCol=allDone?'#0a9d55':STAFF_INK;
   // stems (attach at each note's scaled notehead edge)
   notes.forEach(n=>{
     const hw=baseHeadW*(n._scale||1);
