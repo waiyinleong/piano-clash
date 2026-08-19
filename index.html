@@ -655,20 +655,13 @@ input::placeholder{color:var(--muted);}
   <div class="ccard">
     <div class="cttl" data-i18n="levels.title">选择关卡</div>
     <div id="levels-stats" style="text-align:center;font-size:11px;color:#94A3B8;margin-bottom:10px;"></div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(200,144,10,.08);border-radius:10px;">
-      <div style="flex:1;min-width:0;font-size:12px;color:#94A3B8;"><b data-i18n="levels.rhythm">🥁 节奏模式</b><br><span style="font-size:10px;color:#94A3B8;" data-i18n="levels.rhythmHint">跟节拍弹，时机评分</span></div>
-      <div class="toggle" id="camp-rhythm-toggle" style="margin:0;">
-        <button class="on" data-bpm="0" onclick="setCampRhythm(0,this)" data-i18n="levels.off">关</button>
-        <button data-bpm="60" onclick="setCampRhythm(60,this)">60</button>
-        <button data-bpm="80" onclick="setCampRhythm(80,this)">80</button>
-        <button data-bpm="100" onclick="setCampRhythm(100,this)">100</button>
-      </div>
-    </div>
-    <div id="camp-flow-row" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(56,189,248,.08);border-radius:10px;">
-      <div style="flex:1;min-width:0;font-size:12px;color:#94A3B8;"><b data-i18n="createRoom.sheetDisplay">谱面显示</b><br><span style="font-size:10px;color:#94A3B8;">流动=谱子跟随滚动</span></div>
-      <div class="toggle" id="camp-flow-toggle" style="margin:0;">
-        <button data-f="0" onclick="setCampFlow(0,this)" data-i18n="createRoom.fixedSheet">📄 固定</button>
-        <button class="on" data-f="1" onclick="setCampFlow(1,this)" data-i18n="createRoom.flowSheet">🌊 流动</button>
+    <div style="margin-bottom:10px;padding:8px 10px;background:rgba(56,189,248,.08);border-radius:10px;">
+      <div style="font-size:12px;color:#94A3B8;margin-bottom:6px;"><b>🎵 谱面模式</b> <span style="font-size:10px;">节奏流动=谱子按拍连续滚动，练节奏感</span></div>
+      <div class="toggle" id="camp-mode-toggle" style="margin:0;">
+        <button data-bpm="0" onclick="setCampMode(0,this)">📄 固定</button>
+        <button class="on" data-bpm="60" onclick="setCampMode(60,this)">🐢 慢</button>
+        <button data-bpm="80" onclick="setCampMode(80,this)">🚶 中</button>
+        <button data-bpm="100" onclick="setCampMode(100,this)">🏃 快</button>
       </div>
     </div>
     <div id="weak-row" style="display:none;margin-bottom:10px;padding:8px 10px;background:rgba(224,80,80,.07);border-radius:10px;">
@@ -735,6 +728,12 @@ input::placeholder{color:var(--muted);}
     </div>
     <div class="bind-status" id="midi-status" style="margin-bottom:14px;"></div>
     <button class="mbtn mb-dark" id="midi-btn" onclick="toggleMIDI()">🎹 连接 MIDI 设备</button>
+    <div style="font-size:12px;color:#94A3B8;margin:14px 0 6px;">🔊 声音来源</div>
+    <div class="toggle" id="midi-snd-toggle" style="margin-bottom:6px;">
+      <button class="on" onclick="setMidiSound(1,this)">🎹 钢琴自带声音</button>
+      <button onclick="setMidiSound(0,this)">🔊 App 合成器</button>
+    </div>
+    <div style="font-size:11px;color:#64748B;margin-bottom:8px;">电钢自己会发声就选「钢琴自带」，避免电脑和钢琴重复响；纯 MIDI 控制器（无音源）选「App 合成器」。</div>
     <div style="font-size:12px;color:#94A3B8;line-height:1.8;margin:14px 0;background:rgba(200,144,10,.08);border-radius:10px;padding:12px;">
       <b>怎么接：</b><br>
       1. 电钢用 <b>USB-to-Host</b> 口（或 USB-MIDI 线）连电脑<br>
@@ -1129,7 +1128,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.3.0';
+const APP_VERSION = '3.4.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1183,6 +1182,7 @@ const I18N = {
     'game.bars':'小节','game.accuracy':'正确率',
     'game.wrongCampaign':'✗ 弹错 -1命，本小节重来','game.wrongOnline':'✗ 弹错 -3血，本小节重来',
     'game.wrongRepeat':'✗ 重来本小节',
+    'game.sectionRetry':'⟲ 错误较多，这一段再来一次',
     'game.barLabel':'小节 {n}','game.barClear':'小节 {n} ✓','game.roundDone':'🔁 一轮完成，再来','game.nextPage':'▼ 下一页','game.songDone':'🔁 全曲完成，从头再来',
     'game.barBonus':'完成一组 回血+10','game.attacked':'⚔️ 被攻击 -','game.attack':'⚔️ 攻击对手 -8',
     'game.onlinePaused':'游戏进行中（对手仍在继续）',
@@ -1308,6 +1308,7 @@ const I18N = {
     'game.bars':'Bars','game.accuracy':'Accuracy',
     'game.wrongCampaign':'✗ Wrong — lost 1 life, bar restarted','game.wrongOnline':'✗ Wrong — -3 HP, bar restarted',
     'game.wrongRepeat':'✗ Bar restarted',
+    'game.sectionRetry':'⟲ Too many misses — replay this section',
     'game.barLabel':'Bar {n}','game.barClear':'Bar {n} ✓','game.roundDone':'🔁 Round done — again!','game.nextPage':'▼ Next page','game.songDone':'🔁 Song complete — from the top!',
     'game.barBonus':'Group done! +10 HP','game.attacked':'⚔️ Hit for -','game.attack':'⚔️ Attacked opponent -8',
     'game.onlinePaused':'Game in progress (opponent continues)',
@@ -1788,7 +1789,7 @@ function drawPlayBand(hitX,yTop,yBot){
 let sheetScrollX=0, sheetScrollTarget=0, scrollRaf=null;
 function drawScrollFollow(){
   const bars=gs.sheet.bars; if(!bars||!bars.length)return;
-  const PB=SC.hs*3.4;                          // px per beat
+  const PB=SC.hs*5.0;                          // px per beat (roomy spacing)
   const leftPad=SC.clefW+SC.hs*2;              // notes vanish under the fixed clef
   const barStart=[]; let x=leftPad;
   for(let bi=0;bi<bars.length;bi++){barStart[bi]=x;x+=(bars[bi].ts||4)*PB;}
@@ -1850,7 +1851,7 @@ function drawFlowView(){
   const hitX=SC.sheetL+(SC.sheetR-SC.sheetL)*0.26;
   drawPlayBand(hitX,yTop,yBot);   // glowing cyan play-now band
   const now=rhythmStartMs?performance.now()-rhythmStartMs:-1e9;
-  const travelMs=8*(60000/rhythmBPM);            // a note crosses the screen in 8 beats
+  const travelMs=5.5*(60000/rhythmBPM);          // fewer beats on screen → roomier spacing
   const pxPerMs=(SC.sheetR-hitX)/travelMs;
   const ts=gs.sheet.bars[0]?.ts||4;
   const barMs=ts*(60000/rhythmBPM);
@@ -2367,9 +2368,9 @@ function startLevel(id){
   stopMetronome(); metroOn=false; updateMetroBtn();
   resetCombo();
   clearRhythm();
-  sheetDisplay = campFlow===1 ? 'scroll' : 'static';
-  sheetScrollX = (SC&&SC.W)||900;   // slide the sheet in from the right
-  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;flowMode=campFlow===1;sheetDisplay='static';}
+  // 谱面模式: BPM>0 → 节奏流动(连续滚动)；0 → 固定静态谱
+  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;flowMode=true;sheetDisplay='static';}
+  else{rhythmMode=false;flowMode=false;sheetDisplay='static';}
   gameKind='campaign';curLv=id;
   setDemoBtn(true);
   const lv=LEVELS.find(l=>l.id===id);
@@ -2380,7 +2381,7 @@ function startLevel(id){
   var _ph=document.getElementById('practice-help');if(_ph)_ph.classList.remove('show');
   document.getElementById('chips').style.display='flex';
   gs={lv,sheet:null,curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,
-      goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0};
+      goal:CAMPAIGN_GOAL,active:true,paused:false,maxCombo:0,_retries:0};
   document.getElementById('h-lvname').textContent='L'+id+' '+(lv.name||'')+(rhythmMode?' 🥁'+rhythmBPM:'')+' · '+t('game.completeN')+CAMPAIGN_GOAL+t('game.barsN');
   // sharp/flat levels require the piano keyboard (Do Re Mi can't express accidentals);
   // chord levels too (Do Re Mi is strictly one-note-at-a-time)
@@ -2472,21 +2473,23 @@ function groupRange(bar, idx){
   return [start,end];
 }
 
-function handleInput(note,isSolInput,srcMic){
-  if(!gs||!gs.active||gs.paused){ if(gameKind==='practice'&&!isSolInput){playPiano(note);} return; }
-  if(gameKind==='practice'){ if(!isSolInput)playPiano(note); return; }
+function handleInput(note,isSolInput,srcMic,noSound){
+  // noSound: skip the app synth (e.g. a MIDI piano is making its own sound)
+  const snd=(n)=>{ if(!noSound)playPiano(n); };
+  if(!gs||!gs.active||gs.paused){ if(gameKind==='practice'&&!isSolInput){snd(note);} return; }
+  if(gameKind==='practice'){ if(!isSolInput)snd(note); return; }
   const bar=gs.sheet.bars[gs.curBar];if(!bar)return;
   if(gs.curNote>=bar.notes.length)return;
   // Solfège: strictly sequential one-note-at-a-time; Piano: chord-group matching
   let matchIdx=-1, gStart=gs.curNote, gEnd=gs.curNote+1;
   if(isSolInput){
     // Sequential: only look at the current note, match by sol syllable (ignores octave/accidentals)
-    playPiano(bar.notes[gs.curNote].nd?.name||'C4');
+    snd(bar.notes[gs.curNote].nd?.name||'C4');
     if(bar.notes[gs.curNote].nd?.sol===note) matchIdx=gs.curNote;
   } else {
     // Piano: chord-aware — any unmatched note in the beat-group counts
     [gStart,gEnd]=groupRange(bar, gs.curNote);
-    playPiano(note);
+    snd(note);
     const pressedMidi=midiOf(note);
     for(let i=gStart;i<gEnd;i++){
       if(bar.notes[i].state!=='done' && effectiveMidi(bar,i)===pressedMidi){ matchIdx=i; break; }
@@ -2534,8 +2537,8 @@ function handleInput(note,isSolInput,srcMic){
       if(gameKind==='online'&&onlineVsMode==='speed'&&gs.barsDone>=SPEED_GOAL){
         updChips();updHUD();draw();onlineWin();return;
       }
-      // campaign: reached the goal → win
-      if(gameKind==='campaign'&&gs.barsDone>=gs.goal){updChips();updHUD();draw();endGame();return;}
+      // campaign: reached the goal → finish (or replay this段 if error rate ≥50%)
+      if(gameKind==='campaign'&&gs.barsDone>=gs.goal){updChips();updHUD();draw();campaignSheetDone();return;}
       // bot match: reached the goal before the bot → win
       if(gameKind==='bot'){updateBotVs();if(gs.barsDone>=botGoal){updChips();updHUD();draw();endBotGame(true);return;}}
       // custom navigation practice: skip empty bars; at end, loop back to start
@@ -2678,7 +2681,7 @@ function startRandom(range,mins,daily){
   stopMetronome();metroOn=false;updateMetroBtn();
   resetCombo();
   clearRhythm();
-  sheetDisplay = campFlow===1 ? 'scroll' : 'static';
+  sheetDisplay='static';
   gameKind='random';
   setDemoBtn(false);
   show('scr-game');ea();
@@ -3085,6 +3088,7 @@ function checkRhythmMisses(){
         gs.curNote++;
         if(gs.curNote>=bar.notes.length){
           gs.barsDone++;gs.curBar++;gs.curNote=0;
+          if(gameKind==='campaign'&&gs.barsDone>=gs.goal){updChips();updHUD();campaignSheetDone();rebuilt=true;break;}
           if(gs.curBar>=gs.sheet.bars.length){
             gs.score+=50;gs.sheetNum++;
             if(gameKind==='online')newSheetOnline();
@@ -3144,27 +3148,19 @@ function clearRhythm(){
   rhythmMode=false;flowMode=false;rhythmStartMs=0;rhythmSchedule=[];stopRhythmLoop();
   rhythmStats={perfect:0,good:0,ok:0,miss:0};
 }
-// campaign rhythm setting: 0 = off, else BPM; campFlow: 0 fixed sheet, 1 flowing sheet
-let campRhythmBPM=+(localStorage.getItem('psr_campBpm')||0);
-let campFlow=(localStorage.getItem('psr_campFlow')!==null)?+localStorage.getItem('psr_campFlow'):1;
-function setCampRhythm(bpm,btn){
-  campRhythmBPM=bpm;
+// campaign sheet mode: campRhythmBPM 0 = 固定(static), else 节奏流动 tempo (60/80/100).
+// Default 60 → continuous rhythm flow (trains timing). campFlow kept for old callers.
+let campRhythmBPM=(localStorage.getItem('psr_campBpm')!==null)?+localStorage.getItem('psr_campBpm'):60;
+let campFlow=campRhythmBPM>0?1:0;
+function setCampMode(bpm,btn){
+  campRhythmBPM=bpm; campFlow=bpm>0?1:0;
   try{localStorage.setItem('psr_campBpm',String(bpm));}catch{}
-  document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-}
-function setCampFlow(f,btn){
-  campFlow=f;
-  try{localStorage.setItem('psr_campFlow',String(f));}catch{}
-  document.querySelectorAll('#camp-flow-toggle button').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+  document.querySelectorAll('#camp-mode-toggle button').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
 }
 function syncCampRhythmUI(){
-  document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>{
+  document.querySelectorAll('#camp-mode-toggle button').forEach(b=>{
     b.classList.toggle('on',+b.dataset.bpm===campRhythmBPM);
-  });
-  document.querySelectorAll('#camp-flow-toggle button').forEach(b=>{
-    b.classList.toggle('on',+b.dataset.f===campFlow);
   });
 }
 
@@ -3223,6 +3219,24 @@ function togglePause(){
   else{const pd=document.getElementById('pov-stats');if(pd)pd.style.display='none';}
 }
 function quitGame(){gs.active=false;clearInterval(timerIv);clearTimeout(botTimer);stopRhythmLoop();stopScroll();saveWeak();stopDemo();document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
+// Campaign 段落完成：错误率≥50% 则回退重复本段（练节奏时不因偶尔跟不上就结束）
+function campaignSheetDone(){
+  const tot=gs.notesOK+gs.notesWrong;
+  const acc = tot? gs.notesOK/tot : 1;
+  if(acc<0.5 && (gs._retries||0)<4){
+    gs._retries=(gs._retries||0)+1;
+    // replay the SAME notes from the top of this section
+    gs.sheet.bars.forEach(b=>b.notes.forEach(n=>{n.state='pending';n._missed=false;}));
+    gs.curBar=0;gs.curNote=0;gs.barsDone=0;
+    gs.notesOK=0;gs.notesWrong=0;rhythmStats={perfect:0,good:0,ok:0,miss:0};resetCombo();
+    showFB(t('game.sectionRetry'),'bad');
+    if(rhythmMode){rhythmStartMs=performance.now();buildRhythmSchedule();}
+    updChips();updHUD();draw();updHint();
+    return;
+  }
+  gs._retries=0;
+  endGame();
+}
 function endGame(){
   gs.active=false;clearInterval(timerIv);resetCombo();stopRhythmLoop();stopScroll();saveWeak();stopDemo();
   if(gameKind==='online'){return endOnlineGame();}
@@ -4038,7 +4052,7 @@ function buildSongBars(song){
 function startSongGame(song){
   stopMetronome(); metroOn=false; updateMetroBtn();
   clearRhythm();
-  sheetDisplay = campFlow===1 ? 'scroll' : 'static';
+  sheetDisplay='static';
   gameKind='song';ea();
   setDemoBtn(true);
   show('scr-game');
@@ -5218,6 +5232,14 @@ function leaveRoomQuiet(){
 // WEB MIDI — connect a real digital piano (USB-to-Host) or MIDI keyboard
 // ═══════════════════════════════════════════════════════════
 let midiAccess=null, midiInputs=[], midiEnabled=false;
+// mute the app synth for MIDI notes so a self-sounding digital piano isn't doubled
+let midiSilenceApp=(localStorage.getItem('psr_midiSilence')!=='0');
+function setMidiSound(pianoOwn,btn){
+  midiSilenceApp=!!pianoOwn;
+  try{localStorage.setItem('psr_midiSilence',pianoOwn?'1':'0');}catch{}
+  document.querySelectorAll('#midi-snd-toggle button').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+}
 function midiSupported(){ return typeof navigator!=='undefined' && !!navigator.requestMIDIAccess; }
 
 async function connectMIDI(){
@@ -5268,7 +5290,8 @@ function onMIDIMessage(ev){
   // only handle notes that exist on the on-screen piano
   if(!document.getElementById('pk-'+name))return;
   ea();
-  handleInput(name);
+  // when the connected instrument sounds itself, mute the app synth (no double audio)
+  handleInput(name,false,false,midiSilenceApp);
   flashScreenKey(name);
 }
 // briefly highlight the on-screen key when a physical key is played
@@ -5293,6 +5316,7 @@ function toggleMIDI(){
 function updateMIDIStatus(){
   const el=document.getElementById('midi-status');
   const btn=document.getElementById('midi-btn');
+  document.querySelectorAll('#midi-snd-toggle button').forEach((b,i)=>b.classList.toggle('on',(i===0)===midiSilenceApp));
   if(!el)return;
   if(!midiSupported()){
     el.innerHTML=`<span style="color:#c0392b;">${t('midi.notSupported')}</span>`;
