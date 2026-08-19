@@ -664,11 +664,11 @@ input::placeholder{color:var(--muted);}
         <button data-bpm="100" onclick="setCampRhythm(100,this)">100</button>
       </div>
     </div>
-    <div id="camp-flow-row" style="display:none;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(200,144,10,.08);border-radius:10px;">
-      <div style="flex:1;min-width:0;font-size:12px;color:#94A3B8;"><b data-i18n="createRoom.sheetDisplay">谱面显示</b></div>
+    <div id="camp-flow-row" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:rgba(56,189,248,.08);border-radius:10px;">
+      <div style="flex:1;min-width:0;font-size:12px;color:#94A3B8;"><b data-i18n="createRoom.sheetDisplay">谱面显示</b><br><span style="font-size:10px;color:#94A3B8;">流动=谱子跟随滚动</span></div>
       <div class="toggle" id="camp-flow-toggle" style="margin:0;">
-        <button class="on" data-f="0" onclick="setCampFlow(0,this)" data-i18n="createRoom.fixedSheet">📄 固定</button>
-        <button data-f="1" onclick="setCampFlow(1,this)" data-i18n="createRoom.flowSheet">🌊 流动</button>
+        <button data-f="0" onclick="setCampFlow(0,this)" data-i18n="createRoom.fixedSheet">📄 固定</button>
+        <button class="on" data-f="1" onclick="setCampFlow(1,this)" data-i18n="createRoom.flowSheet">🌊 流动</button>
       </div>
     </div>
     <div id="weak-row" style="display:none;margin-bottom:10px;padding:8px 10px;background:rgba(224,80,80,.07);border-radius:10px;">
@@ -1753,7 +1753,10 @@ function smuflFont(px){ return `${px}px Bravura`; }
 function draw(){
   if(!cx||!SC.W)return;
   cx.clearRect(0,0,SC.W,SC.H);
-  if(flowMode&&rhythmMode&&gs&&gs.sheet){drawFlowView();return;}
+  if(gs&&gs.sheet){
+    if(flowMode&&rhythmMode){drawFlowView();return;}        // time-based rhythm scroll
+    if(sheetDisplay==='scroll'){drawScrollFollow();return;}  // player-paced scroll (Simply-Piano)
+  }
   for(let row=0;row<SC.rows.length;row++){
     drawStaffLines('treble',row);drawStaffLines('bass',row);
     drawClefs(row);
@@ -1762,6 +1765,69 @@ function draw(){
   if(gs&&gs.sheet)drawBars();
   drawRhythmCursor();
 }
+// glowing cyan "play now" band (shared by both scrolling views)
+function drawPlayBand(hitX,yTop,yBot){
+  cx.save();
+  const bw=SC.hs*4.2, top=yTop-SC.hs*1.5, bot=yBot+SC.hs*1.5;
+  const g=cx.createLinearGradient(hitX-bw/2,0,hitX+bw/2,0);
+  g.addColorStop(0,'rgba(56,189,248,0)');g.addColorStop(.5,'rgba(56,189,248,0.26)');g.addColorStop(1,'rgba(56,189,248,0)');
+  cx.fillStyle=g;cx.fillRect(hitX-bw/2,top,bw,bot-top);
+  cx.strokeStyle='rgba(125,211,252,0.9)';cx.lineWidth=Math.max(2,SC.hs*0.35);
+  cx.beginPath();cx.moveTo(hitX,top);cx.lineTo(hitX,bot);cx.stroke();
+  cx.restore();
+}
+// ── PLAYER-PACED SCROLL: sheet scrolls so the current note sits under the band;
+//    play at your own pace (no timing pressure). Works without rhythm mode. ──
+let sheetScrollX=0, scrollRaf=null;
+function drawScrollFollow(){
+  const bars=gs.sheet.bars; if(!bars||!bars.length)return;
+  const PB=SC.hs*3.4;                          // px per beat
+  const leftPad=SC.clefW+SC.hs*2;              // notes vanish under the fixed clef
+  const barStart=[]; let x=leftPad;
+  for(let bi=0;bi<bars.length;bi++){barStart[bi]=x;x+=(bars[bi].ts||4)*PB;}
+  const endX=x;
+  const cb=Math.min(gs.curBar,bars.length-1);
+  const curBar=bars[cb];
+  const curNoteObj=curBar&&curBar.notes[gs.curNote];
+  const curX=barStart[cb]+((curNoteObj?curNoteObj.beat:0)*PB);
+  const bandX=SC.sheetL+(SC.sheetR-SC.sheetL)*0.26;
+  const target=bandX-curX;
+  if(!gs.paused) sheetScrollX+=(target-sheetScrollX)*0.2;   // smooth follow
+  const sx=sheetScrollX;
+  const yTop=s2y(12,'treble',0), yBot=s2y(-4,'bass',0);
+  drawStaffLines('treble',0);drawStaffLines('bass',0);
+  drawPlayBand(bandX,yTop,yBot);
+  // scrolling barlines
+  cx.strokeStyle='rgba(203,213,225,0.18)';cx.lineWidth=1;
+  for(let bi=0;bi<=bars.length;bi++){const bx=(bi<bars.length?barStart[bi]:endX)+sx;if(bx<leftPad-2||bx>SC.sheetR+4)continue;cx.beginPath();cx.moveTo(bx,yTop);cx.lineTo(bx,yBot);cx.stroke();}
+  // scrolling notes (past notes dim)
+  for(let bi=0;bi<bars.length;bi++){const bar=bars[bi];
+    for(let ni=0;ni<bar.notes.length;ni++){const nt=bar.notes[ni];
+      const nx=barStart[bi]+nt.beat*PB+sx;
+      if(nx<leftPad-14||nx>SC.sheetR+30)continue;
+      let a=nt.acc;if(a==null&&/[#b]/.test(nt.nd.name))a=nt.nd.name.includes('#')?'sharp':'flat';nt._showAcc=a;
+      const past=(bi<gs.curBar)||(bi===gs.curBar&&ni<gs.curNote);
+      if(past&&nt.state!=='done'&&!nt._missed)cx.globalAlpha=0.34;
+      drawNote(nt,nx,clefFor(nt.nd.name),bi,ni,[],0);
+      cx.globalAlpha=1;
+    }
+  }
+  // fixed clef area: mask sliding notes, redraw staff stubs + clef + time sig
+  cx.fillStyle='#0F172A';
+  cx.fillRect(0,yTop-SC.hs*2,leftPad-SC.hs*0.4,(yBot-yTop)+SC.hs*4);
+  cx.strokeStyle=STAFF_INK;cx.lineWidth=1.3;
+  for(const cf of['treble','bass'])for(let i=0;i<5;i++){const y=s2y(i*2,cf,0);cx.beginPath();cx.moveTo(10,Math.round(y)+0.5);cx.lineTo(leftPad,Math.round(y)+0.5);cx.stroke();}
+  drawClefs(0);drawTimeSig(0);
+  ensureScroll();
+}
+function scrollLoop(){
+  scrollRaf=null;
+  if(sheetDisplay!=='scroll'||rhythmMode||!gs||!gs.active)return;
+  draw();
+  scrollRaf=requestAnimationFrame(scrollLoop);
+}
+function ensureScroll(){ if(scrollRaf==null&&sheetDisplay==='scroll'&&!rhythmMode&&gs&&gs.active&&!document.querySelector('.cdown'))scrollRaf=requestAnimationFrame(scrollLoop); }
+function stopScroll(){ if(scrollRaf){cancelAnimationFrame(scrollRaf);scrollRaf=null;} }
 // ── FLOW VIEW: notes scroll right→left on one grand staff; hit line at the left ──
 function drawFlowView(){
   drawStaffLines('treble',0);drawStaffLines('bass',0);drawClefs(0);
@@ -2289,7 +2355,9 @@ function startLevel(id){
   stopMetronome(); metroOn=false; updateMetroBtn();
   resetCombo();
   clearRhythm();
-  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;flowMode=campFlow===1;}
+  sheetDisplay = campFlow===1 ? 'scroll' : 'static';
+  sheetScrollX = (SC&&SC.W)||900;   // slide the sheet in from the right
+  if(campRhythmBPM>0){rhythmMode=true;rhythmBPM=campRhythmBPM;flowMode=campFlow===1;sheetDisplay='static';}
   gameKind='campaign';curLv=id;
   setDemoBtn(true);
   const lv=LEVELS.find(l=>l.id===id);
@@ -2316,6 +2384,7 @@ function startLevel(id){
 }
 function newSheet(){
   gs.sheet=genSheet(gs.lv);gs.curBar=0;gs.curNote=0;
+  if(sheetDisplay==='scroll')sheetScrollX=(SC&&SC.W)||900;   // new sheet slides in
   buildChips();updChips();updHUD();draw();updHint();
   // note: genSheet reads SC.displayBars internally
   if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
@@ -2597,6 +2666,7 @@ function startRandom(range,mins,daily){
   stopMetronome();metroOn=false;updateMetroBtn();
   resetCombo();
   clearRhythm();
+  sheetDisplay = campFlow===1 ? 'scroll' : 'static';
   gameKind='random';
   setDemoBtn(false);
   show('scr-game');ea();
@@ -2621,6 +2691,7 @@ function newRandomSheet(){
   const bars=genRangeBars(randomRange,seed,numBars);
   gs.sheet={bars,ts:4};
   gs.curBar=0;gs.curNote=0;
+  if(sheetDisplay==='scroll')sheetScrollX=(SC&&SC.W)||900;
   buildChips();updChips();updHUD();draw();updHint();
   if(rhythmMode&&rhythmStartMs)buildRhythmSchedule();
 }
@@ -2882,7 +2953,7 @@ function setBotRange(r,btn){
   btn.classList.add('on');
 }
 function startBotMatch(){
-  stopMetronome();metroOn=false;updateMetroBtn();
+  stopMetronome();metroOn=false;updateMetroBtn();sheetDisplay='static';
   resetCombo();clearRhythm();
   dailyMode=false;
   gameKind='bot';botBars=0;botGoal=8;
@@ -3063,14 +3134,12 @@ function clearRhythm(){
 }
 // campaign rhythm setting: 0 = off, else BPM; campFlow: 0 fixed sheet, 1 flowing sheet
 let campRhythmBPM=+(localStorage.getItem('psr_campBpm')||0);
-let campFlow=+(localStorage.getItem('psr_campFlow')||0);
+let campFlow=(localStorage.getItem('psr_campFlow')!==null)?+localStorage.getItem('psr_campFlow'):1;
 function setCampRhythm(bpm,btn){
   campRhythmBPM=bpm;
   try{localStorage.setItem('psr_campBpm',String(bpm));}catch{}
   document.querySelectorAll('#camp-rhythm-toggle button').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  const fr=document.getElementById('camp-flow-row');
-  if(fr)fr.style.display=bpm>0?'flex':'none';
 }
 function setCampFlow(f,btn){
   campFlow=f;
@@ -3085,8 +3154,6 @@ function syncCampRhythmUI(){
   document.querySelectorAll('#camp-flow-toggle button').forEach(b=>{
     b.classList.toggle('on',+b.dataset.f===campFlow);
   });
-  const fr=document.getElementById('camp-flow-row');
-  if(fr)fr.style.display=campRhythmBPM>0?'flex':'none';
 }
 
 // ── DEMO PLAYBACK: play the current sheet so the player can hear it first ──
@@ -3143,9 +3210,9 @@ function togglePause(){
   if(gs.paused&&gs){const tot=gs.notesOK+gs.notesWrong,acc=tot?Math.round(gs.notesOK/tot*100):100;const pd=document.getElementById('pov-stats');if(pd){pd.style.display='';pd.innerHTML=`🎯 ${acc}%　✅ ${gs.notesOK}　❌ ${gs.notesWrong}　🔥 ${t('result.maxCombo')} ${gs.maxCombo||0}x<br>⭐ ${t('result.score')} ${gs.score}`;}}
   else{const pd=document.getElementById('pov-stats');if(pd)pd.style.display='none';}
 }
-function quitGame(){gs.active=false;clearInterval(timerIv);clearTimeout(botTimer);stopRhythmLoop();saveWeak();stopDemo();document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
+function quitGame(){gs.active=false;clearInterval(timerIv);clearTimeout(botTimer);stopRhythmLoop();stopScroll();saveWeak();stopDemo();document.getElementById('pov').classList.remove('show');if(gameKind==='online')leaveRoom();else show('scr-menu');}
 function endGame(){
-  gs.active=false;clearInterval(timerIv);resetCombo();stopRhythmLoop();saveWeak();stopDemo();
+  gs.active=false;clearInterval(timerIv);resetCombo();stopRhythmLoop();stopScroll();saveWeak();stopDemo();
   if(gameKind==='online'){return endOnlineGame();}
   if(gameKind==='bot'){return endBotGame(gs.barsDone>=(gs.goal||8));}
   if(gameKind==='random'){return endRandomGame();}
@@ -3229,7 +3296,7 @@ function showCD(cb){const o=document.createElement('div');o.className='cdown';do
 // ═══════════════════════════════════════════════════════════
 let practiceSheet=null;
 function startPractice(){
-  clearRhythm();
+  clearRhythm();sheetDisplay='static';
   gameKind='practice';ea();show('scr-game');
   setDemoBtn(false);
   document.getElementById('vs-bar').classList.remove('show');
@@ -3472,7 +3539,7 @@ function saveUserSheet(){
 
 // ── Custom navigation practice: follow your own sheet, wrong note repeats, loops forever ──
 function startCustomGame(){
-  stopMetronome(); metroOn=false; updateMetroBtn();
+  stopMetronome(); metroOn=false; updateMetroBtn();sheetDisplay='static';
   const total=practiceSheet.bars.reduce((s,b)=>s+b.notes.length,0);
   if(total===0){toast(t('toast.needNotes'));return;}
   clearRhythm();
@@ -3959,6 +4026,7 @@ function buildSongBars(song){
 function startSongGame(song){
   stopMetronome(); metroOn=false; updateMetroBtn();
   clearRhythm();
+  sheetDisplay = campFlow===1 ? 'scroll' : 'static';
   gameKind='song';ea();
   setDemoBtn(true);
   show('scr-game');
@@ -3986,6 +4054,7 @@ function loadSongPage(){
   gs={lv:{id:'song',sharps:true,flats:true},sheet:{ts:songState.song.ts||4,bars:slice},
       curBar:0,curNote:0,score:0,barsDone:0,sheetNum:1,notesOK:0,notesWrong:0,active:true,paused:false,song:true,maxCombo:0};
   while(gs.curBar<slice.length && slice[gs.curBar].notes.length===0) gs.curBar++;
+  if(sheetDisplay==='scroll')sheetScrollX=(SC&&SC.W)||900;
   buildChips();updChips();updHUD();draw();updHint();
 }
 
@@ -4432,6 +4501,7 @@ function getPlayerName(){ return window.myDisplayName || (t('game.playerPrefix')
 let roomCode=null, isHost=false, onlineVsMode='speed', roomRef=null, roomUnsub=null, editingRoom=false, isSoloRoom=false;
 let onlineLevel=3, onlineSheetSeed=null, opponentId=null, onlineSongRef='builtin:ode', onlineSongState=null;
 let rhythmMode=false, rhythmBPM=80, rhythmStartMs=0, rhythmSchedule=[], rhythmRafId=null, flowMode=false;
+let sheetDisplay='static';   // 'static' paged staff | 'scroll' player-paced Simply-Piano view
 
 window.addEventListener('fb-user', async e => {
   const user = e.detail;
@@ -4915,7 +4985,7 @@ function beginOnlineGame(data){
   onlineEnded=false; myAtkSeen=0; myAtkSent=0;
   rhythmMode=onlineVsMode==='rhythm';
   rhythmBPM=data.bpm||80;
-  flowMode=rhythmMode&&!!data.flow;
+  flowMode=rhythmMode&&!!data.flow;sheetDisplay='static';
   setDemoBtn(false);
   // Apply input mode (piano / solfege) set by the room host
   applyRoomInputMode(data.inputMode||'piano');
