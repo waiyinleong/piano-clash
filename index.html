@@ -1154,7 +1154,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.6.6';
+const APP_VERSION = '3.6.7';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4366,7 +4366,14 @@ FIRST, read the header of the score:
 - KEY SIGNATURE: count the sharps or flats at the start of each staff. 0=C major, 1 flat=F major (Bb), 2 flats=Bb major (Bb,Eb), 1 sharp=G major (F#), 2 sharps=D major (F#,C#), etc.
 - TEMPO if written (e.g. ♩=126).
 
-THEN read the music measure by measure, left to right. There are TWO staves per system: the UPPER staff is treble clef (right hand), the LOWER staff is bass clef (left hand).
+THEN read the music measure by measure, left to right. There are usually TWO staves per system. IMPORTANT: read the CLEF symbol at the start of EACH staff yourself — the upper staff is normally treble (𝄞), the lower is often bass (𝄢), BUT the lower/left-hand staff is sometimes written in TREBLE clef when the left hand plays higher. Do not assume; use the clef you actually see.
+
+IGNORE and do NOT transcribe these — they are not notes:
+- FINGERING numbers: small digits 1,2,3,4,5 printed just above or below noteheads (they tell which finger to use). Never turn a fingering number into a note or pitch.
+- Dynamics and words: p, mp, f, dolce, cresc., rit., etc.
+- Pedal marks, slurs, ties, phrase arcs, measure numbers.
+
+PICKUP / ANACRUSIS: if the piece begins with an INCOMPLETE first measure (an upbeat with fewer beats than the time signature — common), make the FIRST bar contain ONLY those pickup notes and set that bar's "ts" to the actual number of beats it holds (e.g. 1 or 2 for a 3/4 piece). All following full bars use the normal time signature.
 
 For EVERY note determine the exact pitch from THREE things together:
 1) the note's vertical position on its staff line/space,
@@ -4379,9 +4386,9 @@ Output ONLY valid JSON (no markdown), EXACTLY:
 
 Rules:
 - "n" = scientific pitch WITH the key signature already applied, middle C = C4. Examples: "F4","Bb3","C#5","G2".
-- OCTAVES: treble/right-hand notes are almost always C4–C6; bass/left-hand notes are almost always C2–C4. Use the clef to get the octave right — do NOT put left-hand notes up high.
-- "hand": "R" for treble staff notes, "L" for bass staff notes.
-- "d" = duration: "w","hd"(dotted half),"h","q","e","s". Each bar's durations should sum to the time signature.
+- OCTAVES: treble/right-hand notes are almost always C4–C6; bass/left-hand notes are almost always C2–C4, UNLESS that staff's clef is treble. Use the actual clef.
+- "hand": "R" for the upper staff, "L" for the lower staff.
+- "d" = duration: "w","hd"(dotted half),"h","q","e","s". Each full bar's durations should sum to the time signature (pickup bars are shorter).
 - List notes in time order; if left and right play together, list the right-hand note then the left-hand note.
 - "key" = detected key, e.g. "C major","F major".
 - Do NOT invent notes or add accidentals that aren't there. If truly unreadable, omit that note. No text outside the JSON.`;
