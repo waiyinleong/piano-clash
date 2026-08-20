@@ -337,6 +337,8 @@ hr.dv{border-top-color:var(--ui-border);}
 .toggle button.on{background:var(--blue);color:var(--accentInk);}
 .mb-dark{background:var(--blue);color:var(--accentInk);}
 .mb-ghost{background:transparent;color:var(--ink2);border-color:var(--slate2);}
+.omr-m{opacity:.5;border:2px solid transparent;}
+.omr-m.on{opacity:1;border-color:var(--green,#0a9d55);box-shadow:0 0 0 2px rgba(10,157,85,.25);}
 .mini-link{color:var(--ink2);}
 .hud{background:var(--bg2);border:1px solid var(--ui-border);border-radius:16px;margin:6px 8px 0;height:auto;padding:8px 14px;box-shadow:0 4px 20px rgba(0,0,0,.4);}
 .hv{font-family:ui-monospace,'SFMono-Regular','Menlo',monospace;font-weight:800;}
@@ -708,6 +710,12 @@ input::placeholder{color:var(--muted);}
     <input id="gemini-key" type="password" placeholder="粘贴你的 Gemini API Key"
       style="width:100%;padding:9px 11px;border-radius:9px;font-size:13px;margin-bottom:6px;box-sizing:border-box;">
     <div class="mini-link" style="margin-bottom:12px;" onclick="window.open('https://aistudio.google.com/apikey','_blank')">→ 去 AI Studio 领取免费 Key</div>
+    <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;">🎯 识别范围</div>
+    <div id="omr-mode" style="display:flex;gap:6px;margin-bottom:6px;">
+      <button class="mbtn mb-dark omr-m on" data-m="melody" style="flex:1;margin:0;font-size:12px;padding:8px;" onclick="setOmrMode('melody',this)">🎵 只识别右手旋律<br><small style="opacity:.7">（单声部，最准，推荐）</small></button>
+      <button class="mbtn mb-dark omr-m" data-m="full" style="flex:1;margin:0;font-size:12px;padding:8px;" onclick="setOmrMode('full',this)">🎹 完整双手<br><small style="opacity:.7">（复杂谱，误差较大）</small></button>
+    </div>
+    <div style="font-size:11px;color:#94A3B8;line-height:1.6;margin-bottom:12px;">拍照识别有难度，复杂钢琴谱难免出错。<b>「只识别右手旋律」几乎总是更准</b>，也更适合视奏练习。识别后请对照原谱核对，可试弹再保存。</div>
     <input type="file" id="photo-file" accept="image/*" capture="environment" style="display:none" onchange="photoToSheet(event)">
     <button class="mbtn mb-dark" onclick="document.getElementById('gemini-key').value.trim()?document.getElementById('photo-file').click():toast('请先填入 Gemini API Key')">📸 选择 / 拍摄乐谱照片</button>
     <div id="photo-status" style="font-size:12px;color:#94A3B8;text-align:center;min-height:20px;margin:8px 0;"></div>
@@ -1154,7 +1162,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.6.7';
+const APP_VERSION = '3.6.8';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4313,10 +4321,11 @@ function importSong(ev){
 // PHOTO → SHEET via Gemini vision (OMR). Best on simple single-line scores.
 // ═══════════════════════════════════════════════════════════
 let recognizedSong=null, geminiModelCache=localStorage.getItem('psr_geminiModel')||null;
-// models to try, newest-widely-available first; a key that can't use one 404s → try next
-const GEMINI_MODELS=['gemini-flash-latest','gemini-3.7-flash','gemini-flash-lite-latest',
-  'gemini-3-flash','gemini-2.5-flash-lite','gemini-2.0-flash','gemini-2.0-flash-lite',
-  'gemini-1.5-flash','gemini-2.5-flash'];
+let omrMode=localStorage.getItem('psr_omrMode')||'melody';   // 'melody' = right-hand line only (accurate); 'full' = both hands
+// OMR needs the STRONGEST vision model available — reading a dense staff is hard for
+// flash-tier. Prefer pro, fall back through flash. A key that can't use one 404s → next.
+const GEMINI_MODELS=['gemini-3-pro','gemini-2.5-pro','gemini-pro-latest',
+  'gemini-flash-latest','gemini-3.7-flash','gemini-3-flash','gemini-2.0-flash','gemini-1.5-flash'];
 // list the models THIS key can actually use (source of truth for new/free-tier keys)
 async function listGeminiModels(key){
   try{
@@ -4326,14 +4335,16 @@ async function listGeminiModels(key){
     return (d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')
         && !/(embedding|aqa|tts|imagen|image-generation|-live|-audio)/i.test(m.name))
       .map(m=>m.name.replace(/^models\//,''))
-      .sort((a,b)=>((/flash/i.test(b)?2:/pro/i.test(b)?1:0)-(/flash/i.test(a)?2:/pro/i.test(a)?1:0)));
+      // pro first (best OMR accuracy), then flash, then the rest
+      .sort((a,b)=>((/pro/i.test(b)?2:/flash/i.test(b)?1:0)-(/pro/i.test(a)?2:/flash/i.test(a)?1:0)));
   }catch{return [];}
 }
 // call generateContent, falling back through models; retry on transient overload (503/429/500)
 async function geminiGenerate(key,parts,onModel){
   if(onModel)onModel('查询可用模型…');
   const listed=await listGeminiModels(key);
-  const order=[...new Set([geminiModelCache,...listed,...GEMINI_MODELS].filter(Boolean))];
+  // best-first (pro→flash); don't pin the last-used flash model — accuracy over speed
+  const order=[...new Set([...listed,...GEMINI_MODELS].filter(Boolean))];
   const body={contents:[{parts}],generationConfig:{temperature:0,responseMimeType:'application/json'}};
   let lastErr='no model';
   for(let attempt=0;attempt<3;attempt++){
@@ -4373,7 +4384,7 @@ IGNORE and do NOT transcribe these — they are not notes:
 - Dynamics and words: p, mp, f, dolce, cresc., rit., etc.
 - Pedal marks, slurs, ties, phrase arcs, measure numbers.
 
-PICKUP / ANACRUSIS: if the piece begins with an INCOMPLETE first measure (an upbeat with fewer beats than the time signature — common), make the FIRST bar contain ONLY those pickup notes and set that bar's "ts" to the actual number of beats it holds (e.g. 1 or 2 for a 3/4 piece). All following full bars use the normal time signature.
+PICKUP / ANACRUSIS: only if the very first measure is CLEARLY incomplete — a short upbeat of one or two notes standing BEFORE the first barline, with obviously fewer beats than the time signature — treat it as a pickup: make bar 1 hold only those upbeat notes with its own shorter "ts". Do NOT invent a pickup. Most pieces begin with a FULL first measure; if the first measure looks full (its notes fill the whole bar), give it the normal time signature like every other bar. Never reduce a full opening measure to a single note.
 
 For EVERY note determine the exact pitch from THREE things together:
 1) the note's vertical position on its staff line/space,
@@ -4393,6 +4404,34 @@ Rules:
 - "key" = detected key, e.g. "C major","F major".
 - Do NOT invent notes or add accidentals that aren't there. If truly unreadable, omit that note. No text outside the JSON.`;
 
+// Melody-only: read ONLY the top staff's right-hand melody line. Far more reliable
+// than full grand-staff OMR, and ideal for sight-reading practice.
+const OMR_PROMPT_MELODY=`You are an expert at reading piano sheet music. Transcribe ONLY the MAIN MELODY — the notes of the UPPER (right-hand) staff — to JSON. Ignore the lower/left-hand staff completely. Work carefully, measure by measure.
+
+FIRST, read the header:
+- TIME SIGNATURE (e.g. 3/4, 4/4).
+- KEY SIGNATURE at the start of the staff: count sharps/flats. 0=C major, 1 flat=F major (B is Bb), 2 flats=Bb major (Bb,Eb), 1 sharp=G major (F#), 2 sharps=D major (F#,C#). Apply it to EVERY matching note for the whole piece unless a natural/accidental overrides it in that bar.
+- The upper staff is treble clef; middle C = C4; melody notes are almost always C4–C6.
+
+READ the upper staff only, left to right. For each beat take a SINGLE note — if there is a chord, take the TOP (highest) note. Capture the rhythm (eighth notes, dotted notes, etc.) as best you can.
+
+IGNORE — never turn these into notes: fingering digits (small 1,2,3,4,5 above/below notes), dynamics/words (p, dolce, cresc., rit.), pedal marks, slurs, ties, phrase arcs, measure numbers, and the entire lower staff.
+
+PICKUP: only if the piece clearly starts with a short upbeat (one or two notes before the first barline) make bar 1 shorter. Otherwise the first measure is full like the rest — never shrink a full opening bar to one note.
+
+Output ONLY valid JSON (no markdown), EXACTLY:
+{"title": string, "key": string, "ts": number, "bpm": number,
+ "bars": [ {"ts": number, "notes": [ {"n": string, "d": string} ] } ] }
+- "n" = scientific pitch WITH key signature applied, e.g. "F4","Bb4","C#5". middle C = C4.
+- "d" = duration: "w","hd"(dotted half),"h","q","e","s". Each full bar sums to the time signature.
+- "key" = detected key, e.g. "F major".
+- Do NOT invent notes or accidentals. Omit anything truly unreadable. No text outside the JSON.`;
+
+function setOmrMode(m,btn){
+  omrMode=m; try{localStorage.setItem('psr_omrMode',m);}catch{}
+  document.querySelectorAll('#omr-mode .omr-m').forEach(b=>b.classList.toggle('on',b===btn));
+}
+
 function fileToBase64(file){
   return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
 }
@@ -4406,7 +4445,8 @@ async function photoToSheet(ev){
   st.textContent='📤 上传并识别中…（约 5–15 秒）';
   try{
     const b64=await fileToBase64(file);
-    const parts=[{text:OMR_PROMPT},{inline_data:{mime_type:file.type||'image/jpeg',data:b64}}];
+    const prompt=(omrMode==='full')?OMR_PROMPT:OMR_PROMPT_MELODY;
+    const parts=[{text:prompt},{inline_data:{mime_type:file.type||'image/jpeg',data:b64}}];
     const data=await geminiGenerate(key,parts,(model)=>{st.textContent='📤 用 '+model+' 识别中…（约 5–15 秒）';});
     const txt=data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if(!txt)throw new Error('模型没有返回内容');
@@ -5927,7 +5967,7 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-photo'){const k=document.getElementById('gemini-key');if(k&&!k.value){k.value=localStorage.getItem('psr_geminiKey')||'';}}if(id==='scr-menu'){updateDailyBtn();renderDashboard();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-photo'){const k=document.getElementById('gemini-key');if(k&&!k.value){k.value=localStorage.getItem('psr_geminiKey')||'';}document.querySelectorAll('#omr-mode .omr-m').forEach(b=>b.classList.toggle('on',b.dataset.m===omrMode));}if(id==='scr-menu'){updateDailyBtn();renderDashboard();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 // PWA: register service worker (offline play + installable). No-op on file:// or unsupported.
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
