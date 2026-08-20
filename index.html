@@ -1154,7 +1154,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.6.0';
+const APP_VERSION = '3.6.1';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4312,8 +4312,24 @@ function importSong(ev){
 // ═══════════════════════════════════════════════════════════
 // PHOTO → SHEET via Gemini vision (OMR). Best on simple single-line scores.
 // ═══════════════════════════════════════════════════════════
-let recognizedSong=null;
-const GEMINI_MODEL='gemini-2.5-flash';
+let recognizedSong=null, geminiModelCache=null;
+// discover a model this key can actually use (avoids hardcoded/deprecated names)
+async function pickGeminiModel(key){
+  if(geminiModelCache)return geminiModelCache;
+  try{
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
+    if(r.ok){
+      const d=await r.json();
+      const cands=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')
+        && /flash/i.test(m.name) && !/(embedding|vision-|thinking|image|tts|audio)/i.test(m.name));
+      const score=n=>(/2\.5/.test(n)?3:/2\.0/.test(n)?2:/1\.5/.test(n)?1:0)-(/(exp|preview)/i.test(n)?0.5:0);
+      cands.sort((a,b)=>score(b.name)-score(a.name));
+      if(cands[0]){geminiModelCache=cands[0].name.replace(/^models\//,'');return geminiModelCache;}
+    }
+  }catch(e){console.warn('model list failed',e);}
+  geminiModelCache='gemini-2.0-flash';
+  return geminiModelCache;
+}
 const OMR_PROMPT=`You are an optical music recognition (OMR) engine. Read the sheet music in this image and transcribe it to JSON.
 Output ONLY valid JSON (no markdown, no commentary) with EXACTLY this schema:
 {"title": string, "bpm": number, "ts": number, "bars": [ {"ts": number, "notes": [ {"n": string, "d": string} ] } ] }
@@ -4338,7 +4354,9 @@ async function photoToSheet(ev){
   st.textContent='📤 上传并识别中…（约 5–15 秒）';
   try{
     const b64=await fileToBase64(file);
-    const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
+    const model=await pickGeminiModel(key);
+    st.textContent='📤 用 '+model+' 识别中…（约 5–15 秒）';
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
     const body={contents:[{parts:[{text:OMR_PROMPT},{inline_data:{mime_type:file.type||'image/jpeg',data:b64}}]}],
                 generationConfig:{temperature:0.1,responseMimeType:'application/json'}};
     const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -4354,6 +4372,7 @@ async function photoToSheet(ev){
     document.getElementById('photo-result').style.display='';
   }catch(err){
     console.error('OMR failed',err);
+    geminiModelCache=null;   // re-discover model on next try
     st.innerHTML='<span style="color:#e05050;">识别失败：'+String(err.message||err).slice(0,140)+'</span>';
   }
 }
