@@ -1154,7 +1154,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.6.3';
+const APP_VERSION = '3.6.4';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4319,7 +4319,7 @@ const GEMINI_MODELS=['gemini-2.0-flash','gemini-flash-latest','gemini-2.5-flash-
 // call generateContent, falling back through models on availability errors
 async function geminiGenerate(key,parts,onModel){
   const order=geminiModelCache?[geminiModelCache,...GEMINI_MODELS.filter(m=>m!==geminiModelCache)]:GEMINI_MODELS;
-  const body={contents:[{parts}],generationConfig:{temperature:0.1,responseMimeType:'application/json'}};
+  const body={contents:[{parts}],generationConfig:{temperature:0,responseMimeType:'application/json'}};
   let lastErr='no model';
   for(const model of order){
     if(onModel)onModel(model);
@@ -4335,16 +4335,32 @@ async function geminiGenerate(key,parts,onModel){
   }
   throw new Error('你的 key 没有可用的视觉模型（'+String(lastErr).slice(0,90)+'）');
 }
-const OMR_PROMPT=`You are an optical music recognition (OMR) engine. Read the sheet music in this image and transcribe it to JSON.
-Output ONLY valid JSON (no markdown, no commentary) with EXACTLY this schema:
-{"title": string, "bpm": number, "ts": number, "bars": [ {"ts": number, "notes": [ {"n": string, "d": string} ] } ] }
+const OMR_PROMPT=`You are an expert piano optical music recognition (OMR) system. Transcribe the piano sheet music in this photo to JSON. Work carefully and methodically.
+
+FIRST, read the header of the score:
+- TIME SIGNATURE (e.g. 3/4, 4/4).
+- KEY SIGNATURE: count the sharps or flats at the start of each staff. 0=C major, 1 flat=F major (Bb), 2 flats=Bb major (Bb,Eb), 1 sharp=G major (F#), 2 sharps=D major (F#,C#), etc.
+- TEMPO if written (e.g. ♩=126).
+
+THEN read the music measure by measure, left to right. There are TWO staves per system: the UPPER staff is treble clef (right hand), the LOWER staff is bass clef (left hand).
+
+For EVERY note determine the exact pitch from THREE things together:
+1) the note's vertical position on its staff line/space,
+2) the CLEF of that staff (treble vs bass — this sets the octave),
+3) the KEY SIGNATURE, which sharpens/flattens that letter for the whole piece unless a natural (♮) or accidental overrides it in that bar.
+
+Output ONLY valid JSON (no markdown), EXACTLY:
+{"title": string, "key": string, "ts": number, "bpm": number,
+ "bars": [ {"ts": number, "notes": [ {"n": string, "d": string, "hand": "R"|"L"} ] } ] }
+
 Rules:
-- "n" = scientific pitch, middle C is "C4". Examples: "C4","F#4","Bb3","G5". Use # or b for accidentals.
-- Include BOTH hands if there is a grand staff; list every note of each bar left-to-right, then lower staff.
-- "d" = duration: "w"=whole,"hd"=dotted half,"h"=half,"q"=quarter,"e"=eighth,"s"=sixteenth.
-- Each bar's durations should roughly sum to the time signature (ts). Ignore rests or approximate.
-- If tempo isn't shown, use 90. If unsure about a note, make your best guess. Keep going even if imperfect.
-- Absolutely no text outside the JSON object.`;
+- "n" = scientific pitch WITH the key signature already applied, middle C = C4. Examples: "F4","Bb3","C#5","G2".
+- OCTAVES: treble/right-hand notes are almost always C4–C6; bass/left-hand notes are almost always C2–C4. Use the clef to get the octave right — do NOT put left-hand notes up high.
+- "hand": "R" for treble staff notes, "L" for bass staff notes.
+- "d" = duration: "w","hd"(dotted half),"h","q","e","s". Each bar's durations should sum to the time signature.
+- List notes in time order; if left and right play together, list the right-hand note then the left-hand note.
+- "key" = detected key, e.g. "C major","F major".
+- Do NOT invent notes or add accidentals that aren't there. If truly unreadable, omit that note. No text outside the JSON.`;
 
 function fileToBase64(file){
   return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
@@ -4390,11 +4406,13 @@ function sanitizeRecognized(raw){
     }).filter(Boolean);
     return {ts:+(b.ts)||ts,notes};
   }).filter(b=>b.notes.length);
-  return {title,author:'📷 拍照识别',ts,bpm,bars};
+  const key=(raw.key||'').toString().slice(0,24);
+  return {title,author:'📷 拍照识别',ts,bpm,bars,key};
 }
 function countNotes(s){return s.bars.reduce((a,b)=>a+b.notes.length,0);}
 function previewText(s){
-  return s.bars.slice(0,8).map((b,i)=>'小节'+(i+1)+': '+b.notes.map(n=>n.n).join(' ')).join('\n')+(s.bars.length>8?'\n…共 '+s.bars.length+' 小节':'');
+  const hdr='调号: '+(s.key||'?')+' · 拍号: '+s.ts+'/4 · 速度: '+s.bpm+'\n（调号不对 → 全部音会错，请核对）\n';
+  return hdr+s.bars.slice(0,8).map((b,i)=>'小节'+(i+1)+': '+b.notes.map(n=>n.n).join(' ')).join('\n')+(s.bars.length>8?'\n…共 '+s.bars.length+' 小节':'');
 }
 function playRecognizedSong(){ if(recognizedSong)startSongGame(recognizedSong); }
 function saveRecognizedSong(){
