@@ -1162,7 +1162,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.6.8';
+const APP_VERSION = '3.7.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4339,37 +4339,6 @@ async function listGeminiModels(key){
       .sort((a,b)=>((/pro/i.test(b)?2:/flash/i.test(b)?1:0)-(/pro/i.test(a)?2:/flash/i.test(a)?1:0)));
   }catch{return [];}
 }
-// call generateContent, falling back through models; retry on transient overload (503/429/500)
-async function geminiGenerate(key,parts,onModel){
-  if(onModel)onModel('查询可用模型…');
-  const listed=await listGeminiModels(key);
-  // best-first (pro→flash); don't pin the last-used flash model — accuracy over speed
-  const order=[...new Set([...listed,...GEMINI_MODELS].filter(Boolean))];
-  const body={contents:[{parts}],generationConfig:{temperature:0,responseMimeType:'application/json'}};
-  let lastErr='no model';
-  for(let attempt=0;attempt<3;attempt++){
-    let sawTransient=false;
-    for(const model of order){
-      if(onModel)onModel(model+(attempt?'（重试 '+attempt+'）':''));
-      let resp;
-      try{ resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
-        {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
-      catch(e){ throw new Error('网络/CORS 错误：'+e.message); }
-      if(resp.ok){ geminiModelCache=model; try{localStorage.setItem('psr_geminiModel',model);}catch{} return await resp.json(); }
-      const errTxt=await resp.text(); lastErr=errTxt; const s=resp.status;
-      // bad key / no permission → stop immediately
-      if(s===401||s===403||/api key not valid|permission_denied|invalid.*key/i.test(errTxt))
-        throw new Error('API Key 无效或未启用 Generative Language API：'+errTxt.slice(0,110));
-      // transient overload / rate limit → try next model, then retry the chain after backoff
-      if(s===503||s===500||s===429||/high demand|overloaded|try again|temporarily|rate limit|resource_exhausted/i.test(errTxt)){ sawTransient=true; continue; }
-      // model unavailable (404 etc.) → skip this model permanently
-    }
-    if(!sawTransient) break;                 // all failures were permanent — no point retrying
-    await new Promise(r=>setTimeout(r,1500*(attempt+1)));   // backoff, then retry the whole chain
-  }
-  if(/high demand|overloaded|503/i.test(lastErr)) throw new Error('模型正忙（高需求），请过 1–2 分钟再试');
-  throw new Error(String(lastErr).slice(0,140));
-}
 const OMR_PROMPT=`You are an expert piano optical music recognition (OMR) system. Transcribe the piano sheet music in this photo to JSON. Work carefully and methodically.
 
 FIRST, read the header of the score:
@@ -4435,6 +4404,100 @@ function setOmrMode(m,btn){
 function fileToBase64(file){
   return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
 }
+function loadImage(file){
+  return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error('图片读取失败'));img.src=URL.createObjectURL(file);});
+}
+// Draw source into a working canvas (capped width) and return its pixel darkness-per-row profile.
+function toWorkCanvas(img){
+  const maxW=1500, scale=Math.min(1,maxW/img.width);
+  const w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+  const ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+  return {cv,ctx,w,h};
+}
+// Split a sheet photo into individual staff SYSTEMS via horizontal ink projection.
+// Grand-staff pairs (treble+bass) stay together; blank gaps between systems split them.
+function detectSystems(work){
+  const {ctx,w,h}=work, d=ctx.getImageData(0,0,w,h).data;
+  const ink=new Float32Array(h);
+  for(let y=0;y<h;y++){ let s=0,c=0; for(let x=0;x<w;x+=3){ const i=(y*w+x)*4; s+=255-(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114); c++; } ink[y]=s/c/255; }
+  // smooth
+  const sm=new Float32Array(h), R=Math.max(2,Math.round(h*0.004));
+  for(let y=0;y<h;y++){ let s=0,c=0; for(let k=-R;k<=R;k++){const yy=y+k; if(yy>=0&&yy<h){s+=ink[yy];c++;}} sm[y]=s/c; }
+  let mx=0; for(let y=0;y<h;y++) mx=Math.max(mx,sm[y]);
+  const thr=mx*0.14;
+  const bands=[]; let start=-1;
+  for(let y=0;y<h;y++){ const on=sm[y]>thr;
+    if(on&&start<0)start=y;
+    if((!on||y===h-1)&&start>=0){ bands.push([start,Math.min(y,h-1)]); start=-1; } }
+  // merge bands whose vertical gap is small vs their height (keeps treble+bass of one system together)
+  const merged=[];
+  for(const b of bands){
+    const last=merged[merged.length-1];
+    if(last){ const gap=b[0]-last[1], hh=Math.max(last[1]-last[0],b[1]-b[0]);
+      if(gap < hh*1.4){ last[1]=b[1]; continue; } }
+    merged.push([b[0],b[1]]);
+  }
+  // keep bands tall enough to be a real system
+  return merged.filter(b=> (b[1]-b[0]) > h*0.03);
+}
+// Crop a band (with padding), upscale, grayscale + contrast-stretch → sharp b64 JPEG.
+function enhanceBand(work,y0,y1){
+  const {cv,w}=work;
+  const pad=Math.round((y1-y0)*0.35);
+  const sy=Math.max(0,y0-pad), sh=Math.min(work.h,y1+pad)-sy;
+  const targetH=460, scale=Math.max(1,Math.min(3,targetH/sh));
+  const ow=Math.round(w*scale), oh=Math.round(sh*scale);
+  const c=document.createElement('canvas'); c.width=ow; c.height=oh;
+  const cx=c.getContext('2d'); cx.imageSmoothingEnabled=true; cx.imageSmoothingQuality='high';
+  cx.drawImage(cv,0,sy,w,sh,0,0,ow,oh);
+  const im=cx.getImageData(0,0,ow,oh), a=im.data;
+  let lo=255,hi=0; for(let i=0;i<a.length;i+=4){ const l=a[i]*0.299+a[i+1]*0.587+a[i+2]*0.114; if(l<lo)lo=l; if(l>hi)hi=l; }
+  const rng=Math.max(1,hi-lo);
+  for(let i=0;i<a.length;i+=4){ let l=(a[i]*0.299+a[i+1]*0.587+a[i+2]*0.114 -lo)/rng*255;
+    l=255*Math.pow(Math.max(0,l)/255,1.35); l=l<0?0:l>255?255:l; a[i]=a[i+1]=a[i+2]=l; }
+  cx.putImageData(im,0,0);
+  return c.toDataURL('image/jpeg',0.9).split(',')[1];
+}
+// Whole-image preprocessing fallback (when systems can't be detected reliably).
+function enhanceWhole(work){ return enhanceBand(work,0,work.h); }
+// Resolve the model chain once, best-first (pro→flash).
+async function resolveModelOrder(key){
+  const listed=await listGeminiModels(key);
+  return [...new Set([...listed,...GEMINI_MODELS].filter(Boolean))];
+}
+// One generateContent call, reusing the model resolved earlier in this batch (geminiModelCache).
+async function geminiBatchCall(key,parts,order,onModel){
+  const seq = geminiModelCache ? [geminiModelCache,...order.filter(m=>m!==geminiModelCache)] : order;
+  const body={contents:[{parts}],generationConfig:{temperature:0,responseMimeType:'application/json'}};
+  let lastErr='no model';
+  for(let attempt=0;attempt<2;attempt++){
+    let transient=false;
+    for(const model of seq){
+      if(onModel)onModel(model);
+      let resp;
+      try{ resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+        {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+      catch(e){ throw new Error('网络/CORS 错误：'+e.message); }
+      if(resp.ok){ geminiModelCache=model; try{localStorage.setItem('psr_geminiModel',model);}catch{} return await resp.json(); }
+      const errTxt=await resp.text(); lastErr=errTxt; const s=resp.status;
+      if(s===401||s===403||/api key not valid|permission_denied|invalid.*key/i.test(errTxt))
+        throw new Error('API Key 无效或未启用 Generative Language API：'+errTxt.slice(0,110));
+      if(s===503||s===500||s===429||/high demand|overloaded|try again|temporarily|rate limit|resource_exhausted/i.test(errTxt)){ transient=true; continue; }
+    }
+    if(!transient) break;
+    await new Promise(r=>setTimeout(r,1500*(attempt+1)));
+  }
+  if(/high demand|overloaded|503/i.test(lastErr)) throw new Error('模型正忙（高需求），请过 1–2 分钟再试');
+  throw new Error(String(lastErr).slice(0,140));
+}
+function extractJSON(txt){
+  let t=String(txt||'').trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+  try{ return JSON.parse(t); }catch{}
+  const a=t.indexOf('{'), b=t.lastIndexOf('}');
+  if(a>=0&&b>a){ return JSON.parse(t.slice(a,b+1)); }
+  throw new Error('返回内容不是有效 JSON');
+}
 async function photoToSheet(ev){
   const file=ev.target.files[0]; if(!file)return; ev.target.value='';
   const key=document.getElementById('gemini-key').value.trim();
@@ -4442,23 +4505,45 @@ async function photoToSheet(ev){
   try{localStorage.setItem('psr_geminiKey',key);}catch{}
   const st=document.getElementById('photo-status');
   document.getElementById('photo-result').style.display='none';
-  st.textContent='📤 上传并识别中…（约 5–15 秒）';
+  st.textContent='🖼️ 预处理图片…';
+  geminiModelCache=null;   // resolve best model (pro) on the first crop, then reuse for the rest
   try{
-    const b64=await fileToBase64(file);
-    const prompt=(omrMode==='full')?OMR_PROMPT:OMR_PROMPT_MELODY;
-    const parts=[{text:prompt},{inline_data:{mime_type:file.type||'image/jpeg',data:b64}}];
-    const data=await geminiGenerate(key,parts,(model)=>{st.textContent='📤 用 '+model+' 识别中…（约 5–15 秒）';});
-    const txt=data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!txt)throw new Error('模型没有返回内容');
-    const song=sanitizeRecognized(JSON.parse(txt));
+    // 1) preprocess + split into staff systems
+    const img=await loadImage(file);
+    const work=toWorkCanvas(img);
+    let systems=detectSystems(work);
+    let crops;
+    if(systems.length>=2 && systems.length<=20){
+      crops=systems.map(s=>({mime:'image/jpeg',data:enhanceBand(work,s[0],s[1])}));
+    }else{
+      crops=[{mime:'image/jpeg',data:enhanceWhole(work)}];   // fallback: one enhanced image
+    }
+    // 2) resolve model, then recognize each line, best-first then reuse
+    const order=await resolveModelOrder(key);
+    const base=(omrMode==='full')?OMR_PROMPT:OMR_PROMPT_MELODY;
+    const multi=crops.length>1;
+    let header=null, allBars=[];
+    for(let i=0;i<crops.length;i++){
+      st.textContent=(multi?('🎼 识别第 '+(i+1)+'/'+crops.length+' 行…'):'🎼 识别中…')+(geminiModelCache?('（'+geminiModelCache+'）'):'');
+      const lineNote=multi?'This image is ONE line (system) cropped from a larger score. Transcribe EVERY bar you see in it, left to right, in order. The key signature is shown again at the left of this line.\n\n':'';
+      const parts=[{text:lineNote+base},{inline_data:{mime_type:crops[i].mime,data:crops[i].data}}];
+      const data=await geminiBatchCall(key,parts,order,(m)=>{st.textContent=(multi?('🎼 识别第 '+(i+1)+'/'+crops.length+' 行…'):'🎼 识别中…')+'（'+m+'）';});
+      const txt=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if(!txt)continue;
+      let parsed; try{ parsed=extractJSON(txt); }catch{ continue; }
+      if(!header)header=parsed;
+      (Array.isArray(parsed.bars)?parsed.bars:[]).forEach(b=>allBars.push(b));
+    }
+    if(!header)throw new Error('模型没有返回内容，换清晰一点的照片再试');
+    const song=sanitizeRecognized({title:header.title,key:header.key,ts:header.ts,bpm:header.bpm,bars:allBars});
     if(!song.bars.length)throw new Error('没能识别出音符，换清晰一点的照片再试');
     recognizedSong=song;
-    st.textContent='✅ 识别成功（'+geminiModelCache+'）：'+song.bars.length+' 小节 · 约 '+countNotes(song)+' 个音符';
+    st.textContent='✅ 识别成功（'+geminiModelCache+(multi?(' · '+crops.length+' 行'):'')+'）：'+song.bars.length+' 小节 · 约 '+countNotes(song)+' 个音符';
     document.getElementById('photo-preview').textContent=previewText(song);
     document.getElementById('photo-result').style.display='';
   }catch(err){
     console.error('OMR failed',err);
-    geminiModelCache=null;   // re-discover model on next try
+    geminiModelCache=null;
     st.innerHTML='<span style="color:#e05050;">识别失败：'+String(err.message||err).slice(0,140)+'</span>';
   }
 }
