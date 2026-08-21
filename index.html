@@ -712,10 +712,10 @@ input::placeholder{color:var(--muted);}
     <div class="mini-link" style="margin-bottom:12px;" onclick="window.open('https://aistudio.google.com/apikey','_blank')">→ 去 AI Studio 领取免费 Key</div>
     <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;">🎯 识别范围</div>
     <div id="omr-mode" style="display:flex;gap:6px;margin-bottom:6px;">
-      <button class="mbtn mb-dark omr-m on" data-m="melody" style="flex:1;margin:0;font-size:12px;padding:8px;" onclick="setOmrMode('melody',this)">🎵 只识别右手旋律<br><small style="opacity:.7">（单声部，最准，推荐）</small></button>
-      <button class="mbtn mb-dark omr-m" data-m="full" style="flex:1;margin:0;font-size:12px;padding:8px;" onclick="setOmrMode('full',this)">🎹 完整双手<br><small style="opacity:.7">（复杂谱，误差较大）</small></button>
+      <button class="mbtn mb-dark omr-m on" data-m="full" style="flex:1;margin:0;font-size:12px;padding:8px;" onclick="setOmrMode('full',this)">🎹 完整双手<br><small style="opacity:.7">（高音+低音谱表）</small></button>
+      <button class="mbtn mb-dark omr-m" data-m="melody" style="flex:1;margin:0;font-size:12px;padding:8px;" onclick="setOmrMode('melody',this)">🎵 只右手旋律<br><small style="opacity:.7">（单声部，最准）</small></button>
     </div>
-    <div style="font-size:11px;color:#94A3B8;line-height:1.6;margin-bottom:12px;">拍照识别有难度，复杂钢琴谱难免出错。<b>「只识别右手旋律」几乎总是更准</b>，也更适合视奏练习。识别后请对照原谱核对，可试弹再保存。</div>
+    <div style="font-size:11px;color:#94A3B8;line-height:1.6;margin-bottom:12px;"><b>完整双手</b>会读高音谱表(右手)+低音谱表(左手)，出双手谱；复杂谱难免有误，识别后请对照原谱核对，可试弹再保存。要更准可先用「只右手旋律」。</div>
     <input type="file" id="photo-file" accept="image/*" capture="environment" style="display:none" onchange="photoToSheet(event)">
     <button class="mbtn mb-dark" onclick="document.getElementById('gemini-key').value.trim()?document.getElementById('photo-file').click():toast('请先填入 Gemini API Key')">📸 选择 / 拍摄乐谱照片</button>
     <div id="photo-status" style="font-size:12px;color:#94A3B8;text-align:center;min-height:20px;margin:8px 0;"></div>
@@ -1162,7 +1162,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.7.0';
+const APP_VERSION = '3.7.1';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4077,7 +4077,8 @@ function buildSongBars(song){
     const barTs=bar.ts||ts;
     const notes=(bar.notes||[]).map(no=>{
       const nd=noteData(no.n);
-      const clef=clefFor(no.n);
+      // honor an explicit hand (from photo OMR) so both staves render; else derive from pitch
+      const clef = no.hand==='L' ? 'bass' : no.hand==='R' ? 'treble' : clefFor(no.n);
       const beat=beatByClef[clef];
       beatByClef[clef]+=DUR[no.d]||1;
       return {nd,dur:no.d,beat,state:'pending',acc:nd.acc,_clefHint:clef};
@@ -4321,7 +4322,7 @@ function importSong(ev){
 // PHOTO → SHEET via Gemini vision (OMR). Best on simple single-line scores.
 // ═══════════════════════════════════════════════════════════
 let recognizedSong=null, geminiModelCache=localStorage.getItem('psr_geminiModel')||null;
-let omrMode=localStorage.getItem('psr_omrMode')||'melody';   // 'melody' = right-hand line only (accurate); 'full' = both hands
+let omrMode=localStorage.getItem('psr_omrMode')||'full';   // 'full' = both hands (default); 'melody' = right-hand line only (more accurate)
 // OMR needs the STRONGEST vision model available — reading a dense staff is hard for
 // flash-tier. Prefer pro, fall back through flash. A key that can't use one 404s → next.
 const GEMINI_MODELS=['gemini-3-pro','gemini-2.5-pro','gemini-pro-latest',
@@ -4558,7 +4559,8 @@ function sanitizeRecognized(raw){
       if(!/^[A-Ga-g][#b]?-?\d$/.test(name))return null;
       name=name[0].toUpperCase()+name.slice(1);
       try{const m=midiOf(name);if(m<24||m>96)return null;}catch{return null;}
-      return {n:name,d};
+      const hand=(n.hand==='L'||n.hand==='R')?n.hand:undefined;   // keep hand so both staves render
+      return hand?{n:name,d,hand}:{n:name,d};
     }).filter(Boolean);
     return {ts:+(b.ts)||ts,notes};
   }).filter(b=>b.notes.length);
@@ -4567,8 +4569,15 @@ function sanitizeRecognized(raw){
 }
 function countNotes(s){return s.bars.reduce((a,b)=>a+b.notes.length,0);}
 function previewText(s){
-  const hdr='调号: '+(s.key||'?')+' · 拍号: '+s.ts+'/4 · 速度: '+s.bpm+'\n（调号不对 → 全部音会错，请核对）\n';
-  return hdr+s.bars.slice(0,8).map((b,i)=>'小节'+(i+1)+': '+b.notes.map(n=>n.n).join(' ')).join('\n')+(s.bars.length>8?'\n…共 '+s.bars.length+' 小节':'');
+  const twoHand=s.bars.some(b=>b.notes.some(n=>n.hand));
+  const hdr='调号: '+(s.key||'?')+' · 拍号: '+s.ts+'/4 · 速度: '+s.bpm+(twoHand?' · 双手':'')+'\n（调号不对 → 全部音会错，请核对）\n';
+  const barTxt=b=>{
+    if(!b.notes.some(n=>n.hand)) return b.notes.map(n=>n.n).join(' ');
+    const R=b.notes.filter(n=>n.hand!=='L').map(n=>n.n).join(' ');
+    const L=b.notes.filter(n=>n.hand==='L').map(n=>n.n).join(' ');
+    return '右'+(R||'-')+'  |  左'+(L||'-');
+  };
+  return hdr+s.bars.slice(0,8).map((b,i)=>'小节'+(i+1)+': '+barTxt(b)).join('\n')+(s.bars.length>8?'\n…共 '+s.bars.length+' 小节':'');
 }
 function playRecognizedSong(){ if(recognizedSong)startSongGame(recognizedSong); }
 function saveRecognizedSong(){
