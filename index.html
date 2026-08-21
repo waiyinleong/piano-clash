@@ -1162,7 +1162,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.7.1';
+const APP_VERSION = '3.8.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -4077,10 +4077,13 @@ function buildSongBars(song){
     const barTs=bar.ts||ts;
     const notes=(bar.notes||[]).map(no=>{
       const nd=noteData(no.n);
-      // honor an explicit hand (from photo OMR) so both staves render; else derive from pitch
+      // honor an explicit hand (photo OMR / MusicXML) so both staves render; else derive from pitch
       const clef = no.hand==='L' ? 'bass' : no.hand==='R' ? 'treble' : clefFor(no.n);
-      const beat=beatByClef[clef];
-      beatByClef[clef]+=DUR[no.d]||1;
+      // honor an explicit beat (MusicXML: accurate onset incl. rests/chords/backup);
+      // otherwise accumulate durations per clef (photo OMR / built-in songs)
+      let beat;
+      if(typeof no.beat==='number'){ beat=no.beat; }
+      else { beat=beatByClef[clef]; beatByClef[clef]+=DUR[no.d]||1; }
       return {nd,dur:no.d,beat,state:'pending',acc:nd.acc,_clefHint:clef};
     }).filter(o=>o.beat < barTs + 1e-6);
     notes.sort((a,b)=> a.beat-b.beat || (a._clefHint==='treble'?-1:1));
@@ -4170,61 +4173,57 @@ function parseMusicXML(txt, fname){
     if(qc>=1)return 'q'; if(qc>=0.5)return 'e'; return 's';
   };
 
-  let ts=4, divisions=1, bpm=90;
-  const bars=[];
-  // first part's measures (defensive: fall back to first <part> if :first-of-type misses)
-  let measures=root.querySelectorAll('part:first-of-type > measure');
-  if(!measures.length){
-    const firstPart=root.querySelector('part');
-    if(firstPart) measures=firstPart.querySelectorAll(':scope > measure');
-  }
-  if(!measures.length) measures=root.querySelectorAll('measure'); // last resort
-  if(!measures.length) throw new Error('找不到小节 (measure)');
-
-  measures.forEach(m=>{
-    // divisions / time signature can appear in <attributes>
-    const divEl=m.querySelector('attributes divisions');
-    if(divEl) divisions=parseInt(divEl.textContent)||divisions;
-    const beatsEl=m.querySelector('attributes time beats');
-    if(beatsEl) ts=parseInt(beatsEl.textContent)||ts;
-    const tempoEl=m.querySelector('sound[tempo]');
-    if(tempoEl) bpm=Math.round(parseFloat(tempoEl.getAttribute('tempo')))||bpm;
-
-    const notes=[];
-    m.querySelectorAll(':scope > note').forEach(noteEl=>{
-      // skip rests and chord-stacked notes (we render single-line melody)
-      if(noteEl.querySelector('rest')) return;
-      if(noteEl.querySelector('chord')) return; // only the principal note of a chord
-      const pitch=noteEl.querySelector('pitch');
-      if(!pitch) return;
-      const step=(pitch.querySelector('step')||{}).textContent;
-      const octave=(pitch.querySelector('octave')||{}).textContent;
-      if(!step||octave==null) return;
-      const alterEl=pitch.querySelector('alter');
-      const alter=alterEl?parseInt(alterEl.textContent):0;
-      let name=step.toUpperCase();
-      if(alter===1)name+='#'; else if(alter===-1)name+='b';
-      // double sharps/flats → clamp to single (app limitation)
-      else if(alter===2)name+='#'; else if(alter===-2)name+='b';
-      name+=octave;
-      // duration
-      const typeEl=noteEl.querySelector('type');
-      let d;
-      if(typeEl && typeMap[typeEl.textContent.trim()]){
-        d=typeMap[typeEl.textContent.trim()];
-        // dotted
-        if(noteEl.querySelector('dot') && d==='h') d='hd';
-      }else{
-        const durEl=noteEl.querySelector('duration');
-        const qc=durEl?(parseInt(durEl.textContent)/divisions):1;
-        d=durByQuarters(qc);
-      }
-      notes.push({n:name,d});
+  let ts=4, bpm=90;
+  // A piano score is usually ONE <part> with TWO staves (staff 1 = right/treble,
+  // staff 2 = left/bass). Two hands are interleaved via <backup> (rewind the time
+  // cursor) and tagged with <staff>. We walk each measure's children in order,
+  // tracking a divisions-based cursor, and emit notes with an explicit beat + hand
+  // so both staves land on the right timeline. Chords and rests are handled.
+  const parts=[...root.querySelectorAll('part')];
+  if(!parts.length) throw new Error('找不到声部 (part)');
+  const multiPart=parts.length>1;
+  const barsByIdx={};   // measure-number → {ts, notes:[{n,d,beat,hand}]}
+  parts.forEach((part,pi)=>{
+    let divisions=1;
+    part.querySelectorAll(':scope > measure').forEach((m,mi)=>{
+      const divEl=m.querySelector('attributes divisions'); if(divEl) divisions=parseInt(divEl.textContent)||divisions;
+      const beatsEl=m.querySelector('attributes time beats'); if(beatsEl) ts=parseInt(beatsEl.textContent)||ts;
+      const tempoEl=m.querySelector('sound[tempo]'); if(tempoEl) bpm=Math.round(parseFloat(tempoEl.getAttribute('tempo')))||bpm;
+      const idx=m.getAttribute('number')||String(mi+1);
+      const bar=barsByIdx[idx]||(barsByIdx[idx]={ts,notes:[]}); bar.ts=ts;
+      let cursor=0, prevOnset=0;
+      [...m.children].forEach(el=>{
+        const tag=el.tagName.toLowerCase();
+        const durOf=e=>{const d=e.querySelector(':scope > duration');return d?parseInt(d.textContent)||0:0;};
+        if(tag==='backup'){ cursor=Math.max(0,cursor-durOf(el)); return; }
+        if(tag==='forward'){ cursor+=durOf(el); return; }
+        if(tag!=='note') return;
+        const isChord=!!el.querySelector('chord');
+        const durDiv=durOf(el);
+        const onset=isChord?prevOnset:cursor;
+        if(el.querySelector('rest')){ if(!isChord)cursor+=durDiv; prevOnset=onset; return; }
+        const pitch=el.querySelector('pitch');
+        if(pitch){
+          const step=(pitch.querySelector('step')||{}).textContent;
+          const octave=(pitch.querySelector('octave')||{}).textContent;
+          if(step&&octave!=null){
+            const alterEl=pitch.querySelector('alter'); const alter=alterEl?parseInt(alterEl.textContent):0;
+            let name=step.toUpperCase(); if(alter>=1)name+='#'; else if(alter<=-1)name+='b'; name+=octave;
+            const typeEl=el.querySelector('type'); let d;
+            if(typeEl && typeMap[typeEl.textContent.trim()]){ d=typeMap[typeEl.textContent.trim()]; if(el.querySelector('dot')&&d==='h')d='hd'; }
+            else d=durByQuarters(divisions?durDiv/divisions:1);
+            const staffEl=el.querySelector('staff'); const staff=staffEl?staffEl.textContent.trim():null;
+            const hand = staff==='2'?'L' : staff==='1'?'R' : (multiPart?(pi===0?'R':'L'):undefined);
+            bar.notes.push(hand?{n:name,d,beat:divisions?onset/divisions:0,hand}:{n:name,d,beat:divisions?onset/divisions:0});
+          }
+        }
+        if(!isChord)cursor+=durDiv; prevOnset=onset;
+      });
     });
-    if(notes.length) bars.push({ts,notes});
   });
-
-  if(!bars.length) throw new Error('没有可识别的音符（可能整曲是休止符或和弦）');
+  const bars=Object.keys(barsByIdx).sort((a,b)=>(parseInt(a)||0)-(parseInt(b)||0))
+    .map(k=>barsByIdx[k]).filter(b=>b.notes.length).map(b=>({ts:b.ts,notes:b.notes}));
+  if(!bars.length) throw new Error('没有可识别的音符（可能整曲是休止符）');
   return {id:'mxl'+Date.now(), title, ts, bpm, bars, src:'musicxml'};
 }
 
@@ -4590,58 +4589,67 @@ function saveRecognizedSong(){
   show('scr-songs');renderMySongs();
 }
 
+// Two-hand MusicXML parser. A piano score is usually ONE <part> with TWO staves
+// (staff 1 = right/treble, staff 2 = left/bass): the two hands are interleaved via
+// <backup> (rewind the time cursor) and tagged with <staff>. We walk each measure's
+// children in order, track a divisions-based cursor, and emit notes with an explicit
+// beat + hand so both staves land on the right timeline. Chords and rests handled.
 function parseMusicXML(xmlText,fallbackTitle){
   const doc=new DOMParser().parseFromString(xmlText,'application/xml');
   if(doc.querySelector('parsererror')) throw new Error('XML解析失败');
-  const title=(doc.querySelector('work-title')||doc.querySelector('movement-title'))?.textContent?.trim()||fallbackTitle||'导入曲';
+  const root=doc.querySelector('score-partwise, score-timewise')||doc;
+  const title=(doc.querySelector('work-title')||doc.querySelector('movement-title')||doc.querySelector('credit credit-words'))?.textContent?.trim()||fallbackTitle||'导入曲';
   const creator=doc.querySelector('creator')?.textContent?.trim()||'';
-  const tsBeats=+(doc.querySelector('time beats')?.textContent||4);
-  const ts=tsBeats;
-  const bars=[];
-  // Only process the first part (melody)
-  const part=doc.querySelector('part');
-  if(!part) throw new Error('未找到声部');
-  let divisions=+(doc.querySelector('divisions')?.textContent||4);
-  let curNotes=[],curTicks=0,barTicks=0;
-  const pushBar=()=>{if(curNotes.length){bars.push({ts,notes:curNotes});curNotes=[];}curTicks=0;};
-  part.querySelectorAll('measure').forEach(m=>{
-    const div=m.querySelector('divisions');if(div)divisions=+div.textContent;
-    const beats=+(m.querySelector('time beats')?.textContent||ts);
-    barTicks=divisions*beats;
-    m.querySelectorAll('note').forEach(note=>{
-      const isRest=!!note.querySelector('rest');
-      const isChord=!!note.querySelector('chord');
-      const dur=+(note.querySelector('duration')?.textContent||divisions);
-      const typeName=note.querySelector('type')?.textContent||'quarter';
-      const dotted=!!note.querySelector('dot');
-      const typeMap={'whole':'w','half':dotted?'hd':'h','quarter':'q','eighth':'e','16th':'s'};
-      const dCode=typeMap[typeName]||'q';
-      if(isChord){
-        // Chord: keep highest note (replace last note if this pitch is higher)
-        if(!isRest&&curNotes.length){
-          const step=note.querySelector('step')?.textContent||'C';
-          const alter=+(note.querySelector('alter')?.textContent||0);
-          const oct=+(note.querySelector('octave')?.textContent||4);
-          const nm=step+(alter===1?'#':alter===-1?'b':'')+oct;
-          const prev=curNotes[curNotes.length-1];
-          if(_midiOf(nm)>_midiOf(prev.n)) prev.n=nm;
+  const typeMap={whole:'w',breve:'w',half:'h',quarter:'q',eighth:'e','16th':'s','32nd':'s','64th':'s'};
+  const durByQuarters=qc=>{ if(qc>=4)return 'w'; if(qc>=3)return 'hd'; if(qc>=2)return 'h'; if(qc>=1)return 'q'; if(qc>=0.5)return 'e'; return 's'; };
+  let ts=4, bpm=80;
+  const parts=[...root.querySelectorAll('part')];
+  if(!parts.length) throw new Error('未找到声部');
+  const multiPart=parts.length>1;
+  const barsByIdx={};   // measure-number → {ts, notes:[{n,d,beat,hand}]}
+  parts.forEach((part,pi)=>{
+    let divisions=4;
+    part.querySelectorAll(':scope > measure').forEach((m,mi)=>{
+      const divEl=m.querySelector('attributes divisions'); if(divEl) divisions=+divEl.textContent||divisions;
+      const beatsEl=m.querySelector('attributes time beats'); if(beatsEl) ts=+beatsEl.textContent||ts;
+      const tempoEl=m.querySelector('sound[tempo]'); if(tempoEl) bpm=Math.round(parseFloat(tempoEl.getAttribute('tempo')))||bpm;
+      const idx=m.getAttribute('number')||String(mi+1);
+      const bar=barsByIdx[idx]||(barsByIdx[idx]={ts,notes:[]}); bar.ts=ts;
+      let cursor=0, prevOnset=0;
+      const durOf=e=>{const d=e.querySelector(':scope > duration');return d?(+d.textContent||0):0;};
+      [...m.children].forEach(el=>{
+        const tag=el.tagName.toLowerCase();
+        if(tag==='backup'){ cursor=Math.max(0,cursor-durOf(el)); return; }
+        if(tag==='forward'){ cursor+=durOf(el); return; }
+        if(tag!=='note') return;
+        const isChord=!!el.querySelector('chord');
+        const durDiv=durOf(el);
+        const onset=isChord?prevOnset:cursor;
+        if(el.querySelector('rest')){ if(!isChord)cursor+=durDiv; prevOnset=onset; return; }
+        const pitch=el.querySelector('pitch');
+        if(pitch){
+          const step=pitch.querySelector('step')?.textContent;
+          const oct=pitch.querySelector('octave')?.textContent;
+          if(step&&oct!=null){
+            const alter=+(pitch.querySelector('alter')?.textContent||0);
+            let nm=step.toUpperCase()+(alter>=1?'#':alter<=-1?'b':'')+oct;
+            const typeName=el.querySelector('type')?.textContent?.trim();
+            let d = typeName&&typeMap[typeName] ? typeMap[typeName] : durByQuarters(divisions?durDiv/divisions:1);
+            if(el.querySelector('dot')&&d==='h') d='hd';
+            const staff=el.querySelector('staff')?.textContent?.trim();
+            const hand = staff==='2'?'L' : staff==='1'?'R' : (multiPart?(pi===0?'R':'L'):undefined);
+            const beat=divisions?onset/divisions:0;
+            bar.notes.push(hand?{n:nm,d,beat,hand}:{n:nm,d,beat});
+          }
         }
-        return;
-      }
-      curTicks+=dur;
-      if(!isRest){
-        const step=note.querySelector('step')?.textContent||'C';
-        const alter=+(note.querySelector('alter')?.textContent||0);
-        const oct=+(note.querySelector('octave')?.textContent||4);
-        const nm=step+(alter===1?'#':alter===-1?'b':'')+oct;
-        curNotes.push({n:nm,d:dCode});
-      }
-      if(barTicks>0&&curTicks>=barTicks) pushBar();
+        if(!isChord)cursor+=durDiv; prevOnset=onset;
+      });
     });
-    pushBar();
   });
+  const bars=Object.keys(barsByIdx).sort((a,b)=>(parseInt(a)||0)-(parseInt(b)||0))
+    .map(k=>barsByIdx[k]).filter(b=>b.notes.length).map(b=>({ts:b.ts,notes:b.notes}));
   if(!bars.length) throw new Error('未能解析出音符');
-  return {id:'import_'+Date.now(),title,author:creator,ts,bpm:80,bars};
+  return {id:'import_'+Date.now(),title,author:creator,ts,bpm,bars};
 }
 
 function _midiOf(name){
@@ -4679,8 +4687,8 @@ function showImportHelp(){
 '方式3 — 手动输入\n'+
 '  • 点「下载简易文本模板」，按格式填音符，存成 .txt 导入\n\n'+
 '注意：\n'+
-'  • 本App是单旋律视奏练习，导入时会取主旋律音符，和弦只保留主音、休止符跳过\n'+
-'  • 支持音高/时值/拍号/升降号；多声部、装饰音、连音线暂不处理\n'+
+'  • 支持双手谱：高音谱表(右手)+低音谱表(左手)会一起导入，和弦、休止符、拍号、升降号都处理\n'+
+'  • 装饰音、连音线暂不处理\n'+
 '  • .mxl 是压缩格式，请在软件里另存为 .musicxml';
   const en='[How to Import Songs (MusicXML)]\n\n'+
 'MusicXML is the standard format used by all major music notation software.\n\n'+
