@@ -108,6 +108,8 @@ hr.dv{border:none;border-top:1px solid var(--ui-border);margin:0 0 18px;}
 .wk:active{filter:brightness(.78);}
 .wk .kl{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:#94A3B8;pointer-events:none;white-space:nowrap;}
 .wk .kbd{position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;color:#b09060;pointer-events:none;background:#f4ecd8;border-radius:3px;padding:0 3px;}
+.wk .kl-sol{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:clamp(12px,3.4vw,18px);font-weight:800;color:#4a4238;font-family:Georgia,serif;pointer-events:none;white-space:nowrap;}
+.wk .kl-nm{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:600;color:#9c9284;pointer-events:none;}
 .bk{position:absolute;top:0;height:60%;background:linear-gradient(180deg,#2a2010,#1a1209 70%,#3d3020);border:1px solid #111;border-radius:0 0 3px 3px;z-index:2;cursor:pointer;}
 .bk:active{filter:brightness(1.5);}
 .bk.bk-press{filter:brightness(1.8);}
@@ -544,7 +546,7 @@ input::placeholder{color:var(--muted);}
       <div class="dsec-lbl">作答方式</div>
       <div class="toggle" id="imt" style="margin-bottom:14px;">
         <button class="on" onclick="setIM('piano',this)" data-i18n="menu.piano">🎹 钢琴键盘</button>
-        <button onclick="setIM('solfege',this)">🎵 Do Re Mi</button>
+        <button onclick="setIM('solfege',this)" data-i18n="menu.solfege">🎹 单八度琴</button>
       </div>
       <div class="dsec-lbl">强化训练</div>
       <div class="dcard dtrain">
@@ -909,7 +911,7 @@ input::placeholder{color:var(--muted);}
     <div style="font-size:12px;color:#94A3B8;margin-bottom:6px;">🎮 作答方式</div>
     <div class="toggle" id="vs-imt" style="margin-bottom:14px;">
       <button class="on" onclick="setVsInputMode('piano',this)">🎹 钢琴键盘</button>
-      <button onclick="setVsInputMode('solfege',this)">🎵 Do Re Mi</button>
+      <button onclick="setVsInputMode('solfege',this)" data-i18n="menu.solfege">🎹 单八度琴</button>
     </div>
 
     <!-- ── Battle source: song OR random range ── -->
@@ -1162,7 +1164,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.8.0';
+const APP_VERSION = '3.8.1';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1172,7 +1174,7 @@ const I18N = {
   zh: {
     'login.google':'使用 Google 账号登录','login.hint':'登录后可跨设备保存进度和设置',
     'login.or':'或者','login.guest':'🎮 作为访客游玩（进度只存本地）',
-    'menu.inputMethod':'作答方式','menu.piano':'🎹 钢琴键盘',
+    'menu.inputMethod':'作答方式','menu.piano':'🎹 钢琴键盘','menu.solfege':'🎹 单八度琴',
     'menu.tutorial':'🎓 新手教程','menu.levels':'📚 关卡模式',
     'menu.practice':'✏️ 练习模式','menu.songs':'🎵 流行曲模式',
     'menu.online':'⚔️ 联机对战','menu.keybind':'⌨️ 键盘设定',
@@ -1298,7 +1300,7 @@ const I18N = {
   en: {
     'login.google':'Sign in with Google','login.hint':'Login to save progress & settings across devices',
     'login.or':'or','login.guest':'🎮 Play as Guest (progress saved locally only)',
-    'menu.inputMethod':'Input Method','menu.piano':'🎹 Piano Keys',
+    'menu.inputMethod':'Input Method','menu.piano':'🎹 Piano Keys','menu.solfege':'🎹 One-Octave',
     'menu.tutorial':'🎓 Tutorial','menu.levels':'📚 Level Mode',
     'menu.practice':'✏️ Practice Mode','menu.songs':'🎵 Songs Mode',
     'menu.online':'⚔️ Online Battle','menu.keybind':'⌨️ Key Bindings',
@@ -2311,27 +2313,37 @@ function buildPiano(){
   // center on C4
   setTimeout(()=>{const c4=document.getElementById('pk-C4');if(c4)c4.scrollIntoView({block:'nearest',inline:'center'});},40);
 }
-const SOL_DEFS=[
-  {sol:'Do', zh:'哆', color:'#c0392b', bg:'rgba(192,57,43,.12)'},
-  {sol:'Re', zh:'来', color:'#d35400', bg:'rgba(211,84,0,.12)'},
-  {sol:'Mi', zh:'咪', color:'#b7950b', bg:'rgba(183,149,11,.12)'},
-  {sol:'Fa', zh:'发', color:'#1e8449', bg:'rgba(30,132,73,.12)'},
-  {sol:'Sol',zh:'哦', color:'#117a65', bg:'rgba(17,122,101,.12)'},
-  {sol:'La', zh:'拉', color:'#1a5276', bg:'rgba(26,82,118,.12)'},
-  {sol:'Si', zh:'嗻', color:'#6c3483', bg:'rgba(108,52,131,.12)'},
-];
+// The beginner input mode is a SINGLE-OCTAVE piano (was 7 flat Do-Re-Mi buttons):
+// real key layout with the 2+3 black-key landmarks, big touch targets that fill a
+// phone screen with no scrolling. Matching stays octave-agnostic (by solfège), so
+// the 7 white keys can answer a note in any octave. Black keys are landmarks only —
+// audible but not scored, since this mode is used only on no-accidental levels.
+const WHITE_SOL=[['C','Do'],['D','Re'],['E','Mi'],['F','Fa'],['G','Sol'],['A','La'],['B','Si']];
 function buildSolfege(){
   const scroll=document.getElementById('kb-scroll');scroll.innerHTML='';
-  const row=document.createElement('div');row.className='sol-row';
-  SOL_DEFS.forEach(({sol,zh,color,bg})=>{
-    const b=document.createElement('button');
-    b.className='sol-btn';b.id='sol-'+sol;
-    b.style.cssText=`background:${bg};border-color:${color};color:${color};`;
-    b.innerHTML=`<span class="s-nm">${sol}</span><span class="s-zh">${zh}</span>`;
-    b.addEventListener('pointerdown',e=>{e.preventDefault();handleInput(sol,true);});
-    row.appendChild(b);
+  const wrap=document.createElement('div');wrap.className='pwrap';
+  const areaW=scroll.clientWidth||document.body.clientWidth;
+  const kw=Math.max(40,Math.floor((areaW-2)/7));   // 7 white keys fill the width
+  wrap.style.width=kw*7+'px';
+  const oct=4;   // reference octave for key sound only; answers match any octave
+  WHITE_SOL.forEach(([L,sol],i)=>{
+    const k=document.createElement('div');k.className='wk';k.id='sol-'+sol;
+    k.style.left=i*kw+'px';k.style.width=(kw-1)+'px';
+    k.innerHTML='<span class="kl-sol">'+sol+'</span><span class="kl-nm">'+L+'</span>';
+    k.addEventListener('pointerdown',e=>{e.preventDefault();handleInput(sol,true);});
+    wrap.appendChild(k);
+    if(BLACK_AFTER[L]){   // black key after C,D and F,G,A → the 2+3 landmark grouping
+      const bn=BLACK_AFTER[L]+oct;
+      const bk=document.createElement('div');bk.className='bk';
+      bk.style.left=(i*kw+kw*0.66)+'px';bk.style.width=kw*0.62+'px';
+      bk.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();
+        bk.classList.add('bk-press');setTimeout(()=>bk.classList.remove('bk-press'),140);
+        try{playPiano(bn);}catch{}   // landmark only: sound feedback, not an answer
+      });
+      wrap.appendChild(bk);
+    }
   });
-  scroll.appendChild(row);
+  scroll.appendChild(wrap);
 }
 function buildInput(){ if(inputMode==='piano')buildPiano(); else buildSolfege(); }
 
@@ -5126,8 +5138,8 @@ function onRoomUpdate(data){
     const modeLabel=onlineVsMode==='hp'?t('room.modeHP'):onlineVsMode==='rhythm'?t('room.modeRhythm'):t('room.modeSpeed');
     const song=data.song||'';
     const contentLabel=song.startsWith('range:')?
-      ((RANGE_LABELS[song.slice(6)]||song.slice(6))+' 🎲 '+((data.inputMode||'piano')==='solfege'?'Do Re Mi':'🎹')):
-      ((data.inputMode||'piano')==='solfege'?'🎵 Do Re Mi':'🎹 钢琴');
+      ((RANGE_LABELS[song.slice(6)]||song.slice(6))+' 🎲 '+((data.inputMode||'piano')==='solfege'?'单八度':'🎹')):
+      ((data.inputMode||'piano')==='solfege'?'🎹 单八度琴':'🎹 钢琴');
     modeBadgeEl.textContent=modeLabel+' · '+contentLabel;
   }
   // render player slots
@@ -5883,8 +5895,8 @@ const zh=[
         </div>
       </div>
       <div style="background:var(--bg2);border-radius:10px;padding:12px;">
-        <b>🎵 Do Re Mi 模式</b><br>
-        <span style="font-size:13px;">点击 Do Re Mi Fa Sol La Si 按钮作答。<br>适合不熟悉音名的初学者。</span>
+        <b>🎹 单八度琴模式</b><br>
+        <span style="font-size:13px;">一个八度的钢琴键（标了 Do Re Mi 和音名），符合真实指法、手机上大键好按。任意八度的音都按对应的键作答，适合初学者。</span>
       </div>
     `
   },
@@ -5989,8 +6001,8 @@ const en=[
       <div style="font-family:monospace;font-size:13px;margin-top:6px;color:#1a6fb5;">A S D F G H J K = C4 D4 E4 F4 G4 A4 B4 C5</div>
     </div>
     <div style="background:var(--bg2);border-radius:10px;padding:12px;">
-      <b>🎵 Do Re Mi Mode</b><br>
-      <span style="font-size:13px;">Tap Do Re Mi Fa Sol La Si buttons. Great for beginners who don't know note names yet.</span>
+      <b>🎹 One-Octave Piano Mode</b><br>
+      <span style="font-size:13px;">A single octave of real piano keys (labeled with Do Re Mi and note names) — matches real fingering, big keys for phones. Any octave's note is answered on its key. Great for beginners.</span>
     </div>
   `},
   {title:'Game Modes',content:`
