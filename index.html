@@ -303,13 +303,15 @@ button,.mbtn,.wk,.bk,.sol-btn,.lvb,.mode-card,.preset-btn,.icon-btn{touch-action
   .chips::-webkit-scrollbar{display:none;}
   .chip{padding:1px 6px;font-size:9px;white-space:nowrap;flex-shrink:0;}
   .vs-bar{padding:2px 8px;}
-  /* give the staff more space in landscape; cap piano to fixed height */
-  .staff-area{flex:1;}
-  .input-area{flex:0;min-height:90px;max-height:140px;}
+}
+
+/* ─── Landscape (rotated phone, tablet, iPad): staff fills the height, the piano
+   is a capped strip sized to the viewport so it never eats the screen ─── */
+@media (orientation:landscape) and (max-height:1100px){
+  .staff-area{flex:1 1 auto;min-height:0;}
+  .input-area{flex:0 0 auto;height:clamp(96px,23vh,200px);padding:2px 0 4px;}
   .pwrap{min-height:60px;}
-  .sol-row{padding:2px 4px;gap:4px;}
-  .sol-btn .s-zh{display:none;}
-  .sol-btn .s-nm{font-size:clamp(12px,3.5vw,20px);}
+  .wk .kl-sol{bottom:12px;}
 }
 /* rhythm judge popup */
 .rj{position:absolute;top:28%;left:50%;transform:translateX(-50%);
@@ -1164,7 +1166,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.8.1';
+const APP_VERSION = '3.8.2';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
