@@ -768,6 +768,16 @@ input::placeholder{color:var(--muted);}
     </div>
     <div class="bind-status" id="midi-status" style="margin-bottom:14px;"></div>
     <button class="mbtn mb-dark" id="midi-btn" onclick="toggleMIDI()">🎹 连接 MIDI 设备</button>
+    <div id="midi-monitor" style="display:none;margin:12px 0;background:var(--panel);border:1px solid var(--ui-border);border-radius:10px;padding:10px;text-align:left;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;color:#94A3B8;">🔎 MIDI 验证
+          <span id="midi-act-dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#334;margin-left:4px;vertical-align:middle;transition:background .1s;"></span>
+        </span>
+        <span id="midi-last" style="font-family:Georgia,serif;font-size:18px;font-weight:800;color:var(--blue);">—</span>
+      </div>
+      <div id="midi-log" style="font-family:monospace;font-size:11px;color:#94A3B8;line-height:1.6;min-height:34px;max-height:104px;overflow:auto;"></div>
+      <div id="midi-monitor-hint" style="font-size:11px;color:#64748B;margin-top:4px;" data-i18n="midi.monitorHint"></div>
+    </div>
     <div style="font-size:12px;color:#94A3B8;margin:14px 0 6px;">🔊 声音来源</div>
     <div class="toggle" id="midi-snd-toggle" style="margin-bottom:6px;">
       <button class="on" onclick="setMidiSound(1,this)">🎹 钢琴自带声音</button>
@@ -779,8 +789,8 @@ input::placeholder{color:var(--muted);}
       1. 电钢用 <b>USB-to-Host</b> 口（或 USB-MIDI 线）连电脑<br>
       2. 或 MIDI 键盘直接插 USB<br>
       3. 确认设备已开机，点上面「连接」并授权<br>
-      4. 连上后弹真琴键，屏幕琴键会亮、游戏照常判定<br><br>
-      <b>注意：</b>Web MIDI 仅支持 <b>Chrome / Edge</b>（Safari 不支持）；中央 C（C4）对应 MIDI 60，标准对齐。
+      4. 连上后弹真琴键，屏幕琴键会亮、上面「MIDI 验证」会实时显示音名<br><br>
+      <b>注意：</b>Web MIDI 只支持电脑 <b>Chrome / Edge</b>（含安卓）。<b>iPad / iPhone 的 Safari、Chrome 都不支持</b>（Apple 限制）——iPad 请改用 🎙 麦克风模式，或用 App Store 的「Web MIDI Browser」打开本页。中央 C（C4）＝MIDI 60。
     </div>
     <button class="mbtn mb-ghost" onclick="show('scr-menu')" data-i18n="common.back">← 返回</button>
   </div>
@@ -1168,7 +1178,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 'use strict';
-const APP_VERSION = '3.8.3';
+const APP_VERSION = '3.9.0';
 
 // ═══════════════════════════════════════════════════════════
 // i18n — LANGUAGE SYSTEM
@@ -1241,6 +1251,9 @@ const I18N = {
     'game.countGo':'开始！','game.countReady':'准备...',
     'song.noImport':'还没有导入曲目',
     'midi.notSupported':'✗ 浏览器不支持（请用 Chrome / Edge）',
+    'midi.iosMsg':'iPad / iPhone 的浏览器不支持 Web MIDI（Apple 限制，Safari 和 iOS 版 Chrome 都一样）。<br><br>可选方案：<br>① 用 App Store 的「<b>Web MIDI Browser</b>」打开本页<br>② 用 🎙 <b>麦克风模式</b>（iPad 可用）——弹真钢琴，麦克风识别<br>③ 在电脑 <b>Chrome / Edge</b> 上用 MIDI',
+    'midi.monitorHint':'连上后弹几个键，这里实时显示收到的音（含力度）。看到音名跳动＝MIDI 正常。',
+    'midi.playToTest':'弹几个键测试 →','midi.noMsgYet':'（还没收到 MIDI 信号）',
     'midi.notConnected':'未连接。插上电钢/MIDI键盘后点下方按钮',
     'midi.connected':'已连接：','midi.waiting':'已开启，等待设备…（插上电钢并确认已开机）',
     'midi.disconnect':'断开 MIDI','midi.connectBtn':'🎹 连接 MIDI 设备',
@@ -1367,6 +1380,9 @@ const I18N = {
     'game.countGo':'GO!','game.countReady':'Ready...',
     'song.noImport':'No imported songs yet',
     'midi.notSupported':'✗ Browser not supported (use Chrome / Edge)',
+    'midi.iosMsg':'iPad / iPhone browsers don’t support Web MIDI (an Apple restriction — Safari and iOS Chrome alike).<br><br>Options:<br>① Open this page in the “<b>Web MIDI Browser</b>” app (App Store)<br>② Use 🎙 <b>Mic mode</b> (works on iPad) — play a real piano, detected by mic<br>③ Use MIDI on desktop <b>Chrome / Edge</b>',
+    'midi.monitorHint':'Once connected, play a few keys — incoming notes (with velocity) show live here. Notes flashing = MIDI works.',
+    'midi.playToTest':'Play a few keys to test →','midi.noMsgYet':'(no MIDI signal yet)',
     'midi.notConnected':'Not connected. Plug in your piano/MIDI device then press the button below',
     'midi.connected':'Connected:','midi.waiting':'Enabled, waiting for device… (plug in and power on)',
     'midi.disconnect':'Disconnect MIDI','midi.connectBtn':'🎹 Connect MIDI Device',
@@ -5575,6 +5591,20 @@ function setMidiSound(pianoOwn,btn){
   if(btn)btn.classList.add('on');
 }
 function midiSupported(){ return typeof navigator!=='undefined' && !!navigator.requestMIDIAccess; }
+// iOS/iPadOS: all browsers are WebKit and none support Web MIDI (iPadOS 13+ reports as Mac)
+function isiOS(){ try{ return /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Mac/.test(navigator.platform)&&navigator.maxTouchPoints>1); }catch(e){ return false; } }
+// live MIDI verification readout — shows EVERY note-on/off, even keys outside the game range
+let midiLog=[]; let _midiDotT=null;
+function midiMonitor(isOn,d1,d2){
+  const dot=document.getElementById('midi-act-dot');
+  if(dot){ dot.style.background='#1d9e75'; clearTimeout(_midiDotT); _midiDotT=setTimeout(()=>{dot.style.background='#334';},170); }
+  const name=midiToName(d1);
+  const last=document.getElementById('midi-last'); if(last&&isOn) last.textContent=name+'  ('+d1+')';
+  midiLog.unshift((isOn?'▼ ':'△ ')+(name+'   ').slice(0,4)+' #'+d1+(isOn?('  vel '+d2):'  off'));
+  if(midiLog.length>8) midiLog.pop();
+  const log=document.getElementById('midi-log');
+  if(log) log.innerHTML=midiLog.map(x=>x.replace(/ /g,'&nbsp;')).join('<br>');
+}
 
 async function connectMIDI(){
   if(!midiSupported()){
@@ -5610,8 +5640,12 @@ function onMIDIMessage(ev){
   if(!ev.data||ev.data.length<2)return;
   const [status,d1,d2=0]=ev.data;
   const cmd=status & 0xf0;
+  const isOff=(cmd===0x80||(cmd===0x90&&d2===0));
+  const isOn=(cmd===0x90&&d2>0);
+  // verification monitor: log every note event (any octave), before range filtering
+  if(isOn||isOff) midiMonitor(isOn,d1,d2);
   // note-off: cmd=0x80 OR note-on with vel=0
-  if(cmd===0x80||(cmd===0x90&&d2===0)){midiHeld.delete(d1);return;}
+  if(isOff){midiHeld.delete(d1);return;}
   if(cmd!==0x90)return;
   // some devices re-send note-on (with vel>0) on key release; debounce within 80ms
   const now=Date.now();
@@ -5652,20 +5686,30 @@ function updateMIDIStatus(){
   const btn=document.getElementById('midi-btn');
   document.querySelectorAll('#midi-snd-toggle button').forEach((b,i)=>b.classList.toggle('on',(i===0)===midiSilenceApp));
   if(!el)return;
+  const mon=document.getElementById('midi-monitor');
   if(!midiSupported()){
-    el.innerHTML=`<span style="color:#c0392b;">${t('midi.notSupported')}</span>`;
+    el.innerHTML = isiOS()
+      ? `<span style="color:#c0392b;line-height:1.7;">${t('midi.iosMsg')}</span>`
+      : `<span style="color:#c0392b;">${t('midi.notSupported')}</span>`;
     if(btn)btn.style.display='none';
+    if(mon)mon.style.display='none';
     return;
   }
+  if(btn)btn.style.display='';
   if(midiEnabled){
     const names=midiInputs.map(i=>i.name).filter(Boolean);
     el.innerHTML = names.length
       ? `<span style="color:#1d9e75;">🎹 ${t('midi.connected')} ${names.join('、')}</span>`
       : `<span style="color:#c8900a;">${t('midi.waiting')}</span>`;
     if(btn)btn.textContent=t('midi.disconnect');
+    if(mon){ mon.style.display='';
+      const log=document.getElementById('midi-log');
+      if(log && !midiLog.length) log.innerHTML=`<span style="color:#64748B;">${t('midi.noMsgYet')}</span>`;
+    }
   }else{
     el.innerHTML=`<span style="color:#94A3B8;">${t('midi.notConnected')}</span>`;
     if(btn)btn.textContent=t('midi.connectBtn');
+    if(mon)mon.style.display='none';
   }
 }
 
