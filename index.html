@@ -1646,6 +1646,14 @@ const sp=p=>{
     set(ref(db,'users/'+window.myId+'/progress'),p).catch(()=>{});
   }
 };
+// Escape any value that may come from Firebase, imported files, URLs or external APIs
+// before placing it inside an HTML template. Prefer textContent for new UI code.
+function escapeHTML(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[ch]);
+}
+
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);if(!el)return;el.classList.add('active');
@@ -4028,7 +4036,7 @@ function renderSongList(){
     const b=document.createElement('button');
     b.className='mbtn mb-dark';b.style.cssText='flex:1;margin:0;text-align:left;display:flex;justify-content:space-between;align-items:center;';
     const barCount=s.bars?s.bars.length:0;
-    b.innerHTML=`<span>🎼 ${s.title}</span><span style="font-size:10px;opacity:.7;display:flex;gap:6px;">${s.author?`<span>${s.author}</span>`:''}<span style="color:var(--orange);">${s.bpm||90}BPM</span><span>${barCount}${t('toast.importBars')}</span></span>`;
+    b.innerHTML=`<span>🎼 ${escapeHTML(s.title)}</span><span style="font-size:10px;opacity:.7;display:flex;gap:6px;">${s.author?`<span>${escapeHTML(s.author)}</span>`:''}<span style="color:var(--orange);">${s.bpm||90}BPM</span><span>${barCount}${t('toast.importBars')}</span></span>`;
     b.onclick=()=>openSongDiff(s);
     const listen=document.createElement('button');
     listen.className='mbtn mb-ghost';listen.style.cssText='margin:0;width:44px;';listen.textContent='🔊';
@@ -4046,7 +4054,7 @@ function renderMySongs(){
     const b=document.createElement('button');
     b.className='mbtn mb-green';b.style.cssText='flex:1;margin:0;text-align:left;display:flex;justify-content:space-between;align-items:center;';
     const barCount=s.bars?s.bars.length:0;
-    b.innerHTML=`<span>🎵 ${s.title||(t('songs.imported')+(i+1))}</span><span style="font-size:10px;opacity:.7;display:flex;gap:6px;"><span style="color:var(--orange);">${s.bpm||90}BPM</span><span>${barCount}${t('toast.importBars')}</span></span>`;
+    b.innerHTML=`<span>🎵 ${escapeHTML(s.title||(t('songs.imported')+(i+1)))}</span><span style="font-size:10px;opacity:.7;display:flex;gap:6px;"><span style="color:var(--orange);">${s.bpm||90}BPM</span><span>${barCount}${t('toast.importBars')}</span></span>`;
     b.onclick=()=>openSongDiff(s);
     const listen=document.createElement('button');
     listen.className='mbtn mb-ghost';listen.style.cssText='margin:0;width:40px;';listen.textContent='🔊';
@@ -4534,7 +4542,7 @@ async function photoToSheet(ev){
   const file=ev.target.files[0]; if(!file)return; ev.target.value='';
   const key=document.getElementById('gemini-key').value.trim();
   if(!key){toast('请先填入 Gemini API Key');return;}
-  try{localStorage.setItem('psr_geminiKey',key);}catch{}
+  try{sessionStorage.setItem('psr_geminiKey',key);}catch{}
   const st=document.getElementById('photo-status');
   document.getElementById('photo-result').style.display='none';
   st.textContent='🖼️ 预处理图片…';
@@ -4576,7 +4584,7 @@ async function photoToSheet(ev){
   }catch(err){
     console.error('OMR failed',err);
     geminiModelCache=null;
-    st.innerHTML='<span style="color:#e05050;">识别失败：'+String(err.message||err).slice(0,140)+'</span>';
+    st.innerHTML='<span style="color:#e05050;">识别失败：'+escapeHTML(String(err.message||err).slice(0,140))+'</span>';
   }
 }
 function sanitizeRecognized(raw){
@@ -5091,10 +5099,11 @@ function refreshLobby(retries){
         el.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--ui-border);border-radius:10px;margin-bottom:8px;background:#fff;';
         el.innerHTML=`
           <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${r.hostName||t('guest.label')}</span>${t('lobby.roomSuffix')}</div>
-            <div style="font-size:11px;color:#94A3B8;margin-top:2px;">${modeIc} ${songLabel} · ${playerCount}/2 ${t('lobby.players')}</div>
+            <div style="font-weight:700;font-size:13px;">${isPrivate?'🔒 ':''}<span style="color:var(--blue);">${escapeHTML(r.hostName||t('guest.label'))}</span>${t('lobby.roomSuffix')}</div>
+            <div style="font-size:11px;color:#94A3B8;margin-top:2px;">${modeIc} ${escapeHTML(songLabel)} · ${playerCount}/2 ${t('lobby.players')}</div>
           </div>
-          <button class="mbtn mb-blue" style="margin:0;padding:6px 14px;width:auto;font-size:12px;" onclick="joinRoomByCode('${code}',false)">${t('lobby.join')}</button>`;
+          <button class="mbtn mb-blue js-join-room" type="button" style="margin:0;padding:6px 14px;width:auto;font-size:12px;">${t('lobby.join')}</button>`;
+        el.querySelector('.js-join-room').addEventListener('click',()=>joinRoomByCode(code,false));
         list.appendChild(el);
       }catch(e){console.warn('skip bad room',code,e);}
     });
@@ -5102,7 +5111,7 @@ function refreshLobby(retries){
   }).catch(e=>{
     console.error('lobby load failed:',e);
     const detail=(e&&(e.code||e.message))||'';
-    msg(t('lobby.loadFail')+(detail?`<br><span style="font-size:10px;opacity:.7;">${detail}</span>`:'')+
+    msg(t('lobby.loadFail')+(detail?`<br><span style="font-size:10px;opacity:.7;">${escapeHTML(detail)}</span>`:'')+
         `<br><button class="mbtn mb-ghost" style="margin:10px auto 0;padding:6px 16px;width:auto;font-size:12px;" onclick="refreshLobby()">${t('lobby.refresh')}</button>`);
   });
 }
@@ -5170,7 +5179,7 @@ function onRoomUpdate(data){
   ids.forEach(id=>{
     const p=players[id];
     const d=document.createElement('div');d.className='player-slot'+(p.ready?' ready':'');
-    d.innerHTML=`<div class="ps-av">${id===data.host?'👑':'🎮'}</div><div style="flex:1"><div class="ps-nm">${p.name}${id===myId?t('room.you'):''}</div><div class="ps-st">${p.ready?t('room.readyStatus'):t('room.waitingReady')}</div></div>`;
+    d.innerHTML=`<div class="ps-av">${id===data.host?'👑':'🎮'}</div><div style="flex:1"><div class="ps-nm">${escapeHTML(p.name)}${id===myId?t('room.you'):''}</div><div class="ps-st">${p.ready?t('room.readyStatus'):t('room.waitingReady')}</div></div>`;
     slots.appendChild(d);
   });
   const allReady=ids.length===2&&ids.every(id=>players[id].ready);
@@ -6129,7 +6138,7 @@ function tutNav(d){
 function tutGo(i){ tutStep=i; tutRender(); }
 
 const _origShow=show;
-show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-photo'){const k=document.getElementById('gemini-key');if(k&&!k.value){k.value=localStorage.getItem('psr_geminiKey')||'';}document.querySelectorAll('#omr-mode .omr-m').forEach(b=>b.classList.toggle('on',b.dataset.m===omrMode));}if(id==='scr-menu'){updateDailyBtn();renderDashboard();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
+show=function(id){_origShow(id);applyLang();if(id==='scr-keybind'){renderKeybindUI();}if(id==='scr-midi'){updateMIDIStatus();}if(id==='scr-mic'){updateMicStatus();}if(id==='scr-photo'){const k=document.getElementById('gemini-key');if(k&&!k.value){k.value=sessionStorage.getItem('psr_geminiKey')||'';}document.querySelectorAll('#omr-mode .omr-m').forEach(b=>b.classList.toggle('on',b.dataset.m===omrMode));}if(id==='scr-menu'){updateDailyBtn();renderDashboard();}if(id==='scr-stats'){renderStats();}if(id==='scr-lobby'&&window.FB){const fs=document.getElementById('fb-status');if(fs)fs.textContent=t('lobby.connected');}};
 
 // PWA: register service worker (offline play + installable). No-op on file:// or unsupported.
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
