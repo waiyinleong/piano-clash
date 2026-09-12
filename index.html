@@ -4917,7 +4917,11 @@ document.addEventListener('keydown',e=>{
 // ONLINE MULTIPLAYER (Firebase Realtime DB)
 // ═══════════════════════════════════════════════════════════
 let myId = randomToken(16);
-function getPlayerName(){ return window.myDisplayName || (t('game.playerPrefix')+myId.slice(0,4)); }
+function getPlayerName(){
+  const fallback=t('game.playerPrefix')+myId.slice(0,4);
+  const raw=window.myDisplayName||document.getElementById('player-name')?.value||fallback;
+  return String(raw).replace(/[\u0000-\u001F\u007F]/g,'').trim().slice(0,24)||fallback;
+}
 let roomCode=null, isHost=false, onlineVsMode='speed', roomRef=null, roomUnsub=null, editingRoom=false, isSoloRoom=false;
 let onlineLevel=3, onlineSheetSeed=null, opponentId=null, onlineSongRef='builtin:ode', onlineSongState=null;
 let rhythmMode=false, rhythmBPM=80, rhythmStartMs=0, rhythmSchedule=[], rhythmRafId=null, flowMode=false;
@@ -6195,6 +6199,14 @@ window.addEventListener('appinstalled',()=>{
 });
 function setupAccessibility(){
   document.querySelectorAll('button:not([type])').forEach(el=>el.type='button');
+  document.querySelectorAll('.screen').forEach(el=>{
+    el.setAttribute('aria-hidden',el.classList.contains('active')?'false':'true');
+  });
+  document.querySelectorAll('input,select').forEach(el=>{
+    if(!el.hasAttribute('aria-label')&&!el.hasAttribute('aria-labelledby')){
+      el.setAttribute('aria-label',el.placeholder||el.id||el.name||'Input');
+    }
+  });
   document.querySelectorAll('[onclick]:not(button):not(a)').forEach(el=>{
     if(!el.hasAttribute('role')) el.setAttribute('role','button');
     if(!el.hasAttribute('tabindex')) el.tabIndex=0;
@@ -6215,6 +6227,11 @@ function setupAccessibility(){
   });
   const geminiKey=document.getElementById('gemini-key');
   if(geminiKey) geminiKey.setAttribute('aria-label','Gemini API Key');
+  const scoreCanvas=document.getElementById('cv');
+  if(scoreCanvas){
+    scoreCanvas.setAttribute('role','img');
+    scoreCanvas.setAttribute('aria-label',curLang==='en'?'Current music score':'当前五线谱');
+  }
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
